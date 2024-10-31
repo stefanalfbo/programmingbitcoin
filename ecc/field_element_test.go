@@ -1,7 +1,10 @@
 package ecc_test
 
 import (
+	"math/rand"
+	"reflect"
 	"testing"
+	"testing/quick"
 
 	"github.com/stefanalfbo/programmingbitcoin/ecc"
 )
@@ -117,6 +120,49 @@ func TestFieldElement(t *testing.T) {
 		expected, _ := ecc.NewFieldElement(10, 13)
 		if !c.Equals(expected) {
 			t.Errorf("Div: got %v, expected %v", c, expected)
+		}
+	})
+}
+
+func TestQuickProperties(t *testing.T) {
+	const prime = 257
+
+	makeRandomElementField := func(rnd *rand.Rand, except *ecc.FieldElement) *ecc.FieldElement {
+		for {
+			f, err := ecc.NewFieldElement(rnd.Intn(prime), prime)
+			if err != nil {
+				panic(err)
+			}
+
+			if except == nil || !f.Equals(except) {
+				return f
+			}
+		}
+	}
+
+	generateRandomElementFields := func(length int, except *ecc.FieldElement) func(output []reflect.Value, rnd *rand.Rand) {
+		return func(output []reflect.Value, rnd *rand.Rand) {
+			for i := 0; i < length; i++ {
+				output[i] = reflect.ValueOf(makeRandomElementField(rnd, except))
+			}
+		}
+	}
+
+	t.Run("associativity", func(t *testing.T) {
+		generator := generateRandomElementFields(3, nil)
+		f := func(a *ecc.FieldElement, b *ecc.FieldElement, c *ecc.FieldElement) bool {
+			// (a + b) + c = a + (b + c)
+			left1, _ := a.Add(b)
+			left, _ := left1.Add(c)
+
+			right1, _ := b.Add(c)
+			right, _ := a.Add(right1)
+
+			return left.Equals(right)
+		}
+		config := quick.Config{Values: generator}
+		if err := quick.Check(f, &config); err != nil {
+			t.Error(err)
 		}
 	})
 }
