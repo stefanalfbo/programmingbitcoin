@@ -248,4 +248,23 @@ func TestQuickProperties(t *testing.T) {
 			t.Error(err)
 		}
 	})
+
+	t.Run("distributive property", func(t *testing.T) {
+		generator := generateRandomElementFields(3, nil)
+		f := func(a *ecc.FieldElement, b *ecc.FieldElement, c *ecc.FieldElement) bool {
+			// a * (b + c) = a * b + a * c
+			left1, _ := b.Add(c)
+			left, _ := a.Mul(left1)
+
+			right1, _ := a.Mul(b)
+			right2, _ := a.Mul(c)
+			right, _ := right1.Add(right2)
+
+			return left.Equals(right)
+		}
+		config := quick.Config{Values: generator}
+		if err := quick.Check(f, &config); err != nil {
+			t.Error(err)
+		}
+	})
 }
