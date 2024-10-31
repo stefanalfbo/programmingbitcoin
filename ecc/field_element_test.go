@@ -98,6 +98,16 @@ func TestFieldElement(t *testing.T) {
 		}
 	})
 
+	t.Run("Pow with negative exponent", func(t *testing.T) {
+		a, _ := ecc.NewFieldElement(7, 13)
+		b, _ := a.Pow(-3)
+
+		expected, _ := ecc.NewFieldElement(8, 13)
+		if !b.Equals(expected) {
+			t.Errorf("Pow: got %v, expected %v", b, expected)
+		}
+	})
+
 	t.Run("Div", func(t *testing.T) {
 		a, _ := ecc.NewFieldElement(3, 13)
 		b, _ := ecc.NewFieldElement(12, 13)
