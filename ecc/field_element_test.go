@@ -129,7 +129,9 @@ func TestQuickProperties(t *testing.T) {
 
 	makeRandomElementField := func(rnd *rand.Rand, except *ecc.FieldElement) *ecc.FieldElement {
 		for {
-			f, err := ecc.NewFieldElement(rnd.Intn(prime), prime)
+			// Generate a random number between 1 and prime-1
+			number := rnd.Intn(prime-1) + 1
+			f, err := ecc.NewFieldElement(number, prime)
 			if err != nil {
 				panic(err)
 			}
