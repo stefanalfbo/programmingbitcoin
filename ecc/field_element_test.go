@@ -97,4 +97,16 @@ func TestFieldElement(t *testing.T) {
 			t.Errorf("Pow: got %v, expected %v", b, expected)
 		}
 	})
+
+	t.Run("Div", func(t *testing.T) {
+		a, _ := ecc.NewFieldElement(3, 13)
+		b, _ := ecc.NewFieldElement(12, 13)
+
+		c, _ := a.Div(b)
+
+		expected, _ := ecc.NewFieldElement(10, 13)
+		if !c.Equals(expected) {
+			t.Errorf("Div: got %v, expected %v", c, expected)
+		}
+	})
 }
