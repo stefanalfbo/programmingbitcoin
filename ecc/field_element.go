@@ -40,3 +40,13 @@ func (f *FieldElement) Add(other *FieldElement) (*FieldElement, error) {
 	number := (f.number + other.number) % f.prime
 	return NewFieldElement(number, f.prime)
 }
+
+// Subtract subtracts two field elements
+func (f *FieldElement) Subtract(other *FieldElement) (*FieldElement, error) {
+	if f.prime != other.prime {
+		return nil, errors.New("cannot subtract two numbers in different Fields")
+	}
+
+	number := (f.number - other.number + f.prime) % f.prime
+	return NewFieldElement(number, f.prime)
+}

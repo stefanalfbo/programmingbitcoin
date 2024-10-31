@@ -63,4 +63,16 @@ func TestFieldElement(t *testing.T) {
 			t.Errorf("Add: got %v, expected %v", c, expected)
 		}
 	})
+
+	t.Run("Subtract", func(t *testing.T) {
+		a, _ := ecc.NewFieldElement(7, 13)
+		b, _ := ecc.NewFieldElement(12, 13)
+
+		c, _ := a.Subtract(b)
+
+		expected, _ := ecc.NewFieldElement(8, 13)
+		if !c.Equals(expected) {
+			t.Errorf("Subtract: got %v, expected %v", c, expected)
+		}
+	})
 }
