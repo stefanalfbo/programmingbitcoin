@@ -23,6 +23,15 @@ func TestPoint(t *testing.T) {
 		}
 	})
 
+	t.Run("String", func(t *testing.T) {
+		p, _ := ecc.NewPoint(-1, -1, 5, 7)
+
+		expected := "Point(-1, -1)_5_7"
+		if p.String() != expected {
+			t.Errorf("String: got %v, expected %v", p.String(), expected)
+		}
+	})
+
 	t.Run("Equals", func(t *testing.T) {
 		p1, _ := ecc.NewPoint(-1, -1, 5, 7)
 		p2, _ := ecc.NewPoint(-1, -1, 5, 7)

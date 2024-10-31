@@ -1,7 +1,10 @@
 // Package ecc - Elliptic Curve Cryptography
 package ecc
 
-import "errors"
+import (
+	"errors"
+	"fmt"
+)
 
 type Point struct {
 	x,
@@ -19,6 +22,11 @@ func NewPoint(x, y, a, b int) (*Point, error) {
 	}
 
 	return &Point{x, y, a, b}, nil
+}
+
+// String returns the string representation of the point
+func (f *Point) String() string {
+	return fmt.Sprintf("Point(%d, %d)_%d_%d", f.x, f.y, f.a, f.b)
 }
 
 // Equals checks if two points are equal
