@@ -30,3 +30,13 @@ func (f *FieldElement) String() string {
 func (f *FieldElement) Equals(other *FieldElement) bool {
 	return f.number == other.number && f.prime == other.prime
 }
+
+// Add adds two field elements
+func (f *FieldElement) Add(other *FieldElement) (*FieldElement, error) {
+	if f.prime != other.prime {
+		return nil, errors.New("cannot add two numbers in different Fields")
+	}
+
+	number := (f.number + other.number) % f.prime
+	return NewFieldElement(number, f.prime)
+}

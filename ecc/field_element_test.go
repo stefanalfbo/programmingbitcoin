@@ -52,4 +52,15 @@ func TestFieldElement(t *testing.T) {
 		}
 	})
 
+	t.Run("Add", func(t *testing.T) {
+		a, _ := ecc.NewFieldElement(7, 13)
+		b, _ := ecc.NewFieldElement(12, 13)
+
+		c, _ := a.Add(b)
+
+		expected, _ := ecc.NewFieldElement(6, 13)
+		if !c.Equals(expected) {
+			t.Errorf("Add: got %v, expected %v", c, expected)
+		}
+	})
 }
