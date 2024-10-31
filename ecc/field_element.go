@@ -4,6 +4,7 @@ package ecc
 import (
 	"errors"
 	"fmt"
+	"math/big"
 )
 
 // FieldElement represents a field element in a prime field
@@ -59,4 +60,13 @@ func (f *FieldElement) Mul(other *FieldElement) (*FieldElement, error) {
 
 	number := (f.number * other.number) % f.prime
 	return NewFieldElement(number, f.prime)
+}
+
+// Pow raises a field element to a power.
+func (f *FieldElement) Pow(exponent int) (*FieldElement, error) {
+	number := new(big.Int).Exp(
+		big.NewInt(int64(f.number)),
+		big.NewInt(int64(exponent)),
+		big.NewInt(int64(f.prime)))
+	return NewFieldElement(int(number.Int64()), f.prime)
 }
