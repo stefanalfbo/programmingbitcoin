@@ -180,4 +180,19 @@ func TestQuickProperties(t *testing.T) {
 			t.Error(err)
 		}
 	})
+
+	t.Run("multiplication commutativity", func(t *testing.T) {
+		generator := generateRandomElementFields(2, nil)
+		f := func(a *ecc.FieldElement, b *ecc.FieldElement) bool {
+			// a * b = b * a
+			left, _ := a.Mul(b)
+			right, _ := b.Mul(a)
+
+			return left.Equals(right)
+		}
+		config := quick.Config{Values: generator}
+		if err := quick.Check(f, &config); err != nil {
+			t.Error(err)
+		}
+	})
 }
