@@ -195,4 +195,36 @@ func TestQuickProperties(t *testing.T) {
 			t.Error(err)
 		}
 	})
+
+	t.Run("add identity", func(t *testing.T) {
+		generator := generateRandomElementFields(1, nil)
+		f := func(a *ecc.FieldElement) bool {
+			// a + 0 = a
+			zero, _ := ecc.NewFieldElement(0, prime)
+
+			left, _ := a.Add(zero)
+
+			return left.Equals(a)
+		}
+		config := quick.Config{Values: generator}
+		if err := quick.Check(f, &config); err != nil {
+			t.Error(err)
+		}
+	})
+
+	t.Run("multiplication identity", func(t *testing.T) {
+		generator := generateRandomElementFields(1, nil)
+		f := func(a *ecc.FieldElement) bool {
+			// a * 1 = a
+			one, _ := ecc.NewFieldElement(1, prime)
+
+			left, _ := a.Mul(one)
+
+			return left.Equals(a)
+		}
+		config := quick.Config{Values: generator}
+		if err := quick.Check(f, &config); err != nil {
+			t.Error(err)
+		}
+	})
 }
