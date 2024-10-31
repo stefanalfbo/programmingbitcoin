@@ -75,4 +75,16 @@ func TestFieldElement(t *testing.T) {
 			t.Errorf("Subtract: got %v, expected %v", c, expected)
 		}
 	})
+
+	t.Run("Mul", func(t *testing.T) {
+		a, _ := ecc.NewFieldElement(3, 13)
+		b, _ := ecc.NewFieldElement(12, 13)
+
+		c, _ := a.Mul(b)
+
+		expected, _ := ecc.NewFieldElement(10, 13)
+		if !c.Equals(expected) {
+			t.Errorf("Mul: got %v, expected %v", c, expected)
+		}
+	})
 }

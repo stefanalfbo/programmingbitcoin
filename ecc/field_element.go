@@ -50,3 +50,13 @@ func (f *FieldElement) Subtract(other *FieldElement) (*FieldElement, error) {
 	number := (f.number - other.number + f.prime) % f.prime
 	return NewFieldElement(number, f.prime)
 }
+
+// Mul multiplies two field elements
+func (f *FieldElement) Mul(other *FieldElement) (*FieldElement, error) {
+	if f.prime != other.prime {
+		return nil, errors.New("cannot multiply two numbers in different Fields")
+	}
+
+	number := (f.number * other.number) % f.prime
+	return NewFieldElement(number, f.prime)
+}
