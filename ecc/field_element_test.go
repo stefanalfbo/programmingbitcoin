@@ -227,4 +227,25 @@ func TestQuickProperties(t *testing.T) {
 			t.Error(err)
 		}
 	})
+
+	t.Run("multiplicative inverse", func(t *testing.T) {
+		generator := generateRandomElementFields(1, nil)
+		f := func(a *ecc.FieldElement) bool {
+			// a * a^-1 = 1
+			one, _ := ecc.NewFieldElement(1, prime)
+
+			inverse, err := a.Pow(prime - 2)
+			if err != nil {
+				return false
+			}
+
+			left, _ := a.Mul(inverse)
+
+			return left.Equals(one)
+		}
+		config := quick.Config{Values: generator}
+		if err := quick.Check(f, &config); err != nil {
+			t.Error(err)
+		}
+	})
 }
