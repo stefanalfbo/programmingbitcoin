@@ -75,4 +75,41 @@ func TestPoint(t *testing.T) {
 			t.Errorf("Equals: got %v, expected %v", p1, p2)
 		}
 	})
+
+	t.Run("add points on the curve", func(t *testing.T) {
+		p1, _ := ecc.NewPoint(-1, -1, 5, 7)
+		p2, _ := ecc.NewPoint(2, 5, 5, 7)
+		expected, _ := ecc.NewPoint(3, -7, 5, 7)
+
+		result, err := p1.Add(p2)
+		if err != nil {
+			t.Errorf("Add: got error %v, expected nil", err)
+		}
+		if !result.Equals(expected) {
+			t.Errorf("Add: got %v, expected %v", result, expected)
+		}
+	})
+
+	t.Run("add two points not on the same curve", func(t *testing.T) {
+		p1, _ := ecc.NewPoint(-1, -1, 5, 7)
+		p2, _ := ecc.NewPoint(2, 1, -4, 1)
+
+		_, err := p1.Add(p2)
+		if err == nil {
+			t.Errorf("Add: expected error, got nil")
+		}
+	})
+
+	t.Run("add point to infinity", func(t *testing.T) {
+		p1 := ecc.NewInfinityPoint()
+		p2, _ := ecc.NewPoint(2, 5, 5, 7)
+
+		result, err := p1.Add(p2)
+		if err != nil {
+			t.Errorf("Add: got error %v, expected nil", err)
+		}
+		if !result.Equals(p2) {
+			t.Errorf("Add: got %v, expected %v", result, p2)
+		}
+	})
 }

@@ -44,3 +44,45 @@ func (f *Point) String() string {
 func (f *Point) Equals(other *Point) bool {
 	return f.x == other.x && f.y == other.y && f.a == other.a && f.b == other.b
 }
+
+// Add adds two points
+func (f *Point) Add(other *Point) (*Point, error) {
+	if !f.IsInfinity && !other.IsInfinity && (f.a != other.a || f.b != other.b) {
+		return nil, errors.New("cannot add two points which are not on the same curve")
+	}
+
+	if f.IsInfinity {
+		return other, nil
+	}
+
+	if other.IsInfinity {
+		return f, nil
+	}
+
+	// Additive inverses
+	if f.x == other.x && f.y != other.y {
+		return NewInfinityPoint(), nil
+	}
+
+	if f.x != other.x {
+		slope := (other.y - f.y) / (other.x - f.x)
+		x3 := slope*slope - f.x - other.x
+		y3 := slope*(f.x-x3) - f.y
+
+		return NewPoint(x3, y3, f.a, f.b)
+	}
+
+	if f.Equals(other) && f.y == 0 {
+		return NewInfinityPoint(), nil
+	}
+
+	if f.Equals(other) {
+		slope := (3*f.x*f.x + f.a) / (2 * f.y)
+		x3 := slope*slope - 2*f.x
+		y3 := slope*(f.x-x3) - f.y
+
+		return NewPoint(x3, y3, f.a, f.b)
+	}
+
+	return nil, errors.New("there is no support for adding these points")
+}
