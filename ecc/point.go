@@ -10,15 +10,18 @@ type Point struct {
 	x,
 	y,
 	a,
-	b int
+	b FieldElement
 	IsInfinity bool
 }
 
 // NewPoint creates a new point on the elliptic curve
-func NewPoint(x, y, a, b int) (*Point, error) {
+func NewPoint(x, y, a, b FieldElement) (*Point, error) {
 	// The canonical form of an elliptic curve is:
 	// y^2 = x^3 + ax + b
-	if y*y != x*x*x+a*x+b {
+	left := y.PowUnsafe(2)
+	right := x.PowUnsafe(3).AddUnsafe(x.MulUnsafe(&a)).AddUnsafe(&b)
+
+	if !left.Equals(right) {
 		return nil, errors.New("point is not on the curve")
 	}
 
@@ -42,12 +45,12 @@ func (f *Point) String() string {
 
 // Equals checks if two points are equal
 func (f *Point) Equals(other *Point) bool {
-	return f.x == other.x && f.y == other.y && f.a == other.a && f.b == other.b
+	return f.x.Equals(&other.x) && f.y.Equals(&other.y) && f.a.Equals(&other.a) && f.b.Equals(&other.b)
 }
 
 // Add adds two points
 func (f *Point) Add(other *Point) (*Point, error) {
-	if !f.IsInfinity && !other.IsInfinity && (f.a != other.a || f.b != other.b) {
+	if !f.IsInfinity && !other.IsInfinity && (!f.a.Equals(&other.a) || !f.b.Equals(&other.b)) {
 		return nil, errors.New("cannot add two points which are not on the same curve")
 	}
 
@@ -65,23 +68,29 @@ func (f *Point) Add(other *Point) (*Point, error) {
 	}
 
 	if f.x != other.x {
-		slope := (other.y - f.y) / (other.x - f.x)
-		x3 := slope*slope - f.x - other.x
-		y3 := slope*(f.x-x3) - f.y
+		y := other.y.SubtractUnsafe(&f.y)
+		x := other.x.SubtractUnsafe(&f.x)
+		slope := y.DivUnsafe(x)
+		x3 := slope.PowUnsafe(2).SubtractUnsafe(&f.x).SubtractUnsafe(&other.x)
+		y3 := slope.MulUnsafe(f.x.SubtractUnsafe(x3)).SubtractUnsafe(&f.y)
 
-		return NewPoint(x3, y3, f.a, f.b)
+		return NewPoint(*x3, *y3, f.a, f.b)
 	}
 
-	if f.Equals(other) && f.y == 0 {
+	zero, _ := NewFieldElement(0, f.x.prime)
+
+	if f.Equals(other) && f.y.Equals(zero) {
 		return NewInfinityPoint(), nil
 	}
 
 	if f.Equals(other) {
-		slope := (3*f.x*f.x + f.a) / (2 * f.y)
-		x3 := slope*slope - 2*f.x
-		y3 := slope*(f.x-x3) - f.y
+		dividend := f.x.PowUnsafe(2).ScalarMulUnsafe(3).AddUnsafe(&f.a)
+		divisor := f.y.ScalarMulUnsafe(2)
+		slope := dividend.DivUnsafe(divisor)
+		x3 := slope.PowUnsafe(2).SubtractUnsafe(f.x.ScalarMulUnsafe(2))
+		y3 := slope.MulUnsafe(f.x.SubtractUnsafe(x3)).SubtractUnsafe(&f.y)
 
-		return NewPoint(x3, y3, f.a, f.b)
+		return NewPoint(*x3, *y3, f.a, f.b)
 	}
 
 	return nil, errors.New("there is no support for adding these points")

@@ -42,6 +42,16 @@ func (f *FieldElement) Add(other *FieldElement) (*FieldElement, error) {
 	return NewFieldElement(number, f.prime)
 }
 
+// AddUnsafe adds two field elements without error checking
+func (f *FieldElement) AddUnsafe(other *FieldElement) *FieldElement {
+	sum, err := f.Add(other)
+	if err != nil {
+		panic(err)
+	}
+
+	return sum
+}
+
 // Subtract subtracts two field elements
 func (f *FieldElement) Subtract(other *FieldElement) (*FieldElement, error) {
 	if f.prime != other.prime {
@@ -50,6 +60,16 @@ func (f *FieldElement) Subtract(other *FieldElement) (*FieldElement, error) {
 
 	number := (f.number - other.number + f.prime) % f.prime
 	return NewFieldElement(number, f.prime)
+}
+
+// SubtractUnsafe subtracts two field elements without error checking
+func (f *FieldElement) SubtractUnsafe(other *FieldElement) *FieldElement {
+	difference, err := f.Subtract(other)
+	if err != nil {
+		panic(err)
+	}
+
+	return difference
 }
 
 // Mul multiplies two field elements
@@ -62,6 +82,32 @@ func (f *FieldElement) Mul(other *FieldElement) (*FieldElement, error) {
 	return NewFieldElement(number, f.prime)
 }
 
+// MulUnsafe multiplies two field elements without error checking
+func (f *FieldElement) MulUnsafe(other *FieldElement) *FieldElement {
+	product, err := f.Mul(other)
+	if err != nil {
+		panic(err)
+	}
+
+	return product
+}
+
+// Scalar multiplication multiplies a field element by a scalar
+func (f *FieldElement) ScalarMul(scalar int) (*FieldElement, error) {
+	number := (f.number * scalar) % f.prime
+	return NewFieldElement(number, f.prime)
+}
+
+// ScalarMulUnsafe multiplies a field element by a scalar without error checking
+func (f *FieldElement) ScalarMulUnsafe(scalar int) *FieldElement {
+	product, err := f.ScalarMul(scalar)
+	if err != nil {
+		panic(err)
+	}
+
+	return product
+}
+
 // Pow raises a field element to a power.
 func (f *FieldElement) Pow(exponent int) (*FieldElement, error) {
 	number := new(big.Int).Exp(
@@ -69,6 +115,16 @@ func (f *FieldElement) Pow(exponent int) (*FieldElement, error) {
 		big.NewInt(int64(exponent)),
 		big.NewInt(int64(f.prime)))
 	return NewFieldElement(int(number.Int64()), f.prime)
+}
+
+// PowUnsafe raises a field element to a power without error checking.
+func (f *FieldElement) PowUnsafe(exponent int) *FieldElement {
+	pow, err := f.Pow(exponent)
+	if err != nil {
+		panic(err)
+	}
+
+	return pow
 }
 
 // Div divides two field elements.
@@ -91,4 +147,14 @@ func (f *FieldElement) Div(other *FieldElement) (*FieldElement, error) {
 	}
 
 	return f.Mul(pow)
+}
+
+// DivUnsafe divides two field elements without error checking.
+func (f *FieldElement) DivUnsafe(other *FieldElement) *FieldElement {
+	quotient, err := f.Div(other)
+	if err != nil {
+		panic(err)
+	}
+
+	return quotient
 }

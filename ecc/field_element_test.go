@@ -67,6 +67,18 @@ func TestFieldElement(t *testing.T) {
 		}
 	})
 
+	t.Run("AddUnsafe", func(t *testing.T) {
+		a, _ := ecc.NewFieldElement(7, 13)
+		b, _ := ecc.NewFieldElement(12, 13)
+
+		c := a.AddUnsafe(b)
+
+		expected, _ := ecc.NewFieldElement(6, 13)
+		if !c.Equals(expected) {
+			t.Errorf("AddUnsafe: got %v, expected %v", c, expected)
+		}
+	})
+
 	t.Run("Subtract", func(t *testing.T) {
 		a, _ := ecc.NewFieldElement(7, 13)
 		b, _ := ecc.NewFieldElement(12, 13)
@@ -76,6 +88,18 @@ func TestFieldElement(t *testing.T) {
 		expected, _ := ecc.NewFieldElement(8, 13)
 		if !c.Equals(expected) {
 			t.Errorf("Subtract: got %v, expected %v", c, expected)
+		}
+	})
+
+	t.Run("SubtractUnsafe", func(t *testing.T) {
+		a, _ := ecc.NewFieldElement(7, 13)
+		b, _ := ecc.NewFieldElement(12, 13)
+
+		c := a.SubtractUnsafe(b)
+
+		expected, _ := ecc.NewFieldElement(8, 13)
+		if !c.Equals(expected) {
+			t.Errorf("SubtractUnsafe: got %v, expected %v", c, expected)
 		}
 	})
 
@@ -91,9 +115,51 @@ func TestFieldElement(t *testing.T) {
 		}
 	})
 
+	t.Run("MulUnsafe", func(t *testing.T) {
+		a, _ := ecc.NewFieldElement(3, 13)
+		b, _ := ecc.NewFieldElement(12, 13)
+
+		c := a.MulUnsafe(b)
+
+		expected, _ := ecc.NewFieldElement(10, 13)
+		if !c.Equals(expected) {
+			t.Errorf("MulUnsafe: got %v, expected %v", c, expected)
+		}
+	})
+
+	t.Run("ScalarMul", func(t *testing.T) {
+		a, _ := ecc.NewFieldElement(3, 13)
+		b, _ := a.ScalarMul(3)
+
+		expected, _ := ecc.NewFieldElement(9, 13)
+		if !b.Equals(expected) {
+			t.Errorf("ScalarMul: got %v, expected %v", b, expected)
+		}
+	})
+
+	t.Run("ScalarMulUnsafe", func(t *testing.T) {
+		a, _ := ecc.NewFieldElement(3, 13)
+		b := a.ScalarMulUnsafe(3)
+
+		expected, _ := ecc.NewFieldElement(9, 13)
+		if !b.Equals(expected) {
+			t.Errorf("ScalarMulUnsafe: got %v, expected %v", b, expected)
+		}
+	})
+
 	t.Run("Pow", func(t *testing.T) {
 		a, _ := ecc.NewFieldElement(3, 13)
 		b, _ := a.Pow(3)
+
+		expected, _ := ecc.NewFieldElement(1, 13)
+		if !b.Equals(expected) {
+			t.Errorf("Pow: got %v, expected %v", b, expected)
+		}
+	})
+
+	t.Run("PowUnsafe", func(t *testing.T) {
+		a, _ := ecc.NewFieldElement(3, 13)
+		b := a.PowUnsafe(3)
 
 		expected, _ := ecc.NewFieldElement(1, 13)
 		if !b.Equals(expected) {
@@ -120,6 +186,18 @@ func TestFieldElement(t *testing.T) {
 		expected, _ := ecc.NewFieldElement(10, 13)
 		if !c.Equals(expected) {
 			t.Errorf("Div: got %v, expected %v", c, expected)
+		}
+	})
+
+	t.Run("DivUnsafe", func(t *testing.T) {
+		a, _ := ecc.NewFieldElement(3, 13)
+		b, _ := ecc.NewFieldElement(12, 13)
+
+		c := a.DivUnsafe(b)
+
+		expected, _ := ecc.NewFieldElement(10, 13)
+		if !c.Equals(expected) {
+			t.Errorf("DivUnsafe: got %v, expected %v", c, expected)
 		}
 	})
 }
