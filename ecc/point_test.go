@@ -126,4 +126,16 @@ func TestPoint(t *testing.T) {
 			t.Errorf("Add: got %v, expected %v", result, p2)
 		}
 	})
+
+	t.Run("scalar multiplication", func(t *testing.T) {
+		x, _ := ecc.NewFieldElement(15, prime)
+		y, _ := ecc.NewFieldElement(86, prime)
+		p, _ := ecc.NewPoint(*x, *y, *a, *b)
+		expected := ecc.NewInfinityPoint()
+
+		result, _ := p.ScalarMul(7)
+		if !result.Equals(expected) {
+			t.Errorf("ScalarMul: got %v, expected %v", result, expected)
+		}
+	})
 }

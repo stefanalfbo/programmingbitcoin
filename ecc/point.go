@@ -95,3 +95,19 @@ func (f *Point) Add(other *Point) (*Point, error) {
 
 	return nil, errors.New("there is no support for adding these points")
 }
+
+// ScalarMul multiplies a point by a scalar
+func (f *Point) ScalarMul(scalar int) (*Point, error) {
+	product := NewInfinityPoint()
+
+	for i := 0; i < scalar; i++ {
+		result, err := product.Add(f)
+		if err != nil {
+			return nil, err
+		}
+
+		product = result
+	}
+
+	return product, nil
+}
