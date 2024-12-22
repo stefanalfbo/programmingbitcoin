@@ -101,10 +101,11 @@ func TestPoint(t *testing.T) {
 	})
 
 	t.Run("add two points not on the same curve", func(t *testing.T) {
-		t.Skip("Needs to be figured out, is not working as expected, probably because of the use of unsafe operations")
-		a1, _ := ecc.NewFieldElement(3, prime)
-		b1, _ := ecc.NewFieldElement(4, prime)
 		p1, _ := ecc.NewPoint(*x1, *y1, *a, *b)
+		a1, _ := ecc.NewFieldElement(5, prime)
+		b1, _ := ecc.NewFieldElement(7, prime)
+		x2, _ := ecc.NewFieldElement(18, prime)
+		y2, _ := ecc.NewFieldElement(77, prime)
 		p2, _ := ecc.NewPoint(*x2, *y2, *a1, *b1)
 
 		_, err := p1.Add(p2)
