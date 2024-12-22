@@ -97,17 +97,23 @@ func (f *Point) Add(other *Point) (*Point, error) {
 }
 
 // ScalarMul multiplies a point by a scalar
-func (f *Point) ScalarMul(scalar int) (*Point, error) {
-	product := NewInfinityPoint()
+func (f *Point) ScalarMul(coefficient int) (*Point, error) {
+	result := NewInfinityPoint()
 
-	for i := 0; i < scalar; i++ {
-		result, err := product.Add(f)
+	for coefficient > 0 {
+		if coefficient&1 == 1 {
+			tmp, err := result.Add(f)
+			if err != nil {
+				return nil, err
+			}
+			result = tmp
+		}
+		tmp, err := f.Add(f)
 		if err != nil {
 			return nil, err
 		}
-
-		product = result
+		f = tmp
+		coefficient >>= 1
 	}
-
-	return product, nil
+	return result, nil
 }
