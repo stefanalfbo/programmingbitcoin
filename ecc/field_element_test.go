@@ -1,6 +1,7 @@
 package ecc_test
 
 import (
+	"math/big"
 	"math/rand"
 	"reflect"
 	"testing"
@@ -11,8 +12,7 @@ import (
 
 func TestFieldElement(t *testing.T) {
 	t.Run("NewFieldElement is valid", func(t *testing.T) {
-		a, err := ecc.NewFieldElement(7, 13)
-
+		a, err := ecc.NewFieldElement(big.NewInt(7), big.NewInt(13))
 		if err != nil {
 			t.Errorf("NewFieldElement: got error %v, expected nil", err)
 		}
@@ -22,7 +22,7 @@ func TestFieldElement(t *testing.T) {
 	})
 
 	t.Run("NewFieldElement is not valid", func(t *testing.T) {
-		_, err := ecc.NewFieldElement(14, 13)
+		_, err := ecc.NewFieldElement(big.NewInt(14), big.NewInt(13))
 
 		if err == nil {
 			t.Errorf("NewFieldElement: expected error, got nil")
@@ -30,7 +30,7 @@ func TestFieldElement(t *testing.T) {
 	})
 
 	t.Run("String", func(t *testing.T) {
-		a, _ := ecc.NewFieldElement(7, 13)
+		a, _ := ecc.NewFieldElement(big.NewInt(7), big.NewInt(13))
 
 		expected := "FieldElement_13(7)"
 		if a.String() != expected {
@@ -39,8 +39,8 @@ func TestFieldElement(t *testing.T) {
 	})
 
 	t.Run("not equal", func(t *testing.T) {
-		a, _ := ecc.NewFieldElement(7, 13)
-		b, _ := ecc.NewFieldElement(6, 14)
+		a, _ := ecc.NewFieldElement(big.NewInt(7), big.NewInt(13))
+		b, _ := ecc.NewFieldElement(big.NewInt(6), big.NewInt(14))
 
 		if a.Equals(b) {
 			t.Errorf("Equals: got %v, expected %v", a, b)
@@ -48,7 +48,7 @@ func TestFieldElement(t *testing.T) {
 	})
 
 	t.Run("equal", func(t *testing.T) {
-		a, _ := ecc.NewFieldElement(7, 13)
+		a, _ := ecc.NewFieldElement(big.NewInt(7), big.NewInt(13))
 
 		if !a.Equals(a) {
 			t.Errorf("Equals: got %v, expected %v", a, a)
@@ -56,146 +56,146 @@ func TestFieldElement(t *testing.T) {
 	})
 
 	t.Run("Add", func(t *testing.T) {
-		a, _ := ecc.NewFieldElement(7, 13)
-		b, _ := ecc.NewFieldElement(12, 13)
+		a, _ := ecc.NewFieldElement(big.NewInt(7), big.NewInt(13))
+		b, _ := ecc.NewFieldElement(big.NewInt(12), big.NewInt(13))
 
 		c, _ := a.Add(b)
 
-		expected, _ := ecc.NewFieldElement(6, 13)
+		expected, _ := ecc.NewFieldElement(big.NewInt(6), big.NewInt(13))
 		if !c.Equals(expected) {
 			t.Errorf("Add: got %v, expected %v", c, expected)
 		}
 	})
 
 	t.Run("AddUnsafe", func(t *testing.T) {
-		a, _ := ecc.NewFieldElement(7, 13)
-		b, _ := ecc.NewFieldElement(12, 13)
+		a, _ := ecc.NewFieldElement(big.NewInt(7), big.NewInt(13))
+		b, _ := ecc.NewFieldElement(big.NewInt(12), big.NewInt(13))
 
 		c := a.AddUnsafe(b)
 
-		expected, _ := ecc.NewFieldElement(6, 13)
+		expected, _ := ecc.NewFieldElement(big.NewInt(6), big.NewInt(13))
 		if !c.Equals(expected) {
 			t.Errorf("AddUnsafe: got %v, expected %v", c, expected)
 		}
 	})
 
 	t.Run("Subtract", func(t *testing.T) {
-		a, _ := ecc.NewFieldElement(7, 13)
-		b, _ := ecc.NewFieldElement(12, 13)
+		a, _ := ecc.NewFieldElement(big.NewInt(7), big.NewInt(13))
+		b, _ := ecc.NewFieldElement(big.NewInt(12), big.NewInt(13))
 
 		c, _ := a.Subtract(b)
 
-		expected, _ := ecc.NewFieldElement(8, 13)
+		expected, _ := ecc.NewFieldElement(big.NewInt(8), big.NewInt(13))
 		if !c.Equals(expected) {
 			t.Errorf("Subtract: got %v, expected %v", c, expected)
 		}
 	})
 
 	t.Run("SubtractUnsafe", func(t *testing.T) {
-		a, _ := ecc.NewFieldElement(7, 13)
-		b, _ := ecc.NewFieldElement(12, 13)
+		a, _ := ecc.NewFieldElement(big.NewInt(7), big.NewInt(13))
+		b, _ := ecc.NewFieldElement(big.NewInt(12), big.NewInt(13))
 
 		c := a.SubtractUnsafe(b)
 
-		expected, _ := ecc.NewFieldElement(8, 13)
+		expected, _ := ecc.NewFieldElement(big.NewInt(8), big.NewInt(13))
 		if !c.Equals(expected) {
 			t.Errorf("SubtractUnsafe: got %v, expected %v", c, expected)
 		}
 	})
 
 	t.Run("Mul", func(t *testing.T) {
-		a, _ := ecc.NewFieldElement(3, 13)
-		b, _ := ecc.NewFieldElement(12, 13)
+		a, _ := ecc.NewFieldElement(big.NewInt(3), big.NewInt(13))
+		b, _ := ecc.NewFieldElement(big.NewInt(12), big.NewInt(13))
 
 		c, _ := a.Mul(b)
 
-		expected, _ := ecc.NewFieldElement(10, 13)
+		expected, _ := ecc.NewFieldElement(big.NewInt(10), big.NewInt(13))
 		if !c.Equals(expected) {
 			t.Errorf("Mul: got %v, expected %v", c, expected)
 		}
 	})
 
 	t.Run("MulUnsafe", func(t *testing.T) {
-		a, _ := ecc.NewFieldElement(3, 13)
-		b, _ := ecc.NewFieldElement(12, 13)
+		a, _ := ecc.NewFieldElement(big.NewInt(3), big.NewInt(13))
+		b, _ := ecc.NewFieldElement(big.NewInt(12), big.NewInt(13))
 
 		c := a.MulUnsafe(b)
 
-		expected, _ := ecc.NewFieldElement(10, 13)
+		expected, _ := ecc.NewFieldElement(big.NewInt(10), big.NewInt(13))
 		if !c.Equals(expected) {
 			t.Errorf("MulUnsafe: got %v, expected %v", c, expected)
 		}
 	})
 
 	t.Run("ScalarMul", func(t *testing.T) {
-		a, _ := ecc.NewFieldElement(3, 13)
+		a, _ := ecc.NewFieldElement(big.NewInt(3), big.NewInt(13))
 		b, _ := a.ScalarMul(3)
 
-		expected, _ := ecc.NewFieldElement(9, 13)
+		expected, _ := ecc.NewFieldElement(big.NewInt(9), big.NewInt(13))
 		if !b.Equals(expected) {
 			t.Errorf("ScalarMul: got %v, expected %v", b, expected)
 		}
 	})
 
 	t.Run("ScalarMulUnsafe", func(t *testing.T) {
-		a, _ := ecc.NewFieldElement(3, 13)
+		a, _ := ecc.NewFieldElement(big.NewInt(3), big.NewInt(13))
 		b := a.ScalarMulUnsafe(3)
 
-		expected, _ := ecc.NewFieldElement(9, 13)
+		expected, _ := ecc.NewFieldElement(big.NewInt(9), big.NewInt(13))
 		if !b.Equals(expected) {
 			t.Errorf("ScalarMulUnsafe: got %v, expected %v", b, expected)
 		}
 	})
 
 	t.Run("Pow", func(t *testing.T) {
-		a, _ := ecc.NewFieldElement(3, 13)
+		a, _ := ecc.NewFieldElement(big.NewInt(3), big.NewInt(13))
 		b, _ := a.Pow(3)
 
-		expected, _ := ecc.NewFieldElement(1, 13)
+		expected, _ := ecc.NewFieldElement(big.NewInt(1), big.NewInt(13))
 		if !b.Equals(expected) {
 			t.Errorf("Pow: got %v, expected %v", b, expected)
 		}
 	})
 
 	t.Run("PowUnsafe", func(t *testing.T) {
-		a, _ := ecc.NewFieldElement(3, 13)
+		a, _ := ecc.NewFieldElement(big.NewInt(3), big.NewInt(13))
 		b := a.PowUnsafe(3)
 
-		expected, _ := ecc.NewFieldElement(1, 13)
+		expected, _ := ecc.NewFieldElement(big.NewInt(1), big.NewInt(13))
 		if !b.Equals(expected) {
 			t.Errorf("Pow: got %v, expected %v", b, expected)
 		}
 	})
 
 	t.Run("Pow with negative exponent", func(t *testing.T) {
-		a, _ := ecc.NewFieldElement(7, 13)
+		a, _ := ecc.NewFieldElement(big.NewInt(7), big.NewInt(13))
 		b, _ := a.Pow(-3)
 
-		expected, _ := ecc.NewFieldElement(8, 13)
+		expected, _ := ecc.NewFieldElement(big.NewInt(8), big.NewInt(13))
 		if !b.Equals(expected) {
 			t.Errorf("Pow: got %v, expected %v", b, expected)
 		}
 	})
 
 	t.Run("Div", func(t *testing.T) {
-		a, _ := ecc.NewFieldElement(3, 13)
-		b, _ := ecc.NewFieldElement(12, 13)
+		a, _ := ecc.NewFieldElement(big.NewInt(3), big.NewInt(13))
+		b, _ := ecc.NewFieldElement(big.NewInt(12), big.NewInt(13))
 
 		c, _ := a.Div(b)
 
-		expected, _ := ecc.NewFieldElement(10, 13)
+		expected, _ := ecc.NewFieldElement(big.NewInt(10), big.NewInt(13))
 		if !c.Equals(expected) {
 			t.Errorf("Div: got %v, expected %v", c, expected)
 		}
 	})
 
 	t.Run("DivUnsafe", func(t *testing.T) {
-		a, _ := ecc.NewFieldElement(3, 13)
-		b, _ := ecc.NewFieldElement(12, 13)
+		a, _ := ecc.NewFieldElement(big.NewInt(3), big.NewInt(13))
+		b, _ := ecc.NewFieldElement(big.NewInt(12), big.NewInt(13))
 
 		c := a.DivUnsafe(b)
 
-		expected, _ := ecc.NewFieldElement(10, 13)
+		expected, _ := ecc.NewFieldElement(big.NewInt(10), big.NewInt(13))
 		if !c.Equals(expected) {
 			t.Errorf("DivUnsafe: got %v, expected %v", c, expected)
 		}
@@ -209,7 +209,7 @@ func TestQuickProperties(t *testing.T) {
 		for {
 			// Generate a random number between 1 and prime-1
 			number := rnd.Intn(prime-1) + 1
-			f, err := ecc.NewFieldElement(number, prime)
+			f, err := ecc.NewFieldElement(big.NewInt(int64(number)), big.NewInt(prime))
 			if err != nil {
 				panic(err)
 			}
@@ -280,7 +280,7 @@ func TestQuickProperties(t *testing.T) {
 		generator := generateRandomElementFields(1, nil)
 		f := func(a *ecc.FieldElement) bool {
 			// a + 0 = a
-			zero, _ := ecc.NewFieldElement(0, prime)
+			zero, _ := ecc.NewFieldElement(big.NewInt(0), big.NewInt(prime))
 
 			left, _ := a.Add(zero)
 
@@ -296,7 +296,7 @@ func TestQuickProperties(t *testing.T) {
 		generator := generateRandomElementFields(1, nil)
 		f := func(a *ecc.FieldElement) bool {
 			// a * 1 = a
-			one, _ := ecc.NewFieldElement(1, prime)
+			one, _ := ecc.NewFieldElement(big.NewInt(1), big.NewInt(prime))
 
 			left, _ := a.Mul(one)
 
@@ -312,7 +312,7 @@ func TestQuickProperties(t *testing.T) {
 		generator := generateRandomElementFields(1, nil)
 		f := func(a *ecc.FieldElement) bool {
 			// a * a^-1 = 1
-			one, _ := ecc.NewFieldElement(1, prime)
+			one, _ := ecc.NewFieldElement(big.NewInt(1), big.NewInt(prime))
 
 			inverse, err := a.Pow(prime - 2)
 			if err != nil {

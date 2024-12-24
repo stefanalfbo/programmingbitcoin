@@ -9,13 +9,13 @@ import (
 
 // FieldElement represents a field element in a prime field
 type FieldElement struct {
-	number int
-	prime  int
+	number *big.Int
+	prime  *big.Int
 }
 
 // NewFieldElement creates a new field element
-func NewFieldElement(number, prime int) (*FieldElement, error) {
-	if number >= prime || number < 0 {
+func NewFieldElement(number, prime *big.Int) (*FieldElement, error) {
+	if number.Cmp(prime) >= 0 || number.Cmp(big.NewInt(0)) < 0 {
 		return nil, errors.New("number not in field range")
 	}
 
@@ -29,16 +29,17 @@ func (f *FieldElement) String() string {
 
 // Equals checks if two field elements are equal
 func (f *FieldElement) Equals(other *FieldElement) bool {
-	return f.number == other.number && f.prime == other.prime
+	return f.number.Cmp(other.number) == 0 && f.prime.Cmp(other.prime) == 0
 }
 
 // Add adds two field elements
 func (f *FieldElement) Add(other *FieldElement) (*FieldElement, error) {
-	if f.prime != other.prime {
+	if f.prime.Cmp(other.prime) != 0 {
 		return nil, errors.New("cannot add two numbers in different Fields")
 	}
 
-	number := (f.number + other.number) % f.prime
+	number := new(big.Int).Add(f.number, other.number)
+	number.Mod(number, f.prime)
 	return NewFieldElement(number, f.prime)
 }
 
@@ -54,11 +55,13 @@ func (f *FieldElement) AddUnsafe(other *FieldElement) *FieldElement {
 
 // Subtract subtracts two field elements
 func (f *FieldElement) Subtract(other *FieldElement) (*FieldElement, error) {
-	if f.prime != other.prime {
+	if f.prime.Cmp(other.prime) != 0 {
 		return nil, errors.New("cannot subtract two numbers in different Fields")
 	}
 
-	number := (f.number - other.number + f.prime) % f.prime
+	number := new(big.Int).Sub(f.number, other.number)
+	number.Add(number, f.prime)
+	number.Mod(number, f.prime)
 	return NewFieldElement(number, f.prime)
 }
 
@@ -74,11 +77,12 @@ func (f *FieldElement) SubtractUnsafe(other *FieldElement) *FieldElement {
 
 // Mul multiplies two field elements
 func (f *FieldElement) Mul(other *FieldElement) (*FieldElement, error) {
-	if f.prime != other.prime {
+	if f.prime.Cmp(other.prime) != 0 {
 		return nil, errors.New("cannot multiply two numbers in different Fields")
 	}
 
-	number := (f.number * other.number) % f.prime
+	number := new(big.Int).Mul(f.number, other.number)
+	number.Mod(number, f.prime)
 	return NewFieldElement(number, f.prime)
 }
 
@@ -94,7 +98,9 @@ func (f *FieldElement) MulUnsafe(other *FieldElement) *FieldElement {
 
 // Scalar multiplication multiplies a field element by a scalar
 func (f *FieldElement) ScalarMul(scalar int) (*FieldElement, error) {
-	number := (f.number * scalar) % f.prime
+	scalarBigInt := big.NewInt(int64(scalar))
+	number := new(big.Int).Mul(f.number, scalarBigInt)
+	number.Mod(number, f.prime)
 	return NewFieldElement(number, f.prime)
 }
 
@@ -111,10 +117,10 @@ func (f *FieldElement) ScalarMulUnsafe(scalar int) *FieldElement {
 // Pow raises a field element to a power.
 func (f *FieldElement) Pow(exponent int) (*FieldElement, error) {
 	number := new(big.Int).Exp(
-		big.NewInt(int64(f.number)),
+		f.number,
 		big.NewInt(int64(exponent)),
-		big.NewInt(int64(f.prime)))
-	return NewFieldElement(int(number.Int64()), f.prime)
+		f.prime)
+	return NewFieldElement(number, f.prime)
 }
 
 // PowUnsafe raises a field element to a power without error checking.
@@ -129,7 +135,7 @@ func (f *FieldElement) PowUnsafe(exponent int) *FieldElement {
 
 // Div divides two field elements.
 func (f *FieldElement) Div(other *FieldElement) (*FieldElement, error) {
-	if f.prime != other.prime {
+	if f.prime.Cmp(other.prime) != 0 {
 		return nil, errors.New("cannot divide two numbers in different Fields")
 	}
 
@@ -141,7 +147,9 @@ func (f *FieldElement) Div(other *FieldElement) (*FieldElement, error) {
 
 		1/number == number^(prime-2) % prime
 	*/
-	pow, err := other.Pow(f.prime - 2)
+	two := big.NewInt(2)
+	primeMinusTwo := new(big.Int).Sub(f.prime, two)
+	pow, err := other.Pow(int(primeMinusTwo.Int64()))
 	if err != nil {
 		return nil, err
 	}

@@ -4,6 +4,7 @@ package ecc
 import (
 	"errors"
 	"fmt"
+	"math/big"
 )
 
 type Point struct {
@@ -39,12 +40,17 @@ func (f *Point) String() string {
 	if f.IsInfinity {
 		return "Point(infinity)"
 	}
-
-	return fmt.Sprintf("Point(%d, %d)_%d_%d", f.x, f.y, f.a, f.b)
+	return fmt.Sprintf("Point(%s, %s)_%s_%s", f.x.String(), f.y.String(), f.a.String(), f.b.String())
 }
 
 // Equals checks if two points are equal
 func (f *Point) Equals(other *Point) bool {
+	if f.IsInfinity && other.IsInfinity {
+		return true
+	} else if f.IsInfinity || other.IsInfinity {
+		return false
+	}
+
 	return f.x.Equals(&other.x) && f.y.Equals(&other.y) && f.a.Equals(&other.a) && f.b.Equals(&other.b)
 }
 
@@ -63,11 +69,11 @@ func (f *Point) Add(other *Point) (*Point, error) {
 	}
 
 	// Additive inverses
-	if f.x == other.x && f.y != other.y {
+	if f.x.Equals(&other.x) && !f.y.Equals(&other.y) {
 		return NewInfinityPoint(), nil
 	}
 
-	if f.x != other.x {
+	if !f.x.Equals(&other.x) {
 		y := other.y.SubtractUnsafe(&f.y)
 		x := other.x.SubtractUnsafe(&f.x)
 		slope := y.DivUnsafe(x)
@@ -77,7 +83,7 @@ func (f *Point) Add(other *Point) (*Point, error) {
 		return NewPoint(*x3, *y3, f.a, f.b)
 	}
 
-	zero, _ := NewFieldElement(0, f.x.prime)
+	zero, _ := NewFieldElement(big.NewInt(0), f.x.prime)
 
 	if f.Equals(other) && f.y.Equals(zero) {
 		return NewInfinityPoint(), nil
@@ -97,11 +103,11 @@ func (f *Point) Add(other *Point) (*Point, error) {
 }
 
 // ScalarMul multiplies a point by a scalar
-func (f *Point) ScalarMul(coefficient int) (*Point, error) {
+func (f *Point) ScalarMul(coefficient *big.Int) (*Point, error) {
 	result := NewInfinityPoint()
 
-	for coefficient > 0 {
-		if coefficient&1 == 1 {
+	for coefficient.Cmp(big.NewInt(0)) > 0 {
+		if coefficient.Bit(0) == 1 {
 			tmp, err := result.Add(f)
 			if err != nil {
 				return nil, err
@@ -113,7 +119,7 @@ func (f *Point) ScalarMul(coefficient int) (*Point, error) {
 			return nil, err
 		}
 		f = tmp
-		coefficient >>= 1
+		coefficient = new(big.Int).Rsh(coefficient, 1)
 	}
 	return result, nil
 }
