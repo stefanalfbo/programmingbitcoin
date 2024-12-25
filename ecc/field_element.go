@@ -116,9 +116,11 @@ func (f *FieldElement) ScalarMulUnsafe(scalar int) *FieldElement {
 
 // Pow raises a field element to a power.
 func (f *FieldElement) Pow(exponent int) (*FieldElement, error) {
+	exponentBigInt := big.NewInt(int64(exponent))
+	n := new(big.Int).Mod(exponentBigInt, new(big.Int).Sub(f.prime, big.NewInt(1)))
 	number := new(big.Int).Exp(
 		f.number,
-		big.NewInt(int64(exponent)),
+		n,
 		f.prime)
 	return NewFieldElement(number, f.prime)
 }
