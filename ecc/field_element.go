@@ -115,9 +115,8 @@ func (f *FieldElement) ScalarMulUnsafe(scalar int) *FieldElement {
 }
 
 // Pow raises a field element to a power.
-func (f *FieldElement) Pow(exponent int) (*FieldElement, error) {
-	exponentBigInt := big.NewInt(int64(exponent))
-	n := new(big.Int).Mod(exponentBigInt, new(big.Int).Sub(f.prime, big.NewInt(1)))
+func (f *FieldElement) Pow(exponent *big.Int) (*FieldElement, error) {
+	n := new(big.Int).Mod(exponent, new(big.Int).Sub(f.prime, big.NewInt(1)))
 	number := new(big.Int).Exp(
 		f.number,
 		n,
@@ -126,7 +125,7 @@ func (f *FieldElement) Pow(exponent int) (*FieldElement, error) {
 }
 
 // PowUnsafe raises a field element to a power without error checking.
-func (f *FieldElement) PowUnsafe(exponent int) *FieldElement {
+func (f *FieldElement) PowUnsafe(exponent *big.Int) *FieldElement {
 	pow, err := f.Pow(exponent)
 	if err != nil {
 		panic(err)
@@ -151,7 +150,7 @@ func (f *FieldElement) Div(other *FieldElement) (*FieldElement, error) {
 	*/
 	two := big.NewInt(2)
 	primeMinusTwo := new(big.Int).Sub(f.prime, two)
-	pow, err := other.Pow(int(primeMinusTwo.Int64()))
+	pow, err := other.Pow(primeMinusTwo)
 	if err != nil {
 		return nil, err
 	}

@@ -149,7 +149,7 @@ func TestFieldElement(t *testing.T) {
 
 	t.Run("Pow", func(t *testing.T) {
 		a, _ := ecc.NewFieldElement(big.NewInt(3), big.NewInt(13))
-		b, _ := a.Pow(3)
+		b, _ := a.Pow(big.NewInt(3))
 
 		expected, _ := ecc.NewFieldElement(big.NewInt(1), big.NewInt(13))
 		if !b.Equals(expected) {
@@ -159,7 +159,7 @@ func TestFieldElement(t *testing.T) {
 
 	t.Run("PowUnsafe", func(t *testing.T) {
 		a, _ := ecc.NewFieldElement(big.NewInt(3), big.NewInt(13))
-		b := a.PowUnsafe(3)
+		b := a.PowUnsafe(big.NewInt(3))
 
 		expected, _ := ecc.NewFieldElement(big.NewInt(1), big.NewInt(13))
 		if !b.Equals(expected) {
@@ -169,7 +169,7 @@ func TestFieldElement(t *testing.T) {
 
 	t.Run("Pow with negative exponent", func(t *testing.T) {
 		a, _ := ecc.NewFieldElement(big.NewInt(7), big.NewInt(13))
-		b, _ := a.Pow(-3)
+		b, _ := a.Pow(big.NewInt(-3))
 
 		expected, _ := ecc.NewFieldElement(big.NewInt(8), big.NewInt(13))
 		if !b.Equals(expected) {
@@ -314,7 +314,7 @@ func TestQuickProperties(t *testing.T) {
 			// a * a^-1 = 1
 			one, _ := ecc.NewFieldElement(big.NewInt(1), big.NewInt(prime))
 
-			inverse, err := a.Pow(prime - 2)
+			inverse, err := a.Pow(big.NewInt(prime - 2))
 			if err != nil {
 				return false
 			}

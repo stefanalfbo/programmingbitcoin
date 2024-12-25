@@ -142,4 +142,20 @@ func TestPoint(t *testing.T) {
 			t.Errorf("ScalarMul: got %v, expected %v", result, expected)
 		}
 	})
+
+	t.Run("verify that point G has the order n of the curve secp256k1", func(t *testing.T) {
+		x, _ := ecc.NewFieldElement(ecc.Secp256k1.Gx, ecc.Secp256k1.Prime)
+		y, _ := ecc.NewFieldElement(ecc.Secp256k1.Gy, ecc.Secp256k1.Prime)
+		seven, _ := ecc.NewFieldElement(big.NewInt(7), ecc.Secp256k1.Prime)
+		zero, _ := ecc.NewFieldElement(big.NewInt(0), ecc.Secp256k1.Prime)
+		G, _ := ecc.NewPoint(*x, *y, *zero, *seven)
+
+		result, err := G.ScalarMul(ecc.Secp256k1.N)
+		if err != nil {
+			t.Errorf("ScalarMul: got error %v, expected nil", err)
+		}
+		if !result.IsInfinity {
+			t.Errorf("ScalarMul: got %v, expected infinite", result)
+		}
+	})
 }

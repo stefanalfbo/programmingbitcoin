@@ -19,8 +19,8 @@ type Point struct {
 func NewPoint(x, y, a, b FieldElement) (*Point, error) {
 	// The canonical form of an elliptic curve is:
 	// y^2 = x^3 + ax + b
-	left := y.PowUnsafe(2)
-	right := x.PowUnsafe(3).AddUnsafe(x.MulUnsafe(&a)).AddUnsafe(&b)
+	left := y.PowUnsafe(big.NewInt(2))
+	right := x.PowUnsafe(big.NewInt(3)).AddUnsafe(x.MulUnsafe(&a)).AddUnsafe(&b)
 
 	if !left.Equals(right) {
 		return nil, errors.New("point is not on the curve")
@@ -77,23 +77,23 @@ func (f *Point) Add(other *Point) (*Point, error) {
 		y := other.y.SubtractUnsafe(&f.y)
 		x := other.x.SubtractUnsafe(&f.x)
 		slope := y.DivUnsafe(x)
-		x3 := slope.PowUnsafe(2).SubtractUnsafe(&f.x).SubtractUnsafe(&other.x)
+		x3 := slope.PowUnsafe(big.NewInt(2)).SubtractUnsafe(&f.x).SubtractUnsafe(&other.x)
 		y3 := slope.MulUnsafe(f.x.SubtractUnsafe(x3)).SubtractUnsafe(&f.y)
 
 		return NewPoint(*x3, *y3, f.a, f.b)
 	}
 
-	zero, _ := NewFieldElement(big.NewInt(0), f.x.prime)
+	zero := f.x.ScalarMulUnsafe(0) //NewFieldElement(big.NewInt(0), f.x.prime)
 
 	if f.Equals(other) && f.y.Equals(zero) {
 		return NewInfinityPoint(), nil
 	}
 
 	if f.Equals(other) {
-		dividend := f.x.PowUnsafe(2).ScalarMulUnsafe(3).AddUnsafe(&f.a)
+		dividend := f.x.PowUnsafe(big.NewInt(2)).ScalarMulUnsafe(3).AddUnsafe(&f.a)
 		divisor := f.y.ScalarMulUnsafe(2)
 		slope := dividend.DivUnsafe(divisor)
-		x3 := slope.PowUnsafe(2).SubtractUnsafe(f.x.ScalarMulUnsafe(2))
+		x3 := slope.PowUnsafe(big.NewInt(2)).SubtractUnsafe(f.x.ScalarMulUnsafe(2))
 		y3 := slope.MulUnsafe(f.x.SubtractUnsafe(x3)).SubtractUnsafe(&f.y)
 
 		return NewPoint(*x3, *y3, f.a, f.b)
