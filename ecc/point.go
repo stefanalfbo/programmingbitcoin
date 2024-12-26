@@ -123,3 +123,7 @@ func (f *Point) ScalarMul(coefficient *big.Int) (*Point, error) {
 	}
 	return result, nil
 }
+
+func (f *Point) XNum() *big.Int {
+	return f.x.number
+}
