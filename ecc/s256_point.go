@@ -54,3 +54,25 @@ func (f *S256Point) ScalarMul(coefficient *big.Int) (*S256Point, error) {
 
 	return &S256Point{*p}, nil
 }
+
+func (f *S256Point) Verify(z *big.Int, sig *Signature) (bool, error) {
+	s_inv := new(big.Int).Exp(sig.S, new(big.Int).Sub(Secp256k1.N, big.NewInt(2)), Secp256k1.N)
+	u := new(big.Int).Mod(new(big.Int).Mul(z, s_inv), Secp256k1.N)
+	v := new(big.Int).Mod(new(big.Int).Mul(sig.R, s_inv), Secp256k1.N)
+
+	ug, err := G.ScalarMul(u)
+	if err != nil {
+		return false, err
+	}
+	v_point, err := f.ScalarMul(v)
+	if err != nil {
+		return false, err
+	}
+
+	total, err := ug.Add(&v_point.Point)
+	if err != nil {
+		return false, err
+	}
+
+	return total.XNum().Cmp(sig.R) == 0, nil
+}
