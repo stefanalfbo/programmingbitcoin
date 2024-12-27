@@ -94,3 +94,25 @@ func (f *S256Point) Verify(z *big.Int, sig *Signature) (bool, error) {
 
 	return total.XNum().Cmp(sig.R) == 0, nil
 }
+
+// Returns the binary representation of the SEC (Standards for Efficient Cryptography) format
+func (f *S256Point) SEC() []byte {
+	if f.IsInfinity {
+		return []byte{0x00}
+	}
+
+	return append([]byte{0x04}, append(f.x.number.Bytes(), f.y.number.Bytes()...)...)
+}
+
+// Returns the binary representation of the compressed SEC (Standards for Efficient Cryptography) format
+func (f *S256Point) SECCompressed() []byte {
+	if f.IsInfinity {
+		return []byte{0x00}
+	}
+
+	if f.y.number.Bit(0) == 0 {
+		return append([]byte{0x02}, f.x.number.Bytes()...)
+	}
+
+	return append([]byte{0x03}, f.x.number.Bytes()...)
+}

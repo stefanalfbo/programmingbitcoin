@@ -45,6 +45,30 @@ func TestS256Point(t *testing.T) {
 			t.Errorf("Verify: got %v, expected true", valid)
 		}
 	})
+
+	t.Run("SEC", func(t *testing.T) {
+		coefficient := new(big.Int).Exp(big.NewInt(999), big.NewInt(3), nil)
+		uncompressed := "049d5ca49670cbe4c3bfa84c96a8c87df086c6ea6a24ba6b809c9de234496808d56fa15cc7f3d38cda98dee2419f415b7513dde1301f8643cd9245aea7f3f911f9"
+		point, _ := ecc.G.ScalarMul(coefficient)
+
+		sec := point.SEC()
+
+		if hex.EncodeToString(sec) != uncompressed {
+			t.Errorf("SEC: got %v, expected %v", hex.EncodeToString(sec), uncompressed)
+		}
+	})
+
+	t.Run("SEC compressed", func(t *testing.T) {
+		coefficient := new(big.Int).Exp(big.NewInt(999), big.NewInt(3), nil)
+		compressed := "039d5ca49670cbe4c3bfa84c96a8c87df086c6ea6a24ba6b809c9de234496808d5"
+		point, _ := ecc.G.ScalarMul(coefficient)
+
+		secCompressed := point.SECCompressed()
+
+		if hex.EncodeToString(secCompressed) != compressed {
+			t.Errorf("SECCompressed: got %v, expected %v", hex.EncodeToString(secCompressed), compressed)
+		}
+	})
 }
 
 func TestVerifyingASignature(t *testing.T) {
