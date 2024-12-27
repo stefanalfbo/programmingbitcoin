@@ -1,7 +1,10 @@
 // Package ecc - Elliptic Curve Cryptography
 package ecc
 
-import "math/big"
+import (
+	"fmt"
+	"math/big"
+)
 
 type S256Point struct {
 	Point
@@ -40,6 +43,21 @@ func NewS256Point(x, y *S256Field) (*S256Point, error) {
 
 	return &S256Point{*point}, nil
 
+}
+
+func (f *S256Point) String() string {
+	if f.IsInfinity {
+		return "S256Point(infinity)"
+	}
+	x, err := NewS256Field(f.x.number)
+	if err != nil {
+		return ""
+	}
+	y, err := NewS256Field(f.y.number)
+	if err != nil {
+		return ""
+	}
+	return fmt.Sprintf("S256Point(%s, %s)", x.String(), y.String())
 }
 
 // ScalarMul multiplies a point by a scalar
