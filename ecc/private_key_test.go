@@ -157,4 +157,44 @@ func TestPrivateKey(t *testing.T) {
 			}
 		}
 	})
+
+	t.Run("WIF", func(t *testing.T) {
+		tests := []struct {
+			secret       *big.Int
+			isCompressed bool
+			isTestnet    bool
+			wif          string
+		}{
+			{
+				secret:       big.NewInt(5003),
+				isCompressed: true,
+				isTestnet:    true,
+				wif:          "cMahea7zqjxrtgAbB7LSGbcQUr1uX1ojuat9jZodMN8rFTv2sfUK",
+			},
+			{
+				secret:       new(big.Int).Exp(big.NewInt(2021), big.NewInt(5), nil),
+				isCompressed: false,
+				isTestnet:    true,
+				wif:          "91avARGdfge8E4tZfYLoxeJ5sGBdNJQH4kvjpWAxgzczjbCwxic",
+			},
+			{
+				secret:       big.NewInt(0x54321deadbeef),
+				isCompressed: true,
+				isTestnet:    false,
+				wif:          "KwDiBf89QgGbjEhKnhXJuH7LrciVrZi3qYjgiuQJv1h8Ytr2S53a",
+			},
+		}
+
+		for _, test := range tests {
+			privateKey, err := ecc.NewPrivateKey(test.secret)
+			if err != nil {
+				t.Fatalf("NewPrivateKey: got error %v, expected nil", err)
+			}
+
+			wif := privateKey.WIF(test.isCompressed, test.isTestnet)
+			if wif != test.wif {
+				t.Errorf("WIF: got %v, expected %v", wif, test.wif)
+			}
+		}
+	})
 }

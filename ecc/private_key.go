@@ -7,6 +7,8 @@ import (
 	"crypto/sha256"
 	"fmt"
 	"math/big"
+
+	"github.com/stefanalfbo/programmingbitcoin/encoding/base58"
 )
 
 type PrivateKey struct {
@@ -106,4 +108,21 @@ func (pk *PrivateKey) SECCompressed() []byte {
 
 func (pk *PrivateKey) Address(isCompressed, isTestnet bool) string {
 	return pk.point.Address(isCompressed, isTestnet)
+}
+
+// WIF (Wallet Import Format) is a way to encode the private key to make it easier to copy
+func (pk *PrivateKey) WIF(isCompressed, isTestnet bool) string {
+	s := pk.secret.FillBytes(make([]byte, 32))
+
+	if isTestnet {
+		s = append([]byte{0xef}, s...)
+	} else {
+		s = append([]byte{0x80}, s...)
+	}
+
+	if isCompressed {
+		s = append(s, 0x01)
+	}
+
+	return base58.Checksum(s)
 }
