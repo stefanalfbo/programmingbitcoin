@@ -93,3 +93,13 @@ func (pk *PrivateKey) Verify(z *big.Int, signature *Signature) (bool, error) {
 
 	return result, nil
 }
+
+// Returns the binary representation of the SEC (Standards for Efficient Cryptography) format
+func (pk *PrivateKey) SECUncompressed() []byte {
+	return pk.point.SEC()
+}
+
+// Returns the binary representation of the compressed SEC (Standards for Efficient Cryptography) format
+func (pk *PrivateKey) SECCompressed() []byte {
+	return pk.point.SECCompressed()
+}
