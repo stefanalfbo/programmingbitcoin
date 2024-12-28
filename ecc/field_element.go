@@ -167,3 +167,15 @@ func (f *FieldElement) DivUnsafe(other *FieldElement) *FieldElement {
 
 	return quotient
 }
+
+func (f *FieldElement) Sqrt() (*FieldElement, error) {
+	sum := new(big.Int).Add(f.prime, big.NewInt(1))
+	exponent := new(big.Int).Div(sum, big.NewInt(4))
+
+	result, err := f.Pow(exponent)
+	if err != nil {
+		return nil, err
+	}
+
+	return result, nil
+}

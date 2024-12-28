@@ -69,6 +69,36 @@ func TestS256Point(t *testing.T) {
 			t.Errorf("SECCompressed: got %v, expected %v", hex.EncodeToString(secCompressed), compressed)
 		}
 	})
+
+	t.Run("Parse uncompressed SEC format", func(t *testing.T) {
+		coefficient := new(big.Int).Exp(big.NewInt(999), big.NewInt(3), nil)
+		point, _ := ecc.G.ScalarMul(coefficient)
+		sec := point.SEC()
+
+		parsedPoint, err := ecc.G.Parse(sec)
+		if err != nil {
+			t.Errorf("Parse: got error %v, expected nil", err)
+		}
+
+		if parsedPoint.String() != point.String() {
+			t.Errorf("Parse: got %v, expected %v", parsedPoint.String(), point.String())
+		}
+	})
+
+	t.Run("Parse compressed SEC format", func(t *testing.T) {
+		coefficient := new(big.Int).Exp(big.NewInt(999), big.NewInt(3), nil)
+		point, _ := ecc.G.ScalarMul(coefficient)
+		secCompressed := point.SECCompressed()
+
+		parsedPoint, err := ecc.G.Parse(secCompressed)
+		if err != nil {
+			t.Errorf("Parse: got error %v, expected nil", err)
+		}
+
+		if parsedPoint.String() != point.String() {
+			t.Errorf("Parse: got %v, expected %v", parsedPoint.String(), point.String())
+		}
+	})
 }
 
 func TestVerifyingASignature(t *testing.T) {

@@ -116,3 +116,84 @@ func (f *S256Point) SECCompressed() []byte {
 
 	return append([]byte{0x03}, f.x.number.Bytes()...)
 }
+
+// Parse parses a binary representation of the SEC (Standards for Efficient Cryptography) format
+func (f *S256Point) Parse(sec []byte) (*S256Point, error) {
+	// if len(sec) == 0 {
+	// 	return NewInfinityPoint(), nil
+	// }
+
+	if isUncompressed(sec) {
+		x := new(big.Int).SetBytes(sec[1:33])
+		y := new(big.Int).SetBytes(sec[33:65])
+
+		xField, err := NewS256Field(x)
+		if err != nil {
+			return nil, err
+		}
+		yField, err := NewS256Field(y)
+		if err != nil {
+			return nil, err
+		}
+
+		return NewS256Point(xField, yField)
+	}
+
+	isEven := sec[0] == 2
+
+	x := new(big.Int).SetBytes(sec[1:])
+	xField, err := NewS256Field(x)
+	if err != nil {
+		return nil, err
+	}
+
+	// Right side of the equation y^2 = x^3 + 7
+	b, err := NewS256Field(Secp256k1.B)
+	if err != nil {
+		return nil, err
+	}
+	x3, err := xField.Pow(big.NewInt(3))
+	if err != nil {
+		return nil, err
+	}
+	alpha, err := x3.Add(&b.FieldElement)
+	if err != nil {
+		return nil, err
+	}
+	// Solve for left side of the equation
+	beta, err := alpha.Sqrt()
+	if err != nil {
+		return nil, err
+	}
+
+	var evenBeta, oddBeta *S256Field
+	if beta.number.Bit(0) == 0x00 {
+		evenBeta, err = NewS256Field(beta.number)
+		if err != nil {
+			return nil, err
+		}
+		oddBeta, err = NewS256Field(new(big.Int).Sub(Secp256k1.Prime, beta.number))
+		if err != nil {
+			return nil, err
+		}
+	} else {
+		evenBeta, err = NewS256Field(new(big.Int).Sub(Secp256k1.Prime, beta.number))
+		if err != nil {
+			return nil, err
+		}
+		oddBeta, err = NewS256Field(beta.number)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	if isEven {
+		return NewS256Point(xField, evenBeta)
+	}
+
+	return NewS256Point(xField, oddBeta)
+}
+
+func isUncompressed(sec []byte) bool {
+	return sec[0] == 0x04
+}
