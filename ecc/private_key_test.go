@@ -85,4 +85,36 @@ func TestPrivateKey(t *testing.T) {
 			}
 		}
 	})
+
+	t.Run("Find the compressed SEC format for the given private keys", func(t *testing.T) {
+		tests := []struct {
+			secret     *big.Int
+			compressed string
+		}{
+			{
+				secret:     big.NewInt(5001),
+				compressed: "0357a4f368868a8a6d572991e484e664810ff14c05c0fa023275251151fe0e53d1",
+			},
+			{
+				secret:     new(big.Int).Exp(big.NewInt(2019), big.NewInt(5), nil),
+				compressed: "02933ec2d2b111b92737ec12f1c5d20f3233a0ad21cd8b36d0bca7a0cfa5cb8701",
+			},
+			{
+				secret:     big.NewInt(0xdeadbeef54321),
+				compressed: "0296be5b1292f6c856b3c5654e886fc13511462059089cdf9c479623bfcbe77690",
+			},
+		}
+
+		for _, test := range tests {
+			privateKey, err := ecc.NewPrivateKey(test.secret)
+			if err != nil {
+				t.Fatalf("NewPrivateKey: got error %v, expected nil", err)
+			}
+
+			compressed := hex.EncodeToString(privateKey.SECCompressed())
+			if compressed != test.compressed {
+				t.Errorf("Compressed: got %v, expected %v", compressed, test.compressed)
+			}
+		}
+	})
 }
