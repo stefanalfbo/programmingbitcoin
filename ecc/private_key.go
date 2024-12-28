@@ -103,3 +103,7 @@ func (pk *PrivateKey) SECUncompressed() []byte {
 func (pk *PrivateKey) SECCompressed() []byte {
 	return pk.point.SECCompressed()
 }
+
+func (pk *PrivateKey) Address(isCompressed, isTestnet bool) string {
+	return pk.point.Address(isCompressed, isTestnet)
+}

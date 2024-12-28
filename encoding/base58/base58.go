@@ -1,7 +1,10 @@
 // Package base58 implements base58 encoding as used in Bitcoin.
 package base58
 
-import "math/big"
+import (
+	"crypto/sha256"
+	"math/big"
+)
 
 var base58Alphabet = []byte("123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz")
 
@@ -36,4 +39,28 @@ func Encode(s []byte) string {
 	}
 
 	return string(append(prefix, encoded...))
+}
+
+func hash256(data []byte) []byte {
+	h := sha256.New()
+	_, err := h.Write([]byte(data))
+	if err != nil {
+		return nil
+	}
+	firstRound := h.Sum(nil)
+	h.Reset()
+
+	_, err = h.Write(firstRound)
+	if err != nil {
+		return nil
+	}
+
+	return h.Sum(nil)
+}
+
+func Checksum(data []byte) string {
+	hash := hash256(data)
+	dataWithChecksum := append(data, hash[:4]...)
+
+	return Encode(dataWithChecksum)
 }

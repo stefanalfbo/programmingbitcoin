@@ -2,8 +2,12 @@
 package ecc
 
 import (
+	"crypto/sha256"
 	"fmt"
 	"math/big"
+
+	"github.com/stefanalfbo/programmingbitcoin/encoding/base58"
+	"golang.org/x/crypto/ripemd160"
 )
 
 type S256Point struct {
@@ -45,15 +49,15 @@ func NewS256Point(x, y *S256Field) (*S256Point, error) {
 
 }
 
-func (f *S256Point) String() string {
-	if f.IsInfinity {
+func (p *S256Point) String() string {
+	if p.IsInfinity {
 		return "S256Point(infinity)"
 	}
-	x, err := NewS256Field(f.x.number)
+	x, err := NewS256Field(p.x.number)
 	if err != nil {
 		return ""
 	}
-	y, err := NewS256Field(f.y.number)
+	y, err := NewS256Field(p.y.number)
 	if err != nil {
 		return ""
 	}
@@ -61,19 +65,19 @@ func (f *S256Point) String() string {
 }
 
 // ScalarMul multiplies a point by a scalar
-func (f *S256Point) ScalarMul(coefficient *big.Int) (*S256Point, error) {
+func (p *S256Point) ScalarMul(coefficient *big.Int) (*S256Point, error) {
 
 	c := new(big.Int).Mod(coefficient, Secp256k1.N)
 
-	p, err := f.Point.ScalarMul(c)
+	scalarPoint, err := p.Point.ScalarMul(c)
 	if err != nil {
 		return nil, err
 	}
 
-	return &S256Point{*p}, nil
+	return &S256Point{*scalarPoint}, nil
 }
 
-func (f *S256Point) Verify(z *big.Int, sig *Signature) (bool, error) {
+func (p *S256Point) Verify(z *big.Int, sig *Signature) (bool, error) {
 	s_inv := new(big.Int).Exp(sig.S, new(big.Int).Sub(Secp256k1.N, big.NewInt(2)), Secp256k1.N)
 	u := new(big.Int).Mod(new(big.Int).Mul(z, s_inv), Secp256k1.N)
 	v := new(big.Int).Mod(new(big.Int).Mul(sig.R, s_inv), Secp256k1.N)
@@ -82,7 +86,7 @@ func (f *S256Point) Verify(z *big.Int, sig *Signature) (bool, error) {
 	if err != nil {
 		return false, err
 	}
-	v_point, err := f.ScalarMul(v)
+	v_point, err := p.ScalarMul(v)
 	if err != nil {
 		return false, err
 	}
@@ -96,29 +100,29 @@ func (f *S256Point) Verify(z *big.Int, sig *Signature) (bool, error) {
 }
 
 // Returns the binary representation of the SEC (Standards for Efficient Cryptography) format
-func (f *S256Point) SEC() []byte {
-	if f.IsInfinity {
+func (p *S256Point) SEC() []byte {
+	if p.IsInfinity {
 		return []byte{0x00}
 	}
 
-	return append([]byte{0x04}, append(f.x.number.Bytes(), f.y.number.Bytes()...)...)
+	return append([]byte{0x04}, append(p.x.number.Bytes(), p.y.number.Bytes()...)...)
 }
 
 // Returns the binary representation of the compressed SEC (Standards for Efficient Cryptography) format
-func (f *S256Point) SECCompressed() []byte {
-	if f.IsInfinity {
+func (p *S256Point) SECCompressed() []byte {
+	if p.IsInfinity {
 		return []byte{0x00}
 	}
 
-	if f.y.number.Bit(0) == 0 {
-		return append([]byte{0x02}, f.x.number.Bytes()...)
+	if p.y.number.Bit(0) == 0 {
+		return append([]byte{0x02}, p.x.number.Bytes()...)
 	}
 
-	return append([]byte{0x03}, f.x.number.Bytes()...)
+	return append([]byte{0x03}, p.x.number.Bytes()...)
 }
 
 // Parse parses a binary representation of the SEC (Standards for Efficient Cryptography) format
-func (f *S256Point) Parse(sec []byte) (*S256Point, error) {
+func (p *S256Point) Parse(sec []byte) (*S256Point, error) {
 	// if len(sec) == 0 {
 	// 	return NewInfinityPoint(), nil
 	// }
@@ -196,4 +200,34 @@ func (f *S256Point) Parse(sec []byte) (*S256Point, error) {
 
 func isUncompressed(sec []byte) bool {
 	return sec[0] == 0x04
+}
+
+// SHA256 followed by RIPEMD-160
+func hash160(data []byte) []byte {
+	sha256Hasher := sha256.New()
+	sha256Hasher.Write(data)
+	sha256Hash := sha256Hasher.Sum(nil)
+
+	ripemd160Hasher := ripemd160.New()
+	ripemd160Hasher.Write(sha256Hash)
+	return ripemd160Hasher.Sum(nil)
+}
+
+func (p *S256Point) Hash160(isCompressed bool) []byte {
+	if isCompressed {
+		return hash160(p.SECCompressed())
+	}
+
+	return hash160(p.SEC())
+}
+
+// Address returns the address of the point
+func (p *S256Point) Address(isCompressed bool, isTestnet bool) string {
+	hash := p.Hash160(isCompressed)
+
+	if isTestnet {
+		return base58.Checksum(append([]byte{0x6f}, hash...))
+	}
+
+	return base58.Checksum(append([]byte{0x00}, hash...))
 }

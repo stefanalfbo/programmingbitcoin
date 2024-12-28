@@ -117,4 +117,44 @@ func TestPrivateKey(t *testing.T) {
 			}
 		}
 	})
+
+	t.Run("Address", func(t *testing.T) {
+		tests := []struct {
+			secret       *big.Int
+			isCompressed bool
+			isTestnet    bool
+			address      string
+		}{
+			{
+				secret:       big.NewInt(5002),
+				isCompressed: false,
+				isTestnet:    true,
+				address:      "mmTPbXQFxboEtNRkwfh6K51jvdtHLxGeMA",
+			},
+			{
+				secret:       new(big.Int).Exp(big.NewInt(2020), big.NewInt(5), nil),
+				isCompressed: true,
+				isTestnet:    true,
+				address:      "mopVkxp8UhXqRYbCYJsbeE1h1fiF64jcoH",
+			},
+			{
+				secret:       big.NewInt(0x12345deadbeef),
+				isCompressed: true,
+				isTestnet:    false,
+				address:      "1F1Pn2y6pDb68E5nYJJeba4TLg2U7B6KF1",
+			},
+		}
+
+		for _, test := range tests {
+			privateKey, err := ecc.NewPrivateKey(test.secret)
+			if err != nil {
+				t.Fatalf("NewPrivateKey: got error %v, expected nil", err)
+			}
+
+			address := privateKey.Address(test.isCompressed, test.isTestnet)
+			if address != test.address {
+				t.Errorf("Address: got %v, expected %v", address, test.address)
+			}
+		}
+	})
 }
