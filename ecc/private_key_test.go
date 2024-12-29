@@ -2,11 +2,13 @@ package ecc_test
 
 import (
 	"crypto/rand"
+	"crypto/sha256"
 	"encoding/hex"
 	"math/big"
 	"testing"
 
 	"github.com/stefanalfbo/programmingbitcoin/ecc"
+	"github.com/stefanalfbo/programmingbitcoin/encoding/endian"
 )
 
 func TestPrivateKey(t *testing.T) {
@@ -197,4 +199,37 @@ func TestPrivateKey(t *testing.T) {
 			}
 		}
 	})
+}
+
+func TestCreateTestnetAddress(t *testing.T) {
+	// TODO: Extract this to a package level function, duplicated on several places
+	hash256 := func(msg string) *big.Int {
+		h := sha256.New()
+		_, err := h.Write([]byte(msg))
+		if err != nil {
+			return nil
+		}
+		firstRound := h.Sum(nil)
+		h.Reset()
+
+		_, err = h.Write(firstRound)
+		if err != nil {
+			return nil
+		}
+
+		return new(big.Int).SetBytes(h.Sum(nil))
+	}
+
+	passphrase := "stefan@alfbo.se my secret"
+	secret := endian.LittleEndianToBigInt(hash256(passphrase).Bytes())
+	privateKey, err := ecc.NewPrivateKey(secret)
+	if err != nil {
+		t.Fatalf("NewPrivateKey: got error %v, expected nil", err)
+	}
+
+	address := privateKey.Address(true, true)
+	expected := "mkoxbQEyJWRkUoAZVeF79gdMvwqwpCR7mE"
+	if address != expected {
+		t.Errorf("Address: got %v, expected %v", address, expected)
+	}
 }
