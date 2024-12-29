@@ -2,12 +2,10 @@
 package ecc
 
 import (
-	"crypto/sha256"
 	"fmt"
 	"math/big"
 
 	"github.com/stefanalfbo/programmingbitcoin/encoding/base58"
-	"golang.org/x/crypto/ripemd160"
 )
 
 type S256Point struct {
@@ -202,23 +200,12 @@ func isUncompressed(sec []byte) bool {
 	return sec[0] == 0x04
 }
 
-// SHA256 followed by RIPEMD-160
-func hash160(data []byte) []byte {
-	sha256Hasher := sha256.New()
-	sha256Hasher.Write(data)
-	sha256Hash := sha256Hasher.Sum(nil)
-
-	ripemd160Hasher := ripemd160.New()
-	ripemd160Hasher.Write(sha256Hash)
-	return ripemd160Hasher.Sum(nil)
-}
-
 func (p *S256Point) Hash160(isCompressed bool) []byte {
 	if isCompressed {
-		return hash160(p.SECCompressed())
+		return Hash160(p.SECCompressed())
 	}
 
-	return hash160(p.SEC())
+	return Hash160(p.SEC())
 }
 
 // Address returns the address of the point

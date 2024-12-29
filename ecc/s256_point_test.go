@@ -1,7 +1,6 @@
 package ecc_test
 
 import (
-	"crypto/sha256"
 	"encoding/hex"
 	"math/big"
 	"testing"
@@ -124,24 +123,7 @@ func TestVerifyingASignature(t *testing.T) {
 }
 
 func TestCreateASignature(t *testing.T) {
-	hash256 := func(msg string) *big.Int {
-		h := sha256.New()
-		_, err := h.Write([]byte(msg))
-		if err != nil {
-			return nil
-		}
-		firstRound := h.Sum(nil)
-		h.Reset()
-
-		_, err = h.Write(firstRound)
-		if err != nil {
-			return nil
-		}
-
-		return new(big.Int).SetBytes(h.Sum(nil))
-	}
-
-	e := hash256("my secret")
+	e := ecc.Hash256("my secret")
 	point, _ := ecc.G.ScalarMul(e)
 
 	expected := "S256Point(028d003eab2e428d11983f3e97c3fa0addf3b42740df0d211795ffb3be2f6c52, 0ae987b9ec6ea159c78cb2a937ed89096fb218d9e7594f02b547526d8cd309e2)"
@@ -149,7 +131,7 @@ func TestCreateASignature(t *testing.T) {
 		t.Errorf("got %v, expected %v", point.String(), expected)
 	}
 
-	z := hash256("my message")
+	z := ecc.Hash256("my message")
 	k := big.NewInt(1234567890)
 	kG, _ := ecc.G.ScalarMul(k)
 	r := kG.XNum()
