@@ -30,14 +30,26 @@ func (tx *Tx) hash() []byte {
 }
 
 func Parse(data io.Reader) (*Tx, error) {
-	v := make([]byte, 4)
-
-	_, err := data.Read(v)
+	version, err := parseVersion(data)
 	if err != nil {
 		return nil, err
 	}
 
-	version := endian.LittleEndianToInt32(v)
+	_, err = ParseTxInputs(data)
+	if err != nil {
+		return nil, err
+	}
 
 	return NewTx(version), nil
+}
+
+func parseVersion(data io.Reader) (int32, error) {
+	v := make([]byte, 4)
+
+	_, err := data.Read(v)
+	if err != nil {
+		return 0, err
+	}
+
+	return endian.LittleEndianToInt32(v), nil
 }
