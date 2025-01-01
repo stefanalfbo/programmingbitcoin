@@ -16,6 +16,15 @@ type TxInput struct {
 	Sequence  *big.Int
 }
 
+func NewTxInput(prevTx []byte, prevIndex *big.Int, scriptSig []byte, sequence *big.Int) *TxInput {
+	return &TxInput{
+		prevTx,
+		prevIndex,
+		scriptSig,
+		sequence,
+	}
+}
+
 func (txIn *TxInput) String() string {
 	return fmt.Sprintf("%x:%d", txIn.PrevTx, txIn.PrevIndex)
 }
@@ -28,7 +37,7 @@ func ParseTxInputs(data io.Reader) ([]*TxInput, error) {
 
 	inputs := make([]*TxInput, numberOfInputs.Int64())
 	for i := 0; i < int(numberOfInputs.Int64()); i++ {
-		txInput, err := ParseTxInput(data)
+		txInput, err := parseTxInput(data)
 		if err != nil {
 			return nil, err
 		}
@@ -39,7 +48,7 @@ func ParseTxInputs(data io.Reader) ([]*TxInput, error) {
 	return inputs, nil
 }
 
-func ParseTxInput(data io.Reader) (*TxInput, error) {
+func parseTxInput(data io.Reader) (*TxInput, error) {
 	previousTx := make([]byte, 32)
 	_, err := data.Read(previousTx)
 	if err != nil {
