@@ -79,3 +79,16 @@ func parseTxInput(data io.Reader) (*TxInput, error) {
 		endian.LittleEndianToBigInt(sequence),
 	}, nil
 }
+
+// Returns the byte serialization of the transaction input.
+func (txIn *TxInput) Serialize() []byte {
+	result := make([]byte, 0)
+
+	result = append(result, txIn.PrevTx...)
+	result = append(result, endian.BigIntToLittleEndian(txIn.PrevIndex, 4)...)
+	// TODO: Implement the serialization of the ScriptSig.
+	// result = append(result, txIn.ScriptSig.Serialize()...)
+	result = append(result, endian.BigIntToLittleEndian(txIn.Sequence, 4)...)
+
+	return result
+}

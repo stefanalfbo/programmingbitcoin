@@ -3,8 +3,10 @@ package bitcoin
 import (
 	"fmt"
 	"io"
+	"math/big"
 
 	"github.com/stefanalfbo/programmingbitcoin/encoding/endian"
+	"github.com/stefanalfbo/programmingbitcoin/encoding/varint"
 )
 
 type Tx struct {
@@ -76,4 +78,42 @@ func parseLockTime(data io.Reader) (int32, error) {
 	}
 
 	return endian.LittleEndianToInt32(lockTime), nil
+}
+
+// Returns the byte serialization of the transaction.
+func (tx *Tx) Serialize() []byte {
+	result := endian.BigIntToLittleEndian(big.NewInt(int64(tx.Version)), 4)
+	result = append(result, tx.serializeInputs()...)
+	result = append(result, tx.serializeOutputs()...)
+	result = append(result, endian.BigIntToLittleEndian(big.NewInt(int64(tx.LockTime)), 4)...)
+
+	return result
+}
+
+// Returns the byte serialization of the transaction inputs.
+func (tx *Tx) serializeInputs() []byte {
+	result, err := varint.Encode(big.NewInt(int64(len(tx.Inputs))))
+	if err != nil {
+		return nil
+	}
+
+	for _, txIn := range tx.Inputs {
+		result = append(result, txIn.Serialize()...)
+	}
+
+	return result
+}
+
+// Returns the byte serialization of the transaction outputs.
+func (tx *Tx) serializeOutputs() []byte {
+	result, err := varint.Encode(big.NewInt(int64(len(tx.Outputs))))
+	if err != nil {
+		return nil
+	}
+
+	for _, txOut := range tx.Outputs {
+		result = append(result, txOut.Serialize()...)
+	}
+
+	return result
 }

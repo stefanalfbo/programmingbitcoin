@@ -55,3 +55,16 @@ func parseTxOutput(data io.Reader) (*TxOutput, error) {
 		scriptPubKey,
 	}, nil
 }
+
+// Returns the byte serialization of the transaction output.
+func (txOut *TxOutput) Serialize() []byte {
+	result, err := varint.Encode(txOut.Amount)
+	if err != nil {
+		return nil
+	}
+
+	// TODO: Implement the serialization of the ScriptPubKey.
+	// result = append(result, txOut.ScriptPubKey.Serialize()...)
+
+	return result
+}
