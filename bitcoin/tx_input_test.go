@@ -18,6 +18,21 @@ func TestParseInputs(t *testing.T) {
 		return bytes.NewReader(dataBytes)
 	}
 
+	t.Run("String", func(t *testing.T) {
+		stream := setup()
+
+		inputs, err := bitcoin.ParseTxInputs(stream)
+		if err != nil {
+			t.Errorf("unexpected error: %v", err)
+		}
+
+		txInput := inputs[0]
+
+		if txInput.String() != "813f79011acb80925dfe69b3def355fe914bd1d96a3f5f71bf8303c6a989c7d1:0" {
+			t.Errorf("unexpected string: %s", txInput.String())
+		}
+	})
+
 	t.Run("Parse inputs", func(t *testing.T) {
 		stream := setup()
 

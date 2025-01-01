@@ -17,7 +17,7 @@ type TxInput struct {
 }
 
 func (txIn *TxInput) String() string {
-	return fmt.Sprintf("TxInput: %x:%d", txIn.PrevTx, txIn.PrevIndex)
+	return fmt.Sprintf("%x:%d", txIn.PrevTx, txIn.PrevIndex)
 }
 
 func ParseTxInputs(data io.Reader) ([]*TxInput, error) {
