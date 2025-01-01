@@ -9,10 +9,12 @@ import (
 
 type Tx struct {
 	Version int32
+	Inputs  []*TxInput
+	Outputs []*TxOutput
 }
 
-func NewTx(version int32) *Tx {
-	return &Tx{version}
+func NewTx(version int32, inputs []*TxInput, outputs []*TxOutput) *Tx {
+	return &Tx{version, inputs, outputs}
 }
 
 func (tx *Tx) String() string {
@@ -35,12 +37,17 @@ func Parse(data io.Reader) (*Tx, error) {
 		return nil, err
 	}
 
-	_, err = ParseTxInputs(data)
+	inputs, err := ParseTxInputs(data)
 	if err != nil {
 		return nil, err
 	}
 
-	return NewTx(version), nil
+	outputs, err := ParseTxOutputs(data)
+	if err != nil {
+		return nil, err
+	}
+
+	return NewTx(version, inputs, outputs), nil
 }
 
 func parseVersion(data io.Reader) (int32, error) {
