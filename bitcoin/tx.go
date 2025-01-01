@@ -8,13 +8,14 @@ import (
 )
 
 type Tx struct {
-	Version int32
-	Inputs  []*TxInput
-	Outputs []*TxOutput
+	Version  int32
+	Inputs   []*TxInput
+	Outputs  []*TxOutput
+	LockTime int32
 }
 
-func NewTx(version int32, inputs []*TxInput, outputs []*TxOutput) *Tx {
-	return &Tx{version, inputs, outputs}
+func NewTx(version int32, inputs []*TxInput, outputs []*TxOutput, lockTime int32) *Tx {
+	return &Tx{version, inputs, outputs, lockTime}
 }
 
 func (tx *Tx) String() string {
@@ -47,16 +48,32 @@ func Parse(data io.Reader) (*Tx, error) {
 		return nil, err
 	}
 
-	return NewTx(version, inputs, outputs), nil
+	lockTime, err := parseLockTime(data)
+	if err != nil {
+		return nil, err
+	}
+
+	return NewTx(version, inputs, outputs, lockTime), nil
 }
 
 func parseVersion(data io.Reader) (int32, error) {
-	v := make([]byte, 4)
+	version := make([]byte, 4)
 
-	_, err := data.Read(v)
+	_, err := data.Read(version)
 	if err != nil {
 		return 0, err
 	}
 
-	return endian.LittleEndianToInt32(v), nil
+	return endian.LittleEndianToInt32(version), nil
+}
+
+func parseLockTime(data io.Reader) (int32, error) {
+	lockTime := make([]byte, 4)
+
+	_, err := data.Read(lockTime)
+	if err != nil {
+		return 0, err
+	}
+
+	return endian.LittleEndianToInt32(lockTime), nil
 }
