@@ -5,6 +5,7 @@ import (
 	"io"
 	"math/big"
 
+	"github.com/stefanalfbo/programmingbitcoin/ecc"
 	"github.com/stefanalfbo/programmingbitcoin/encoding/endian"
 	"github.com/stefanalfbo/programmingbitcoin/encoding/varint"
 )
@@ -31,7 +32,9 @@ func (tx *Tx) Id() string {
 
 // Binary hash of the legacy serialization.
 func (tx *Tx) hash() []byte {
-	return []byte("dummy value")
+	txSerialized := tx.Serialize()
+
+	return ecc.Hash256(string(txSerialized)).Bytes()
 }
 
 func Parse(data io.Reader) (*Tx, error) {
