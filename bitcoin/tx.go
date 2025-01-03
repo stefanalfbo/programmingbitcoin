@@ -120,3 +120,20 @@ func (tx *Tx) serializeOutputs() []byte {
 
 	return result
 }
+
+// Returns the fee of the transaction.
+func (tx *Tx) Fee(testnet bool) (*big.Int, error) {
+	inputSum, outputSum := big.NewInt(0), big.NewInt(0)
+	for _, txIn := range tx.Inputs {
+		value, err := txIn.Value(testnet)
+		if err != nil {
+			return nil, err
+		}
+		inputSum = new(big.Int).Add(value, inputSum)
+	}
+	for _, txOut := range tx.Outputs {
+		outputSum = new(big.Int).Add(txOut.Amount, outputSum)
+	}
+
+	return new(big.Int).Sub(inputSum, outputSum), nil
+}
