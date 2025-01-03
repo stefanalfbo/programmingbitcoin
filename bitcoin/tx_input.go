@@ -92,3 +92,36 @@ func (txIn *TxInput) Serialize() []byte {
 
 	return result
 }
+
+func (txIn *TxInput) fetchTransaction(isTestnet bool) (*Tx, error) {
+	txFetcher := NewTxFetcher(MemPoolFetcher, isTestnet)
+
+	previousTxHex := fmt.Sprintf("%x", txIn.PrevTx)
+	tx, err := txFetcher.Fetch(previousTxHex, false)
+	if err != nil {
+		return nil, err
+	}
+
+	return tx, nil
+
+}
+
+// Get the output value by looking up tx hash. Returns the amount in satoshi.
+func (txIn *TxInput) Value(isTestnet bool) (*big.Int, error) {
+	tx, err := txIn.fetchTransaction(isTestnet)
+	if err != nil {
+		return nil, err
+	}
+
+	return tx.Outputs[txIn.PrevIndex.Int64()].Amount, nil
+}
+
+// Get the ScriptPubKey by looking up the tx hash. Returns a Script object.
+func (txIn *TxInput) ScriptPubKey(isTestnet bool) ([]byte, error) {
+	tx, err := txIn.fetchTransaction(isTestnet)
+	if err != nil {
+		return nil, err
+	}
+
+	return tx.Outputs[txIn.PrevIndex.Int64()].ScriptPubKey, nil
+}
