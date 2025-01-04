@@ -44,6 +44,25 @@ func TestOP1(t *testing.T) {
 	})
 }
 
+func TestOP16(t *testing.T) {
+	t.Run("OP 16", func(t *testing.T) {
+		stack := op.NewStack()
+		stack, err := op.OP16(stack)
+		if err != nil {
+			t.Errorf("expected nil, got %v", err)
+		}
+
+		if stack.Size() != 1 {
+			t.Errorf("expected: %v, got: %v", 1, stack.Size())
+		}
+
+		element, _ := stack.Pop()
+		if element.Hex() != "10" {
+			t.Errorf("expected: %v, got: %v", "01", element.Hex())
+		}
+	})
+}
+
 func TestDUP(t *testing.T) {
 	t.Run("Empty stack", func(t *testing.T) {
 		stack := op.NewStack()
@@ -65,6 +84,38 @@ func TestDUP(t *testing.T) {
 
 		if stack.Size() != 2 {
 			t.Errorf("expected: %v, got: %v", 2, stack.Size())
+		}
+	})
+}
+
+func TestADD(t *testing.T) {
+	t.Run("Empty stack", func(t *testing.T) {
+		stack := op.NewStack()
+		_, err := op.ADD(stack)
+		if err == nil || err.Error() != "stack too small" {
+			t.Errorf("expected error, got nil")
+		}
+	})
+
+	t.Run("Add elements", func(t *testing.T) {
+		element1, _ := op.NewElement([]byte{0x01})
+		element2, _ := op.NewElement([]byte{0x02})
+		stack := op.NewStack()
+		stack.Push(element1)
+		stack.Push(element2)
+
+		stack, err := op.ADD(stack)
+		if err != nil {
+			t.Errorf("expected nil, got %v", err)
+		}
+
+		if stack.Size() != 1 {
+			t.Errorf("expected: %v, got: %v", 1, stack.Size())
+		}
+
+		element, _ := stack.Pop()
+		if element.Hex() != "03" {
+			t.Errorf("expected: %v, got: %v", "03", element.Hex())
 		}
 	})
 }
