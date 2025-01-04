@@ -26,11 +26,19 @@ func Hash256(msg string) *big.Int {
 
 // SHA256 followed by RIPEMD-160
 func Hash160(data []byte) []byte {
-	sha256Hasher := sha256.New()
-	sha256Hasher.Write(data)
-	sha256Hash := sha256Hasher.Sum(nil)
+	h := sha256.New()
+	_, err := h.Write(data)
+	if err != nil {
+		return nil
+	}
+
+	sha256Hash := h.Sum(nil)
 
 	ripemd160Hasher := ripemd160.New()
-	ripemd160Hasher.Write(sha256Hash)
+	_, err = ripemd160Hasher.Write(sha256Hash)
+	if err != nil {
+		return nil
+	}
+
 	return ripemd160Hasher.Sum(nil)
 }
