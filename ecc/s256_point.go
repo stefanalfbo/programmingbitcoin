@@ -120,7 +120,7 @@ func (p *S256Point) SECCompressed() []byte {
 }
 
 // Parse parses a binary representation of the SEC (Standards for Efficient Cryptography) format
-func (p *S256Point) Parse(sec []byte) (*S256Point, error) {
+func Parse(sec []byte) (*S256Point, error) {
 	// if len(sec) == 0 {
 	// 	return NewInfinityPoint(), nil
 	// }

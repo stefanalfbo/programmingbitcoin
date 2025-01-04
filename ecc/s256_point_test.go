@@ -74,7 +74,7 @@ func TestS256Point(t *testing.T) {
 		point, _ := ecc.G.ScalarMul(coefficient)
 		sec := point.SEC()
 
-		parsedPoint, err := ecc.G.Parse(sec)
+		parsedPoint, err := ecc.Parse(sec)
 		if err != nil {
 			t.Errorf("Parse: got error %v, expected nil", err)
 		}
@@ -89,7 +89,7 @@ func TestS256Point(t *testing.T) {
 		point, _ := ecc.G.ScalarMul(coefficient)
 		secCompressed := point.SECCompressed()
 
-		parsedPoint, err := ecc.G.Parse(secCompressed)
+		parsedPoint, err := ecc.Parse(secCompressed)
 		if err != nil {
 			t.Errorf("Parse: got error %v, expected nil", err)
 		}
