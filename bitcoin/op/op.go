@@ -119,6 +119,57 @@ func HASH256(stack *Stack) (*Stack, error) {
 	return stack, nil
 }
 
+// The entire transaction's outputs, inputs, and script (from the
+// most recently-executed OP_CODESEPARATOR to the end) are hashed.
+// The signature used by OP_CHECKSIG must be a valid signature for
+// this hash and public key. If it is, 1 is returned, 0 otherwise.
+func CHECKSIG(stack *Stack, z *big.Int) (*Stack, error) {
+	if stack.Size() < 2 {
+		return nil, fmt.Errorf("stack too small")
+	}
+
+	secPubKey, err := stack.Pop()
+	if err != nil {
+		return nil, err
+	}
+
+	derSignature, err := stack.Pop()
+	if err != nil {
+		return nil, err
+	}
+
+	point, err := ecc.Parse(secPubKey.element)
+	if err != nil {
+		return nil, err
+	}
+
+	signature, err := ecc.ParseDER(derSignature.element[:len(derSignature.element)-1])
+	if err != nil {
+		return nil, err
+	}
+
+	valid, err := point.Verify(z, signature)
+	if err != nil {
+		return nil, err
+	}
+
+	var data []byte
+	if valid {
+		data = []byte{0x01}
+	} else {
+		data = []byte{0x00}
+	}
+
+	newElement, err := NewElement(data)
+	if err != nil {
+		return nil, err
+	}
+
+	stack.Push(newElement)
+
+	return stack, nil
+}
+
 var OP_CODE_FUNCTIONS = map[int]func(*Stack) (*Stack, error){
 	0:   OP0,
 	81:  OP1,
@@ -127,4 +178,5 @@ var OP_CODE_FUNCTIONS = map[int]func(*Stack) (*Stack, error){
 	147: ADD,
 	169: HASH160,
 	170: HASH256,
+	// 172: CHECKSIG,
 }

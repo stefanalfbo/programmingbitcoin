@@ -1,6 +1,8 @@
 package op_test
 
 import (
+	"encoding/hex"
+	"math/big"
 	"testing"
 
 	"github.com/stefanalfbo/programmingbitcoin/bitcoin/op"
@@ -172,6 +174,43 @@ func TestHASH256(t *testing.T) {
 
 		if stack.Size() != 1 {
 			t.Errorf("expected: %v, got: %v", 1, stack.Size())
+		}
+	})
+}
+
+func TestCHECKSIG(t *testing.T) {
+	t.Run("Empty stack", func(t *testing.T) {
+		stack := op.NewStack()
+		_, err := op.CHECKSIG(stack, nil)
+		if err == nil || err.Error() != "stack too small" {
+			t.Errorf("expected error, got nil")
+		}
+	})
+
+	t.Run("Check signature", func(t *testing.T) {
+		z, _ := new(big.Int).SetString("7c076ff316692a3d7eb3c3bb0f8b1488cf72e1afcd929e29307032997a838a3d", 16)
+		secBytes, _ := hex.DecodeString("04887387e452b8eacc4acfde10d9aaf7f6d9a0f975aabb10d006e4da568744d06c61de6d95231cd89026e286df3b6ae4a894a3378e393e93a0f45b666329a0ae34")
+		sigBytes, _ := hex.DecodeString("3045022000eff69ef2b1bd93a66ed5219add4fb51e11a840f404876325a1e8ffe0529a2c022100c7207fee197d27c618aea621406f6bf5ef6fca38681d82b2f06fddbdce6feab601")
+
+		sec, _ := op.NewElement(secBytes)
+		sig, _ := op.NewElement(sigBytes)
+
+		stack := op.NewStack()
+		stack.Push(sig)
+		stack.Push(sec)
+
+		stack, err := op.CHECKSIG(stack, z)
+		if err != nil {
+			t.Errorf("expected nil, got %v", err)
+		}
+
+		if stack.Size() != 1 {
+			t.Errorf("expected: %v, got: %v", 1, stack.Size())
+		}
+
+		element, _ := stack.Pop()
+		if element.Hex() != "01" {
+			t.Errorf("expected: %v, got: %v", "01", element.Hex())
 		}
 	})
 }
