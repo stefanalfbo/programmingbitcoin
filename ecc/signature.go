@@ -40,3 +40,37 @@ func (signature *Signature) DER() []byte {
 
 	return append([]byte{0x30, byte(len(result))}, result...)
 }
+
+func ParseDER(der []byte) (*Signature, error) {
+	if der[0] != 0x30 {
+		return nil, fmt.Errorf("bad signature")
+	}
+
+	length := int(der[1])
+	if length != len(der[2:]) {
+		return nil, fmt.Errorf("bad signature length")
+	}
+
+	if der[2] != 0x02 {
+		return nil, fmt.Errorf("bad signature")
+	}
+
+	rLength := int(der[3])
+	r := der[4 : 4+rLength]
+
+	if der[4+rLength] != 0x02 {
+		return nil, fmt.Errorf("bad signature")
+	}
+
+	sLength := int(der[5+rLength])
+	s := der[6+rLength:]
+
+	if len(der) != 6+rLength+sLength {
+		return nil, fmt.Errorf("signature too long")
+	}
+
+	rInt := new(big.Int).SetBytes(r)
+	sInt := new(big.Int).SetBytes(s)
+
+	return NewSignature(rInt, sInt), nil
+}

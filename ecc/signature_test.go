@@ -52,4 +52,33 @@ func TestSignature(t *testing.T) {
 			t.Errorf("DER: got %s, expected %s", derHex, expected)
 		}
 	})
+
+	t.Run("ParseSignature", func(t *testing.T) {
+		testCases := []struct {
+			r *big.Int
+			s *big.Int
+		}{
+			{big.NewInt(1), big.NewInt(2)},
+			{big.NewInt(42), big.NewInt(1337)},
+			{big.NewInt(7777), big.NewInt(8888)},
+		}
+
+		for _, tc := range testCases {
+			signature := ecc.NewSignature(tc.r, tc.s)
+			der := signature.DER()
+
+			signature2, err := ecc.ParseDER(der)
+			if err != nil {
+				t.Fatalf("ParseSignature: unexpected error: %v", err)
+			}
+
+			if signature2.R.Cmp(tc.r) != 0 {
+				t.Errorf("ParseSignature: got r %v, expected %v", signature2.R, tc.r)
+			}
+
+			if signature2.S.Cmp(tc.s) != 0 {
+				t.Errorf("ParseSignature: got s %v, expected %v", signature2.S, tc.s)
+			}
+		}
+	})
 }
