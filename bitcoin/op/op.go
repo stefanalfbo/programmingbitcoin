@@ -28,6 +28,7 @@ func OP1(stack *Stack) (*Stack, error) {
 	return stack, nil
 }
 
+// Duplicates the top stack item.
 func DUP(stack *Stack) (*Stack, error) {
 	duplicateElement, err := stack.Peek()
 	if err != nil {
@@ -39,6 +40,7 @@ func DUP(stack *Stack) (*Stack, error) {
 	return stack, nil
 }
 
+// The input is hashed twice: first with SHA-256 and then with RIPEMD-160.
 func HASH160(stack *Stack) (*Stack, error) {
 	element, err := stack.Pop()
 	if err != nil {
@@ -55,6 +57,7 @@ func HASH160(stack *Stack) (*Stack, error) {
 	return stack, nil
 }
 
+// The input is hashed two times with SHA-256.
 func HASH256(stack *Stack) (*Stack, error) {
 	element, err := stack.Pop()
 	if err != nil {
@@ -73,6 +76,7 @@ func HASH256(stack *Stack) (*Stack, error) {
 
 var OP_CODE_FUNCTIONS = map[int]func(*Stack) (*Stack, error){
 	0:   OP0,
+	81:  OP1,
 	118: DUP,
 	169: HASH160,
 	170: HASH256,
