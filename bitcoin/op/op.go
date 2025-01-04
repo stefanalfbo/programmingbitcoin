@@ -16,6 +16,18 @@ func OP0(stack *Stack) (*Stack, error) {
 	return stack, nil
 }
 
+// The number 1 is pushed onto the stack.
+func OP1(stack *Stack) (*Stack, error) {
+	element, err := NewElement([]byte{0x01})
+	if err != nil {
+		return nil, err
+	}
+
+	stack.Push(element)
+
+	return stack, nil
+}
+
 func DUP(stack *Stack) (*Stack, error) {
 	duplicateElement, err := stack.Peek()
 	if err != nil {

@@ -25,6 +25,25 @@ func TestOP0(t *testing.T) {
 	})
 }
 
+func TestOP1(t *testing.T) {
+	t.Run("OP 1", func(t *testing.T) {
+		stack := op.NewStack()
+		stack, err := op.OP1(stack)
+		if err != nil {
+			t.Errorf("expected nil, got %v", err)
+		}
+
+		if stack.Size() != 1 {
+			t.Errorf("expected: %v, got: %v", 1, stack.Size())
+		}
+
+		element, _ := stack.Pop()
+		if element.Hex() != "01" {
+			t.Errorf("expected: %v, got: %v", "01", element.Hex())
+		}
+	})
+}
+
 func TestDUP(t *testing.T) {
 	t.Run("Empty stack", func(t *testing.T) {
 		stack := op.NewStack()
