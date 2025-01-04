@@ -34,6 +34,10 @@ func (e *Element) Equals(other *Element) bool {
 	return true
 }
 
+func (e *Element) Hex() string {
+	return fmt.Sprintf("%x", e.element)
+}
+
 type Stack struct {
 	stack []Element
 }

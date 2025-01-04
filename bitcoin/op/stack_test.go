@@ -43,6 +43,27 @@ func TestElement(t *testing.T) {
 			t.Errorf("expected: false, got true")
 		}
 	})
+
+	t.Run("Hex", func(t *testing.T) {
+		testCases := []struct {
+			data     []byte
+			expected string
+		}{
+			{[]byte{0x01}, "01"},
+			{[]byte{0x00}, "00"},
+			{[]byte{0xff}, "ff"},
+			{[]byte{0x12, 0x34}, "1234"},
+			{[]byte{0xDE, 0xAD, 0xBE, 0xEF}, "deadbeef"},
+		}
+
+		for _, tc := range testCases {
+			element, _ := op.NewElement(tc.data)
+			hex := element.Hex()
+			if hex != tc.expected {
+				t.Errorf("expected: %v, got: %v", tc.expected, hex)
+			}
+		}
+	})
 }
 
 func TestStack(t *testing.T) {
