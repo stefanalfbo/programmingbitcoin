@@ -30,3 +30,28 @@ func TestDUP(t *testing.T) {
 		}
 	})
 }
+
+func TestHASH256(t *testing.T) {
+	t.Run("Empty stack", func(t *testing.T) {
+		stack := op.NewStack()
+		_, err := op.HASH256(stack)
+		if err == nil || err.Error() != "invalid stack" {
+			t.Errorf("expected error, got nil")
+		}
+	})
+
+	t.Run("Hash element", func(t *testing.T) {
+		element, _ := op.NewElement([]byte{0x01})
+		stack := op.NewStack()
+		stack.Push(element)
+
+		stack, err := op.HASH256(stack)
+		if err != nil {
+			t.Errorf("expected nil, got %v", err)
+		}
+
+		if stack.Size() != 1 {
+			t.Errorf("expected: %v, got: %v", 1, stack.Size())
+		}
+	})
+}
