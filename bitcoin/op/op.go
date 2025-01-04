@@ -4,6 +4,18 @@ import (
 	"github.com/stefanalfbo/programmingbitcoin/ecc"
 )
 
+// An empty array of bytes is pushed onto the stack. (This is not a no-op: an item is added to the stack.)
+func OP0(stack *Stack) (*Stack, error) {
+	element, err := NewElement([]byte{})
+	if err != nil {
+		return nil, err
+	}
+
+	stack.Push(element)
+
+	return stack, nil
+}
+
 func DUP(stack *Stack) (*Stack, error) {
 	duplicateElement, err := stack.Peek()
 	if err != nil {
@@ -48,6 +60,7 @@ func HASH256(stack *Stack) (*Stack, error) {
 }
 
 var OP_CODE_FUNCTIONS = map[int]func(*Stack) (*Stack, error){
+	0:   OP0,
 	118: DUP,
 	169: HASH160,
 	170: HASH256,

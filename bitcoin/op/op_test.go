@@ -6,6 +6,25 @@ import (
 	"github.com/stefanalfbo/programmingbitcoin/bitcoin/op"
 )
 
+func TestOP0(t *testing.T) {
+	t.Run("OP 0", func(t *testing.T) {
+		stack := op.NewStack()
+		stack, err := op.OP0(stack)
+		if err != nil {
+			t.Errorf("expected nil, got %v", err)
+		}
+
+		if stack.Size() != 1 {
+			t.Errorf("expected: %v, got: %v", 1, stack.Size())
+		}
+
+		element, _ := stack.Pop()
+		if element.Hex() != "" {
+			t.Errorf("expected: %v, got: %v", "", element.Hex())
+		}
+	})
+}
+
 func TestDUP(t *testing.T) {
 	t.Run("Empty stack", func(t *testing.T) {
 		stack := op.NewStack()

@@ -7,13 +7,6 @@ import (
 )
 
 func TestElement(t *testing.T) {
-	t.Run("Create a too small element", func(t *testing.T) {
-		_, err := op.NewElement([]byte{})
-		if err == nil || err.Error() != "element too small" {
-			t.Errorf("NewElement: expected error, got nil")
-		}
-	})
-
 	t.Run("Create a too large element", func(t *testing.T) {
 		data := make([]byte, 521)
 		_, err := op.NewElement(data)

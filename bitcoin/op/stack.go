@@ -9,10 +9,6 @@ type Element struct {
 func NewElement(data []byte) (*Element, error) {
 	elementSize := len(data)
 
-	if elementSize < 1 {
-		return nil, fmt.Errorf("element too small")
-	}
-
 	if elementSize > 520 {
 		return nil, fmt.Errorf("element too large")
 	}
