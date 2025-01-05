@@ -28,7 +28,7 @@ func TestParseOutputs(t *testing.T) {
 
 		txOutput := outputs[0]
 
-		if txOutput.String() != "32454049:[]" {
+		if txOutput.String() != "32454049:notImplementedYet" {
 			t.Errorf("unexpected string: %s", txOutput.String())
 		}
 	})

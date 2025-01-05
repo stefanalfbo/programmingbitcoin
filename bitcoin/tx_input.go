@@ -12,11 +12,11 @@ import (
 type TxInput struct {
 	PrevTx    []byte
 	PrevIndex *big.Int
-	ScriptSig []byte
+	ScriptSig Script
 	Sequence  *big.Int
 }
 
-func NewTxInput(prevTx []byte, prevIndex *big.Int, scriptSig []byte, sequence *big.Int) *TxInput {
+func NewTxInput(prevTx []byte, prevIndex *big.Int, scriptSig Script, sequence *big.Int) *TxInput {
 	return &TxInput{
 		prevTx,
 		prevIndex,
@@ -75,7 +75,7 @@ func parseTxInput(data io.Reader) (*TxInput, error) {
 	return &TxInput{
 		previousTx,
 		endian.LittleEndianToBigInt(previousTransactionIndex),
-		scriptSignature,
+		*scriptSignature,
 		endian.LittleEndianToBigInt(sequence),
 	}, nil
 }
@@ -117,11 +117,11 @@ func (txIn *TxInput) Value(isTestnet bool) (*big.Int, error) {
 }
 
 // Get the ScriptPubKey by looking up the tx hash. Returns a Script object.
-func (txIn *TxInput) ScriptPubKey(isTestnet bool) ([]byte, error) {
+func (txIn *TxInput) ScriptPubKey(isTestnet bool) (*Script, error) {
 	tx, err := txIn.fetchTransaction(isTestnet)
 	if err != nil {
 		return nil, err
 	}
 
-	return tx.Outputs[txIn.PrevIndex.Int64()].ScriptPubKey, nil
+	return &tx.Outputs[txIn.PrevIndex.Int64()].ScriptPubKey, nil
 }

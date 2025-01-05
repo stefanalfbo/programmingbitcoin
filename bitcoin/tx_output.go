@@ -11,11 +11,11 @@ import (
 
 type TxOutput struct {
 	Amount       *big.Int
-	ScriptPubKey []byte
+	ScriptPubKey Script
 }
 
 func (txOut *TxOutput) String() string {
-	return fmt.Sprintf("%d:%d", txOut.Amount, txOut.ScriptPubKey)
+	return fmt.Sprintf("%d:%s", txOut.Amount, txOut.ScriptPubKey.String())
 }
 
 func ParseTxOutputs(data io.Reader) ([]*TxOutput, error) {
@@ -50,9 +50,8 @@ func parseTxOutput(data io.Reader) (*TxOutput, error) {
 	}
 
 	return &TxOutput{
-
 		endian.LittleEndianToBigInt(amount),
-		scriptPubKey,
+		*scriptPubKey,
 	}, nil
 }
 
