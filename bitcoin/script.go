@@ -3,6 +3,7 @@ package bitcoin
 import (
 	"fmt"
 	"io"
+	"math/big"
 
 	"github.com/stefanalfbo/programmingbitcoin/encoding/endian"
 	"github.com/stefanalfbo/programmingbitcoin/encoding/varint"
@@ -10,6 +11,10 @@ import (
 
 type Instruction struct {
 	instruction []byte
+}
+
+func (i *Instruction) Hex() string {
+	return fmt.Sprintf("%x", i.instruction)
 }
 
 type Script struct {
@@ -22,6 +27,10 @@ func NewScript(instructions []Instruction) *Script {
 
 func (script *Script) String() string {
 	return "notImplementedYet"
+}
+
+func (script *Script) Instructions() []Instruction {
+	return script.instructions
 }
 
 func ParseScript(data io.Reader) (*Script, error) {
@@ -97,4 +106,61 @@ func ParseScript(data io.Reader) (*Script, error) {
 	}
 
 	return NewScript(instructions), nil
+}
+
+func (script *Script) RawSerialize() ([]byte, error) {
+	scriptAsBytes := make([]byte, 0)
+
+	for _, instruction := range script.instructions {
+
+		if isOpCode(instruction.instruction) {
+			scriptAsBytes = append(scriptAsBytes, instruction.instruction...)
+		} else {
+			length := len(instruction.instruction)
+
+			if length < 76 {
+				value := endian.BigIntToLittleEndian(big.NewInt(int64(length)), 1)
+				scriptAsBytes = append(scriptAsBytes, value...)
+			} else if length < 256 {
+				value := endian.BigIntToLittleEndian(big.NewInt(int64(76)), 2)
+				scriptAsBytes = append(scriptAsBytes, value...)
+
+				value = endian.BigIntToLittleEndian(big.NewInt(int64(length)), 1)
+				scriptAsBytes = append(scriptAsBytes, value...)
+			} else if length <= 520 {
+				value := endian.BigIntToLittleEndian(big.NewInt(int64(77)), 2)
+				scriptAsBytes = append(scriptAsBytes, value...)
+
+				value = endian.BigIntToLittleEndian(big.NewInt(int64(length)), 2)
+				scriptAsBytes = append(scriptAsBytes, value...)
+			} else {
+				return nil, fmt.Errorf("too long of an instruction")
+			}
+			scriptAsBytes = append(scriptAsBytes, instruction.instruction...)
+		}
+	}
+
+	return scriptAsBytes, nil
+}
+
+func isOpCode(opCode []byte) bool {
+	if len(opCode) != 1 {
+		return false
+	}
+	return opCode[0] >= 0x01 && opCode[0] <= 0x4b
+}
+
+func (script *Script) Serialize() ([]byte, error) {
+	scriptAsBytes, err := script.RawSerialize()
+	if err != nil {
+		return nil, err
+	}
+
+	scriptLength := len(scriptAsBytes)
+	length, err := varint.Encode(big.NewInt(int64(scriptLength)))
+	if err != nil {
+		return nil, err
+	}
+
+	return append(length, scriptAsBytes...), nil
 }
