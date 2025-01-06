@@ -5,7 +5,7 @@ import (
 	"io"
 	"math/big"
 
-	"github.com/stefanalfbo/programmingbitcoin/crypto/ecc"
+	"github.com/stefanalfbo/programmingbitcoin/crypto/hash"
 	"github.com/stefanalfbo/programmingbitcoin/encoding/endian"
 	"github.com/stefanalfbo/programmingbitcoin/encoding/varint"
 )
@@ -34,7 +34,7 @@ func (tx *Tx) Id() string {
 func (tx *Tx) hash() []byte {
 	txSerialized := tx.Serialize()
 
-	return ecc.Hash256(string(txSerialized)).Bytes()
+	return hash.Hash256(string(txSerialized)).Bytes()
 }
 
 func Parse(data io.Reader) (*Tx, error) {

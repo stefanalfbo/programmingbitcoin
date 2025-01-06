@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"math/big"
 
+	"github.com/stefanalfbo/programmingbitcoin/crypto/hash"
 	"github.com/stefanalfbo/programmingbitcoin/encoding/base58"
 )
 
@@ -202,10 +203,10 @@ func isUncompressed(sec []byte) bool {
 
 func (p *S256Point) Hash160(isCompressed bool) []byte {
 	if isCompressed {
-		return Hash160(p.SECCompressed())
+		return hash.Hash160(p.SECCompressed())
 	}
 
-	return Hash160(p.SEC())
+	return hash.Hash160(p.SEC())
 }
 
 // Address returns the address of the point

@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	"github.com/stefanalfbo/programmingbitcoin/crypto/ecc"
+	"github.com/stefanalfbo/programmingbitcoin/crypto/hash"
 	"github.com/stefanalfbo/programmingbitcoin/encoding/endian"
 )
 
@@ -202,7 +203,7 @@ func TestPrivateKey(t *testing.T) {
 
 func TestCreateTestnetAddress(t *testing.T) {
 	passphrase := "stefan@alfbo.se my secret"
-	secret := endian.LittleEndianToBigInt(ecc.Hash256(passphrase).Bytes())
+	secret := endian.LittleEndianToBigInt(hash.Hash256(passphrase).Bytes())
 	privateKey, err := ecc.NewPrivateKey(secret)
 	if err != nil {
 		t.Fatalf("NewPrivateKey: got error %v, expected nil", err)

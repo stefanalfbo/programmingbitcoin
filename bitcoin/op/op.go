@@ -5,6 +5,7 @@ import (
 	"math/big"
 
 	"github.com/stefanalfbo/programmingbitcoin/crypto/ecc"
+	"github.com/stefanalfbo/programmingbitcoin/crypto/hash"
 )
 
 // An empty array of bytes is pushed onto the stack. (This is not a no-op: an item is added to the stack.)
@@ -92,7 +93,7 @@ func HASH160(stack *Stack) (*Stack, error) {
 		return nil, err
 	}
 
-	hashed := ecc.Hash160(element.element)
+	hashed := hash.Hash160(element.element)
 	hashedElement, err := NewElement(hashed)
 	if err != nil {
 		return nil, err
@@ -109,7 +110,7 @@ func HASH256(stack *Stack) (*Stack, error) {
 		return nil, err
 	}
 
-	hashed := ecc.Hash256(string(element.element))
+	hashed := hash.Hash256(string(element.element))
 	hashedElement, err := NewElement(hashed.Bytes())
 	if err != nil {
 		return nil, err

@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"github.com/stefanalfbo/programmingbitcoin/crypto/ecc"
+	"github.com/stefanalfbo/programmingbitcoin/crypto/hash"
 )
 
 func TestS256Point(t *testing.T) {
@@ -123,7 +124,7 @@ func TestVerifyingASignature(t *testing.T) {
 }
 
 func TestCreateASignature(t *testing.T) {
-	e := ecc.Hash256("my secret")
+	e := hash.Hash256("my secret")
 	point, _ := ecc.G.ScalarMul(e)
 
 	expected := "S256Point(028d003eab2e428d11983f3e97c3fa0addf3b42740df0d211795ffb3be2f6c52, 0ae987b9ec6ea159c78cb2a937ed89096fb218d9e7594f02b547526d8cd309e2)"
@@ -131,7 +132,7 @@ func TestCreateASignature(t *testing.T) {
 		t.Errorf("got %v, expected %v", point.String(), expected)
 	}
 
-	z := ecc.Hash256("my message")
+	z := hash.Hash256("my message")
 	k := big.NewInt(1234567890)
 	kG, _ := ecc.G.ScalarMul(k)
 	r := kG.XNum()
