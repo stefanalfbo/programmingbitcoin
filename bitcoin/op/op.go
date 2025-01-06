@@ -32,6 +32,174 @@ func OP1(stack *Stack) (*Stack, error) {
 	return stack, nil
 }
 
+// The number 2 is pushed onto the stack.
+func OP2(stack *Stack) (*Stack, error) {
+	element, err := NewElement([]byte{0x02})
+	if err != nil {
+		return nil, err
+	}
+
+	stack.Push(element)
+
+	return stack, nil
+}
+
+// The number 3 is pushed onto the stack.
+func OP3(stack *Stack) (*Stack, error) {
+	element, err := NewElement([]byte{0x03})
+	if err != nil {
+		return nil, err
+	}
+
+	stack.Push(element)
+
+	return stack, nil
+}
+
+// The number 4 is pushed onto the stack.
+func OP4(stack *Stack) (*Stack, error) {
+	element, err := NewElement([]byte{0x04})
+	if err != nil {
+		return nil, err
+	}
+
+	stack.Push(element)
+
+	return stack, nil
+}
+
+// The number 5 is pushed onto the stack.
+func OP5(stack *Stack) (*Stack, error) {
+	element, err := NewElement([]byte{0x05})
+	if err != nil {
+		return nil, err
+	}
+
+	stack.Push(element)
+
+	return stack, nil
+}
+
+// The number 6 is pushed onto the stack.
+func OP6(stack *Stack) (*Stack, error) {
+	element, err := NewElement([]byte{0x06})
+	if err != nil {
+		return nil, err
+	}
+
+	stack.Push(element)
+
+	return stack, nil
+}
+
+// The number 7 is pushed onto the stack.
+func OP7(stack *Stack) (*Stack, error) {
+	element, err := NewElement([]byte{0x07})
+	if err != nil {
+		return nil, err
+	}
+
+	stack.Push(element)
+
+	return stack, nil
+}
+
+// The number 8 is pushed onto the stack.
+func OP8(stack *Stack) (*Stack, error) {
+	element, err := NewElement([]byte{0x08})
+	if err != nil {
+		return nil, err
+	}
+
+	stack.Push(element)
+
+	return stack, nil
+}
+
+// The number 9 is pushed onto the stack.
+func OP9(stack *Stack) (*Stack, error) {
+	element, err := NewElement([]byte{0x09})
+	if err != nil {
+		return nil, err
+	}
+
+	stack.Push(element)
+
+	return stack, nil
+}
+
+// The number 10 is pushed onto the stack.
+func OP10(stack *Stack) (*Stack, error) {
+	element, err := NewElement([]byte{0x0A})
+	if err != nil {
+		return nil, err
+	}
+
+	stack.Push(element)
+
+	return stack, nil
+}
+
+// The number 11 is pushed onto the stack.
+func OP11(stack *Stack) (*Stack, error) {
+	element, err := NewElement([]byte{0x0B})
+	if err != nil {
+		return nil, err
+	}
+
+	stack.Push(element)
+
+	return stack, nil
+}
+
+// The number 12 is pushed onto the stack.
+func OP12(stack *Stack) (*Stack, error) {
+	element, err := NewElement([]byte{0x0C})
+	if err != nil {
+		return nil, err
+	}
+
+	stack.Push(element)
+
+	return stack, nil
+}
+
+// The number 13 is pushed onto the stack.
+func OP13(stack *Stack) (*Stack, error) {
+	element, err := NewElement([]byte{0x0D})
+	if err != nil {
+		return nil, err
+	}
+
+	stack.Push(element)
+
+	return stack, nil
+}
+
+// The number 14 is pushed onto the stack.
+func OP14(stack *Stack) (*Stack, error) {
+	element, err := NewElement([]byte{0x0E})
+	if err != nil {
+		return nil, err
+	}
+
+	stack.Push(element)
+
+	return stack, nil
+}
+
+// The number 15 is pushed onto the stack.
+func OP15(stack *Stack) (*Stack, error) {
+	element, err := NewElement([]byte{0x0F})
+	if err != nil {
+		return nil, err
+	}
+
+	stack.Push(element)
+
+	return stack, nil
+}
+
 // 16 is pushed onto the stack.
 func OP16(stack *Stack) (*Stack, error) {
 	element, err := NewElement([]byte{0x10})
