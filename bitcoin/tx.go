@@ -5,7 +5,7 @@ import (
 	"io"
 	"math/big"
 
-	"github.com/stefanalfbo/programmingbitcoin/ecc"
+	"github.com/stefanalfbo/programmingbitcoin/crypto/ecc"
 	"github.com/stefanalfbo/programmingbitcoin/encoding/endian"
 	"github.com/stefanalfbo/programmingbitcoin/encoding/varint"
 )

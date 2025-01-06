@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"math/big"
 
-	"github.com/stefanalfbo/programmingbitcoin/ecc"
+	"github.com/stefanalfbo/programmingbitcoin/crypto/ecc"
 )
 
 // An empty array of bytes is pushed onto the stack. (This is not a no-op: an item is added to the stack.)

@@ -5,7 +5,7 @@ import (
 	"math/big"
 	"testing"
 
-	"github.com/stefanalfbo/programmingbitcoin/ecc"
+	"github.com/stefanalfbo/programmingbitcoin/crypto/ecc"
 )
 
 func TestS256Point(t *testing.T) {

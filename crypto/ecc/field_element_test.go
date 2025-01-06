@@ -7,7 +7,7 @@ import (
 	"testing"
 	"testing/quick"
 
-	"github.com/stefanalfbo/programmingbitcoin/ecc"
+	"github.com/stefanalfbo/programmingbitcoin/crypto/ecc"
 )
 
 func TestFieldElement(t *testing.T) {

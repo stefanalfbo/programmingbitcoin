@@ -4,7 +4,7 @@ import (
 	"math/big"
 	"testing"
 
-	"github.com/stefanalfbo/programmingbitcoin/ecc"
+	"github.com/stefanalfbo/programmingbitcoin/crypto/ecc"
 )
 
 func TestPoint(t *testing.T) {

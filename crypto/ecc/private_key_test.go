@@ -6,7 +6,7 @@ import (
 	"math/big"
 	"testing"
 
-	"github.com/stefanalfbo/programmingbitcoin/ecc"
+	"github.com/stefanalfbo/programmingbitcoin/crypto/ecc"
 	"github.com/stefanalfbo/programmingbitcoin/encoding/endian"
 )
 
