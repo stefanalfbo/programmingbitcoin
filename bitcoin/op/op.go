@@ -362,6 +362,7 @@ var OP_CODE_FUNCTIONS = map[int]func(*Stack) (*Stack, error){
 	94:  OP14,
 	95:  OP15,
 	96:  OP16,
+	97:  NOP,
 	118: DUP,
 	147: ADD,
 	169: HASH160,
