@@ -164,3 +164,8 @@ func (script *Script) Serialize() ([]byte, error) {
 
 	return append(length, scriptAsBytes...), nil
 }
+
+func (script *Script) Add(other *Script) *Script {
+	instructions := append(script.instructions, other.instructions...)
+	return NewScript(instructions)
+}
