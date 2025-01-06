@@ -212,6 +212,11 @@ func OP16(stack *Stack) (*Stack, error) {
 	return stack, nil
 }
 
+// Does nothing.
+func NOP(stack *Stack) (*Stack, error) {
+	return stack, nil
+}
+
 // Duplicates the top stack item.
 func DUP(stack *Stack) (*Stack, error) {
 	duplicateElement, err := stack.Peek()
