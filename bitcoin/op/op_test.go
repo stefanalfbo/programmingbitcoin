@@ -8,8 +8,9 @@ import (
 	"github.com/stefanalfbo/programmingbitcoin/bitcoin/op"
 )
 
-func TestOP0(t *testing.T) {
+func TestOP0_OP16(t *testing.T) {
 	t.Run("OP 0", func(t *testing.T) {
+		expected := ""
 		stack := op.NewStack()
 		stack, err := op.OP0(stack)
 		if err != nil {
@@ -21,46 +22,32 @@ func TestOP0(t *testing.T) {
 		}
 
 		element, _ := stack.Pop()
-		if element.Hex() != "" {
-			t.Errorf("expected: %v, got: %v", "", element.Hex())
+		if element.Hex() != expected {
+			t.Errorf("expected: %v, got: %v", expected, element.Hex())
 		}
 	})
-}
 
-func TestOP1(t *testing.T) {
-	t.Run("OP 1", func(t *testing.T) {
-		stack := op.NewStack()
-		stack, err := op.OP1(stack)
-		if err != nil {
-			t.Errorf("expected nil, got %v", err)
+	t.Run("OP1 to OP16", func(t *testing.T) {
+		expected := []string{"01", "02", "03", "04", "05", "06", "07", "08", "09", "0a", "0b", "0c", "0d", "0e", "0f", "10"}
+		ops := []func(*op.Stack) (*op.Stack, error){
+			op.OP1, op.OP2, op.OP3, op.OP4, op.OP5, op.OP6, op.OP7, op.OP8, op.OP9, op.OP10, op.OP11, op.OP12, op.OP13, op.OP14, op.OP15, op.OP16,
 		}
 
-		if stack.Size() != 1 {
-			t.Errorf("expected: %v, got: %v", 1, stack.Size())
-		}
+		for i, opX := range ops {
+			stack := op.NewStack()
+			stack, err := opX(stack)
+			if err != nil {
+				t.Errorf("expected nil, got %v", err)
+			}
 
-		element, _ := stack.Pop()
-		if element.Hex() != "01" {
-			t.Errorf("expected: %v, got: %v", "01", element.Hex())
-		}
-	})
-}
+			if stack.Size() != 1 {
+				t.Errorf("expected: %v, got: %v", 1, stack.Size())
+			}
 
-func TestOP16(t *testing.T) {
-	t.Run("OP 16", func(t *testing.T) {
-		stack := op.NewStack()
-		stack, err := op.OP16(stack)
-		if err != nil {
-			t.Errorf("expected nil, got %v", err)
-		}
-
-		if stack.Size() != 1 {
-			t.Errorf("expected: %v, got: %v", 1, stack.Size())
-		}
-
-		element, _ := stack.Pop()
-		if element.Hex() != "10" {
-			t.Errorf("expected: %v, got: %v", "01", element.Hex())
+			element, _ := stack.Pop()
+			if element.Hex() != expected[i] {
+				t.Errorf("expected: %v, got: %v", expected[i], element.Hex())
+			}
 		}
 	})
 }
