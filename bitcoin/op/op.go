@@ -20,6 +20,18 @@ func OP0(stack *Stack) (*Stack, error) {
 	return stack, nil
 }
 
+// The number -1 is pushed onto the stack.
+func OP1NEGATE(stack *Stack) (*Stack, error) {
+	element, err := NewElement([]byte{0x81})
+	if err != nil {
+		return nil, err
+	}
+
+	stack.Push(element)
+
+	return stack, nil
+}
+
 // The number 1 is pushed onto the stack.
 func OP1(stack *Stack) (*Stack, error) {
 	element, err := NewElement([]byte{0x01})
@@ -346,6 +358,7 @@ func CHECKSIG(stack *Stack, z *big.Int) (*Stack, error) {
 
 var OP_CODE_FUNCTIONS = map[int]func(*Stack) (*Stack, error){
 	0:   OP0,
+	79:  OP1NEGATE,
 	81:  OP1,
 	82:  OP2,
 	83:  OP3,

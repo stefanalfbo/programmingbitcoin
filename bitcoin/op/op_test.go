@@ -27,6 +27,24 @@ func TestOP0_OP16(t *testing.T) {
 		}
 	})
 
+	t.Run("OP 1NEGATE", func(t *testing.T) {
+		expected := "81"
+		stack := op.NewStack()
+		stack, err := op.OP1NEGATE(stack)
+		if err != nil {
+			t.Errorf("expected nil, got %v", err)
+		}
+
+		if stack.Size() != 1 {
+			t.Errorf("expected: %v, got: %v", 1, stack.Size())
+		}
+
+		element, _ := stack.Pop()
+		if element.Hex() != expected {
+			t.Errorf("expected: %v, got: %v", expected, element.Hex())
+		}
+	})
+
 	t.Run("OP1 to OP16", func(t *testing.T) {
 		expected := []string{"01", "02", "03", "04", "05", "06", "07", "08", "09", "0a", "0b", "0c", "0d", "0e", "0f", "10"}
 		ops := []func(*op.Stack) (*op.Stack, error){
