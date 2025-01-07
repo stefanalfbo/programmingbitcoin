@@ -85,6 +85,42 @@ func TestNOP(t *testing.T) {
 	}
 }
 
+func TestVERIFY(t *testing.T) {
+	t.Run("Empty stack", func(t *testing.T) {
+		stack := op.NewStack()
+		_, err := op.VERIFY(stack)
+		if err == nil || err.Error() != "transaction invalid" {
+			t.Errorf("expected error, got nil")
+		}
+	})
+
+	t.Run("Verify valid transaction", func(t *testing.T) {
+		element, _ := op.NewElement([]byte{0x01})
+		stack := op.NewStack()
+		stack.Push(element)
+
+		stack, err := op.VERIFY(stack)
+		if err != nil {
+			t.Errorf("expected nil, got %v", err)
+		}
+
+		if stack.Size() != 0 {
+			t.Errorf("expected: %v, got: %v", 0, stack.Size())
+		}
+	})
+
+	t.Run("Verify invalid transaction", func(t *testing.T) {
+		element, _ := op.NewElement([]byte{0x00})
+		stack := op.NewStack()
+		stack.Push(element)
+
+		_, err := op.VERIFY(stack)
+		if err == nil || err.Error() != "transaction invalid" {
+			t.Errorf("expected error, got nil")
+		}
+	})
+}
+
 func TestDUP(t *testing.T) {
 	t.Run("Empty stack", func(t *testing.T) {
 		stack := op.NewStack()

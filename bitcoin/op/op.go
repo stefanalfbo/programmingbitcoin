@@ -1,6 +1,7 @@
 package op
 
 import (
+	"bytes"
 	"fmt"
 	"math/big"
 
@@ -229,6 +230,24 @@ func NOP(stack *Stack) (*Stack, error) {
 	return stack, nil
 }
 
+// Marks transaction as invalid if top stack value is not true. The top stack value is removed.
+func VERIFY(stack *Stack) (*Stack, error) {
+	if stack.Size() < 1 {
+		return nil, fmt.Errorf("transaction invalid")
+	}
+
+	element, err := stack.Pop()
+	if err != nil {
+		return nil, err
+	}
+
+	if bytes.Equal(element.element, []byte{0x00}) {
+		return nil, fmt.Errorf("transaction invalid")
+	}
+
+	return stack, nil
+}
+
 // Duplicates the top stack item.
 func DUP(stack *Stack) (*Stack, error) {
 	duplicateElement, err := stack.Peek()
@@ -376,6 +395,7 @@ var OP_CODE_FUNCTIONS = map[int]func(*Stack) (*Stack, error){
 	95:  OP15,
 	96:  OP16,
 	97:  NOP,
+	105: VERIFY,
 	118: DUP,
 	147: ADD,
 	169: HASH160,
