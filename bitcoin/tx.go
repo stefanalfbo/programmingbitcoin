@@ -34,7 +34,7 @@ func (tx *Tx) Id() string {
 func (tx *Tx) hash() []byte {
 	txSerialized := tx.Serialize()
 
-	return hash.Hash256(string(txSerialized)).Bytes()
+	return hash.Hash256(txSerialized).Bytes()
 }
 
 func Parse(data io.Reader) (*Tx, error) {

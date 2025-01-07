@@ -203,7 +203,7 @@ func TestPrivateKey(t *testing.T) {
 
 func TestCreateTestnetAddress(t *testing.T) {
 	passphrase := "stefan@alfbo.se my secret"
-	secret := endian.LittleEndianToBigInt(hash.Hash256(passphrase).Bytes())
+	secret := endian.LittleEndianToBigInt(hash.Hash256([]byte(passphrase)).Bytes())
 	privateKey, err := ecc.NewPrivateKey(secret)
 	if err != nil {
 		t.Fatalf("NewPrivateKey: got error %v, expected nil", err)

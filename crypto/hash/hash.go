@@ -7,9 +7,9 @@ import (
 	"golang.org/x/crypto/ripemd160"
 )
 
-func Hash256(msg string) *big.Int {
+func Hash256(data []byte) *big.Int {
 	h := sha256.New()
-	_, err := h.Write([]byte(msg))
+	_, err := h.Write(data)
 	if err != nil {
 		return nil
 	}

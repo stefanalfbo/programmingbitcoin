@@ -324,7 +324,7 @@ func HASH256(stack *Stack) (*Stack, error) {
 		return nil, err
 	}
 
-	hashed := hash.Hash256(string(element.element))
+	hashed := hash.Hash256(element.element)
 	hashedElement, err := NewElement(hashed.Bytes())
 	if err != nil {
 		return nil, err
