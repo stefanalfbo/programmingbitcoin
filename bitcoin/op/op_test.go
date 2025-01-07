@@ -121,6 +121,18 @@ func TestVERIFY(t *testing.T) {
 	})
 }
 
+func TestRETURN(t *testing.T) {
+	stack := op.NewStack()
+	stack, err := op.RETURN(stack)
+	if err == nil || err.Error() != "transaction invalid" {
+		t.Errorf("expected error, got nil")
+	}
+
+	if stack.Size() != 0 {
+		t.Errorf("expected: %v, got: %v", 0, stack.Size())
+	}
+}
+
 func TestDUP(t *testing.T) {
 	t.Run("Empty stack", func(t *testing.T) {
 		stack := op.NewStack()

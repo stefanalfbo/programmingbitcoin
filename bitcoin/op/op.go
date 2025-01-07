@@ -233,7 +233,7 @@ func NOP(stack *Stack) (*Stack, error) {
 // Marks transaction as invalid if top stack value is not true. The top stack value is removed.
 func VERIFY(stack *Stack) (*Stack, error) {
 	if stack.Size() < 1 {
-		return nil, fmt.Errorf("transaction invalid")
+		return nil, fmt.Errorf("transaction invalid") // Should stack be included in the return?
 	}
 
 	element, err := stack.Pop()
@@ -242,10 +242,20 @@ func VERIFY(stack *Stack) (*Stack, error) {
 	}
 
 	if bytes.Equal(element.element, []byte{0x00}) {
-		return nil, fmt.Errorf("transaction invalid")
+		return nil, fmt.Errorf("transaction invalid") // Should stack be included in the return?
 	}
 
 	return stack, nil
+}
+
+// Marks transaction as invalid. Since bitcoin 0.9, a standard way of attaching extra data to
+// transactions is to add a zero-value output with a scriptPubKey consisting of OP_RETURN followed
+// by data. Such outputs are provably unspendable and specially discarded from storage in the UTXO
+// set, reducing their cost to the network. Since 0.12, standard relay rules allow a single output
+// with OP_RETURN, that contains any sequence of push statements (or OP_RESERVED[1]) after the
+// OP_RETURN provided the total scriptPubKey length is at most 83 bytes.
+func RETURN(stack *Stack) (*Stack, error) {
+	return stack, fmt.Errorf("transaction invalid")
 }
 
 // Duplicates the top stack item.
@@ -396,6 +406,7 @@ var OP_CODE_FUNCTIONS = map[int]func(*Stack) (*Stack, error){
 	96:  OP16,
 	97:  NOP,
 	105: VERIFY,
+	106: RETURN,
 	118: DUP,
 	147: ADD,
 	169: HASH160,
