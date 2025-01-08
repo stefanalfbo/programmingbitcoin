@@ -112,4 +112,22 @@ func TestStack(t *testing.T) {
 		}
 	})
 
+	t.Run("PeekN", func(t *testing.T) {
+		element1, _ := op.NewElement([]byte{0x01})
+		element2, _ := op.NewElement([]byte{0x02})
+		stack := op.NewStack()
+		stack.Push(element1)
+		stack.Push(element2)
+
+		peekedElement, err := stack.PeekN(1)
+		if err != nil {
+			t.Errorf("unexpected error: %v", err)
+		}
+		if !peekedElement.Equals(element1) {
+			t.Fatalf("expected: %v, got: %v", element1, peekedElement)
+		}
+		if stack.Size() != 2 {
+			t.Errorf("expected %v, got %v", 2, stack.Size())
+		}
+	})
 }

@@ -68,3 +68,11 @@ func (s *Stack) Peek() (*Element, error) {
 
 	return &s.stack[s.Size()-1], nil
 }
+
+func (s *Stack) PeekN(n int) (*Element, error) {
+	if s.Size() < n+1 {
+		return nil, fmt.Errorf("invalid stack")
+	}
+
+	return &s.stack[s.Size()-n-1], nil
+}
