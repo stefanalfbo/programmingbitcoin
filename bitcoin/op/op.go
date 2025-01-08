@@ -333,6 +333,36 @@ func ADD(stack *Stack) (*Stack, error) {
 	return stack, nil
 }
 
+// a is multiplied by b. disabled.
+func MUL(stack *Stack) (*Stack, error) {
+	if stack.Size() < 2 {
+		return nil, fmt.Errorf("stack too small")
+	}
+
+	b, err := stack.Pop()
+	if err != nil {
+		return nil, err
+	}
+
+	a, err := stack.Pop()
+	if err != nil {
+		return nil, err
+	}
+
+	bInt := new(big.Int).SetBytes(b.element)
+	aInt := new(big.Int).SetBytes(a.element)
+
+	product := new(big.Int).Mul(aInt, bInt)
+	productElement, err := NewElement(product.Bytes())
+	if err != nil {
+		return nil, err
+	}
+
+	stack.Push(productElement)
+
+	return stack, nil
+}
+
 // The input is hashed twice: first with SHA-256 and then with RIPEMD-160.
 func HASH160(stack *Stack) (*Stack, error) {
 	element, err := stack.Pop()
@@ -443,6 +473,7 @@ var OP_CODE_FUNCTIONS = map[int]func(*Stack) (*Stack, error){
 	118: DUP,
 	135: EQUAL,
 	147: ADD,
+	149: MUL,
 	169: HASH160,
 	170: HASH256,
 	// 172: CHECKSIG,
