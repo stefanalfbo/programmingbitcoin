@@ -292,6 +292,28 @@ func DUP(stack *Stack) (*Stack, error) {
 	return stack, nil
 }
 
+// The top two items on the stack are swapped.
+func SWAP(stack *Stack) (*Stack, error) {
+	if stack.Size() < 2 {
+		return nil, fmt.Errorf("stack too small")
+	}
+
+	element1, err := stack.Pop()
+	if err != nil {
+		return nil, err
+	}
+
+	element2, err := stack.Pop()
+	if err != nil {
+		return nil, err
+	}
+
+	stack.Push(element1)
+	stack.Push(element2)
+
+	return stack, nil
+}
+
 // Returns 1 if the inputs are exactly equal, 0 otherwise.
 func EQUAL(stack *Stack) (*Stack, error) {
 	if stack.Size() < 2 {
@@ -494,6 +516,7 @@ var OP_CODE_FUNCTIONS = map[int]func(*Stack) (*Stack, error){
 	106: RETURN,
 	110: OP2DUP,
 	118: DUP,
+	123: SWAP,
 	135: EQUAL,
 	147: ADD,
 	149: MUL,
