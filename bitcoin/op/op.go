@@ -258,6 +258,28 @@ func RETURN(stack *Stack) (*Stack, error) {
 	return stack, fmt.Errorf("transaction invalid")
 }
 
+// Duplicates the top two stack items.
+func OP2DUP(stack *Stack) (*Stack, error) {
+	if stack.Size() < 2 {
+		return nil, fmt.Errorf("stack too small")
+	}
+
+	element1, err := stack.Peek()
+	if err != nil {
+		return nil, err
+	}
+
+	element2, err := stack.PeekN(1)
+	if err != nil {
+		return nil, err
+	}
+
+	stack.Push(element2)
+	stack.Push(element1)
+
+	return stack, nil
+}
+
 // Duplicates the top stack item.
 func DUP(stack *Stack) (*Stack, error) {
 	duplicateElement, err := stack.Peek()
@@ -470,6 +492,7 @@ var OP_CODE_FUNCTIONS = map[int]func(*Stack) (*Stack, error){
 	97:  NOP,
 	105: VERIFY,
 	106: RETURN,
+	110: OP2DUP,
 	118: DUP,
 	135: EQUAL,
 	147: ADD,

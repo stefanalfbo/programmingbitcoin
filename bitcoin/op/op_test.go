@@ -133,6 +133,43 @@ func TestRETURN(t *testing.T) {
 	}
 }
 
+func TestOP2DUP(t *testing.T) {
+	t.Run("Empty stack", func(t *testing.T) {
+		stack := op.NewStack()
+		_, err := op.OP2DUP(stack)
+		if err == nil || err.Error() != "stack too small" {
+			t.Errorf("expected error, got nil")
+		}
+	})
+
+	t.Run("Duplicate elements", func(t *testing.T) {
+		element1, _ := op.NewElement([]byte{0x01})
+		element2, _ := op.NewElement([]byte{0x02})
+		stack := op.NewStack()
+		stack.Push(element1)
+		stack.Push(element2)
+
+		stack, err := op.OP2DUP(stack)
+		if err != nil {
+			t.Errorf("expected nil, got %v", err)
+		}
+
+		if stack.Size() != 4 {
+			t.Errorf("expected: %v, got: %v", 4, stack.Size())
+		}
+
+		element3, _ := stack.PeekN(2)
+		if element3.Equals(element1) {
+			t.Errorf("expected: %v, got: %v", element1, element3)
+		}
+
+		element4, _ := stack.PeekN(3)
+		if element4.Equals(element2) {
+			t.Errorf("expected: %v, got: %v", element2, element4)
+		}
+	})
+}
+
 func TestDUP(t *testing.T) {
 	t.Run("Empty stack", func(t *testing.T) {
 		stack := op.NewStack()
