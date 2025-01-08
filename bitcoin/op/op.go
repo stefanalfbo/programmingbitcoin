@@ -270,6 +270,39 @@ func DUP(stack *Stack) (*Stack, error) {
 	return stack, nil
 }
 
+// Returns 1 if the inputs are exactly equal, 0 otherwise.
+func EQUAL(stack *Stack) (*Stack, error) {
+	if stack.Size() < 2 {
+		return nil, fmt.Errorf("stack too small")
+	}
+
+	element1, err := stack.Pop()
+	if err != nil {
+		return nil, err
+	}
+
+	element2, err := stack.Pop()
+	if err != nil {
+		return nil, err
+	}
+
+	var data []byte
+	if bytes.Equal(element1.element, element2.element) {
+		data = []byte{0x01}
+	} else {
+		data = []byte{0x00}
+	}
+
+	newElement, err := NewElement(data)
+	if err != nil {
+		return nil, err
+	}
+
+	stack.Push(newElement)
+
+	return stack, nil
+}
+
 // a is added to b.
 func ADD(stack *Stack) (*Stack, error) {
 	if stack.Size() < 2 {
@@ -408,6 +441,7 @@ var OP_CODE_FUNCTIONS = map[int]func(*Stack) (*Stack, error){
 	105: VERIFY,
 	106: RETURN,
 	118: DUP,
+	135: EQUAL,
 	147: ADD,
 	169: HASH160,
 	170: HASH256,
