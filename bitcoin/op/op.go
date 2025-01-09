@@ -433,6 +433,23 @@ func MUL(stack *Stack) (*Stack, error) {
 	return stack, nil
 }
 
+// The input is hashed using SHA-1.
+func SHA1(stack *Stack) (*Stack, error) {
+	element, err := stack.Pop()
+	if err != nil {
+		return nil, err
+	}
+
+	hashed := hash.HashSHA1(element.element)
+	hashedElement, err := NewElement(hashed)
+	if err != nil {
+		return nil, err
+	}
+	stack.Push(hashedElement)
+
+	return stack, nil
+}
+
 // The input is hashed twice: first with SHA-256 and then with RIPEMD-160.
 func HASH160(stack *Stack) (*Stack, error) {
 	element, err := stack.Pop()
@@ -547,6 +564,7 @@ var OP_CODE_FUNCTIONS = map[int]func(*Stack) (*Stack, error){
 	145: NOT,
 	147: ADD,
 	149: MUL,
+	167: SHA1,
 	169: HASH160,
 	170: HASH256,
 	// 172: CHECKSIG,

@@ -1,6 +1,7 @@
 package hash
 
 import (
+	"crypto/sha1"
 	"crypto/sha256"
 	"math/big"
 
@@ -41,4 +42,13 @@ func Hash160(data []byte) []byte {
 	}
 
 	return ripemd160Hasher.Sum(nil)
+}
+
+func HashSHA1(data []byte) []byte {
+	h := sha1.New()
+	_, err := h.Write(data)
+	if err != nil {
+		return nil
+	}
+	return h.Sum(nil)
 }

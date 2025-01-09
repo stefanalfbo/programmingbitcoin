@@ -400,6 +400,37 @@ func TestMUL(t *testing.T) {
 	})
 }
 
+func TestSHA1(t *testing.T) {
+	t.Run("Empty stack", func(t *testing.T) {
+		stack := op.NewStack()
+		_, err := op.SHA1(stack)
+		if err == nil || err.Error() != "invalid stack" {
+			t.Errorf("expected error, got nil")
+		}
+	})
+
+	t.Run("Hash element", func(t *testing.T) {
+		expected := "2aae6c35c94fcfb415dbe95f408b9ce91ee846ed"
+		element, _ := op.NewElement([]byte("hello world"))
+		stack := op.NewStack()
+		stack.Push(element)
+
+		stack, err := op.SHA1(stack)
+		if err != nil {
+			t.Errorf("expected nil, got %v", err)
+		}
+
+		if stack.Size() != 1 {
+			t.Errorf("expected: %v, got: %v", 1, stack.Size())
+		}
+
+		hashedElement, _ := stack.Pop()
+		if expected != hashedElement.Hex() {
+			t.Errorf("expected: %v, got: %v", expected, hashedElement.Hex())
+		}
+	})
+}
+
 func TestHASH160(t *testing.T) {
 	t.Run("Empty stack", func(t *testing.T) {
 		stack := op.NewStack()
