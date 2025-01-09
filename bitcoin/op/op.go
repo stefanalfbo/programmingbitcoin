@@ -347,6 +347,32 @@ func EQUAL(stack *Stack) (*Stack, error) {
 	return stack, nil
 }
 
+// If the input is 0 or 1, it is flipped. Otherwise the output will be 0.
+func NOT(stack *Stack) (*Stack, error) {
+	element, err := stack.Pop()
+	if err != nil {
+		return nil, err
+	}
+
+	value := new(big.Int).SetBytes(element.element)
+
+	var data []byte
+	if value.Cmp(big.NewInt(0)) == 0 {
+		data = []byte{0x01}
+	} else {
+		data = []byte{0x00}
+	}
+
+	newElement, err := NewElement(data)
+	if err != nil {
+		return nil, err
+	}
+
+	stack.Push(newElement)
+
+	return stack, nil
+}
+
 // a is added to b.
 func ADD(stack *Stack) (*Stack, error) {
 	if stack.Size() < 2 {
@@ -518,6 +544,7 @@ var OP_CODE_FUNCTIONS = map[int]func(*Stack) (*Stack, error){
 	118: DUP,
 	123: SWAP,
 	135: EQUAL,
+	145: NOT,
 	147: ADD,
 	149: MUL,
 	169: HASH160,

@@ -286,6 +286,56 @@ func TestEQUAL(t *testing.T) {
 	})
 }
 
+func TestNOT(t *testing.T) {
+	t.Run("Empty stack", func(t *testing.T) {
+		stack := op.NewStack()
+		_, err := op.NOT(stack)
+		if err == nil || err.Error() != "invalid stack" {
+			t.Errorf("expected error, got nil")
+		}
+	})
+
+	t.Run("Not element on 0x42 value", func(t *testing.T) {
+		element, _ := op.NewElement([]byte{0x42})
+		stack := op.NewStack()
+		stack.Push(element)
+
+		stack, err := op.NOT(stack)
+		if err != nil {
+			t.Errorf("expected nil, got %v", err)
+		}
+
+		if stack.Size() != 1 {
+			t.Errorf("expected: %v, got: %v", 1, stack.Size())
+		}
+
+		element, _ = stack.Pop()
+		if element.Hex() != "00" {
+			t.Errorf("expected: %v, got: %v", "00", element.Hex())
+		}
+	})
+
+	t.Run("Not element on 0x00 value", func(t *testing.T) {
+		element, _ := op.NewElement([]byte{0x00})
+		stack := op.NewStack()
+		stack.Push(element)
+
+		stack, err := op.NOT(stack)
+		if err != nil {
+			t.Errorf("expected nil, got %v", err)
+		}
+
+		if stack.Size() != 1 {
+			t.Errorf("expected: %v, got: %v", 1, stack.Size())
+		}
+
+		element, _ = stack.Pop()
+		if element.Hex() != "01" {
+			t.Errorf("expected: %v, got: %v", "01", element.Hex())
+		}
+	})
+}
+
 func TestADD(t *testing.T) {
 	t.Run("Empty stack", func(t *testing.T) {
 		stack := op.NewStack()
