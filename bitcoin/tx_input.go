@@ -12,11 +12,11 @@ import (
 type TxInput struct {
 	PrevTx    []byte
 	PrevIndex *big.Int
-	ScriptSig Script
+	ScriptSig *Script
 	Sequence  *big.Int
 }
 
-func NewTxInput(prevTx []byte, prevIndex *big.Int, scriptSig Script, sequence *big.Int) *TxInput {
+func NewTxInput(prevTx []byte, prevIndex *big.Int, scriptSig *Script, sequence *big.Int) *TxInput {
 	return &TxInput{
 		prevTx,
 		prevIndex,
@@ -75,7 +75,7 @@ func parseTxInput(data io.Reader) (*TxInput, error) {
 	return &TxInput{
 		previousTx,
 		endian.LittleEndianToBigInt(previousTransactionIndex),
-		*scriptSignature,
+		scriptSignature,
 		endian.LittleEndianToBigInt(sequence),
 	}, nil
 }
