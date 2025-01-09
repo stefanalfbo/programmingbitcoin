@@ -11,14 +11,15 @@ import (
 )
 
 type Tx struct {
-	Version  int32
-	Inputs   []*TxInput
-	Outputs  []*TxOutput
-	LockTime int32
+	Version   int32
+	Inputs    []*TxInput
+	Outputs   []*TxOutput
+	LockTime  int32
+	isTestnet bool
 }
 
-func NewTx(version int32, inputs []*TxInput, outputs []*TxOutput, lockTime int32) *Tx {
-	return &Tx{version, inputs, outputs, lockTime}
+func NewTx(version int32, inputs []*TxInput, outputs []*TxOutput, lockTime int32, isTestnet bool) *Tx {
+	return &Tx{version, inputs, outputs, lockTime, isTestnet}
 }
 
 func (tx *Tx) String() string {
@@ -58,7 +59,7 @@ func Parse(data io.Reader) (*Tx, error) {
 		return nil, err
 	}
 
-	return NewTx(version, inputs, outputs, lockTime), nil
+	return NewTx(version, inputs, outputs, lockTime, false), nil
 }
 
 func parseVersion(data io.Reader) (int32, error) {
@@ -136,4 +137,51 @@ func (tx *Tx) Fee(testnet bool) (*big.Int, error) {
 	}
 
 	return new(big.Int).Sub(inputSum, outputSum), nil
+}
+
+func (tx *Tx) SignatureHash(inputIndex int) ([]byte, error) {
+	signature := endian.BigIntToLittleEndian(big.NewInt(int64(tx.Version)), 4)
+
+	length, err := varint.Encode(big.NewInt(int64(len(tx.Inputs))))
+	if err != nil {
+		return nil, err
+	}
+
+	signature = append(signature, length...)
+
+	for i, txIn := range tx.Inputs {
+		if i == inputIndex {
+			scriptSignature, err := txIn.ScriptPubKey(tx.isTestnet)
+			if err != nil {
+				return nil, err
+			}
+			tmpTxIn := NewTxInput(txIn.PrevTx, txIn.PrevIndex, scriptSignature, txIn.Sequence)
+
+			signature = append(signature, tmpTxIn.Serialize()...)
+		} else {
+			tmpTxIn := NewTxInput(txIn.PrevTx, txIn.PrevIndex, nil, txIn.Sequence)
+
+			signature = append(signature, tmpTxIn.Serialize()...)
+		}
+	}
+
+	outputLength, err := varint.Encode(big.NewInt(int64(len(tx.Outputs))))
+	if err != nil {
+		return nil, err
+	}
+
+	signature = append(signature, outputLength...)
+	for _, txOut := range tx.Outputs {
+		signature = append(signature, txOut.Serialize()...)
+	}
+
+	lockTime := endian.BigIntToLittleEndian(big.NewInt(int64(tx.LockTime)), 4)
+	signature = append(signature, lockTime...)
+
+	SIGHASH_ALL := 1
+	signature = append(signature, endian.BigIntToLittleEndian(big.NewInt(int64(SIGHASH_ALL)), 4)...)
+
+	hashed := hash.Hash256(signature).Bytes()
+
+	return hashed, nil
 }
