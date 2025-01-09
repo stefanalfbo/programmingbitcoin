@@ -13,6 +13,10 @@ type Instruction struct {
 	instruction []byte
 }
 
+func NewInstruction(instruction []byte) *Instruction {
+	return &Instruction{instruction}
+}
+
 func (i *Instruction) Hex() string {
 	return fmt.Sprintf("%x", i.instruction)
 }
