@@ -280,6 +280,16 @@ func OP2DUP(stack *Stack) (*Stack, error) {
 	return stack, nil
 }
 
+// Removes the top stack item.
+func DROP(stack *Stack) (*Stack, error) {
+	_, err := stack.Pop()
+	if err != nil {
+		return nil, err
+	}
+
+	return stack, nil
+}
+
 // Duplicates the top stack item.
 func DUP(stack *Stack) (*Stack, error) {
 	duplicateElement, err := stack.Peek()
@@ -558,6 +568,7 @@ var OP_CODE_FUNCTIONS = map[int]func(*Stack) (*Stack, error){
 	105: VERIFY,
 	106: RETURN,
 	110: OP2DUP,
+	117: DROP,
 	118: DUP,
 	123: SWAP,
 	135: EQUAL,
