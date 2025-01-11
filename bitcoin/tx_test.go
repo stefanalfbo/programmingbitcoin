@@ -31,6 +31,18 @@ func TestTx(t *testing.T) {
 		}
 	})
 
+	t.Run("Parse LockTime", func(t *testing.T) {
+		stream := setup()
+		tx, err := bitcoin.Parse(stream)
+		if err != nil {
+			t.Errorf("unexpected error: %v", err)
+		}
+
+		if tx.LockTime != 410393 {
+			t.Errorf("unexpected LockTime, got: %v, expected: %v", tx.LockTime, 410393)
+		}
+	})
+
 	t.Run("Parse inputs", func(t *testing.T) {
 		t.Skip("WIP")
 		stream := setup()
