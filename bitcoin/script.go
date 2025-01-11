@@ -4,7 +4,9 @@ import (
 	"fmt"
 	"io"
 	"math/big"
+	"slices"
 
+	"github.com/stefanalfbo/programmingbitcoin/bitcoin/op"
 	"github.com/stefanalfbo/programmingbitcoin/encoding/endian"
 	"github.com/stefanalfbo/programmingbitcoin/encoding/varint"
 )
@@ -172,4 +174,65 @@ func (script *Script) Serialize() ([]byte, error) {
 func (script *Script) Add(other *Script) *Script {
 	instructions := append(script.instructions, other.instructions...)
 	return NewScript(instructions)
+}
+
+func (script *Script) Evaluate(z []byte) (bool, error) {
+
+	stack := op.NewStack()
+	// altStack := NewStack()
+
+	for _, instruction := range script.instructions {
+		if isOpCode(instruction.instruction) {
+			opCode := int(instruction.instruction[0])
+			operation, exists := op.OP_CODE_FUNCTIONS[opCode]
+			if exists {
+				s, err := operation(stack)
+				if err != nil {
+					return false, err
+				}
+				stack = s
+			} else {
+				if opCode == 99 {
+					// s, err := op.IF(stack, script)
+					// if err != nil {
+					// 	return false, err
+					// }
+					// stack = s
+				}
+				if slices.Contains([]int{99, 100}, opCode) {
+					// OP_IF, OP_NOTIF
+
+				} else if slices.Contains([]int{107, 108}, opCode) {
+					// OP_TOALTSTACK, OP_FROMALTSTACK
+				} else if slices.Contains([]int{172, 173, 174, 175}, opCode) {
+					// OP_CHECKSIG, OP_CHECKSIGVERIFY, OP_CHECKMULTISIG, OP_CHECKMULTISIGVERIFY
+					s, err := op.CHECKSIG(stack, new(big.Int).SetBytes(z))
+					if err != nil {
+						return false, err
+					}
+					stack = s
+				}
+			}
+		} else {
+			element, err := op.NewElement(instruction.instruction)
+			if err != nil {
+				return false, err
+			}
+			stack.Push(element)
+		}
+	}
+
+	if stack.Size() == 0 {
+		return false, fmt.Errorf("stack size is not 1")
+	}
+
+	element, err := stack.Pop()
+	if err != nil {
+		return false, err
+	}
+
+	if element == nil {
+		return false, fmt.Errorf("element is nil")
+	}
+	return true, nil
 }

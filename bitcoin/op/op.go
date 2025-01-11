@@ -230,6 +230,55 @@ func NOP(stack *Stack) (*Stack, error) {
 	return stack, nil
 }
 
+// If the top stack value is not False, the statements are executed. The top stack value is removed.
+func IF(stack *Stack, items []Element) (*Stack, error) {
+	if stack.Size() < 1 {
+		return nil, fmt.Errorf("stack too small")
+	}
+
+	founded := false
+	numberOfEndIfsNeeded := 1
+	trueItems := make([]Element, 0)
+	falseItems := make([]Element, 0)
+	current := make([]Element, 0)
+
+	for _, item := range items {
+		if bytes.Equal(item.element, []byte{0x63}) || bytes.Equal(item.element, []byte{0x64}) {
+			numberOfEndIfsNeeded++
+			current = append(current, item)
+		} else if numberOfEndIfsNeeded == 1 || numberOfEndIfsNeeded == 103 {
+			current = falseItems
+		} else if bytes.Equal(item.element, []byte{0x68}) {
+			if numberOfEndIfsNeeded == 1 {
+				founded = true
+				break
+			} else {
+				numberOfEndIfsNeeded--
+				current = append(current, item)
+			}
+		} else {
+			current = append(current, item)
+		}
+	}
+
+	if !founded {
+		return nil, fmt.Errorf("missing OP_ENDIF")
+	}
+
+	element, err := stack.Pop()
+	if err != nil {
+		return nil, err
+	}
+
+	if bytes.Equal(element.element, []byte{0x00}) {
+		items = append(falseItems, items...)
+	} else {
+		items = append(trueItems, items...)
+	}
+
+	return stack, nil
+}
+
 // Marks transaction as invalid if top stack value is not true. The top stack value is removed.
 func VERIFY(stack *Stack) (*Stack, error) {
 	if stack.Size() < 1 {
@@ -546,25 +595,26 @@ func CHECKSIG(stack *Stack, z *big.Int) (*Stack, error) {
 }
 
 var OP_CODE_FUNCTIONS = map[int]func(*Stack) (*Stack, error){
-	0:   OP0,
-	79:  OP1NEGATE,
-	81:  OP1,
-	82:  OP2,
-	83:  OP3,
-	84:  OP4,
-	85:  OP5,
-	86:  OP6,
-	87:  OP7,
-	88:  OP8,
-	89:  OP9,
-	90:  OP10,
-	91:  OP11,
-	92:  OP12,
-	93:  OP13,
-	94:  OP14,
-	95:  OP15,
-	96:  OP16,
-	97:  NOP,
+	0:  OP0,
+	79: OP1NEGATE,
+	81: OP1,
+	82: OP2,
+	83: OP3,
+	84: OP4,
+	85: OP5,
+	86: OP6,
+	87: OP7,
+	88: OP8,
+	89: OP9,
+	90: OP10,
+	91: OP11,
+	92: OP12,
+	93: OP13,
+	94: OP14,
+	95: OP15,
+	96: OP16,
+	97: NOP,
+	// 99:  IF,
 	105: VERIFY,
 	106: RETURN,
 	110: OP2DUP,

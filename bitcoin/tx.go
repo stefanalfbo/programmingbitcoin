@@ -185,3 +185,21 @@ func (tx *Tx) SignatureHash(inputIndex int) ([]byte, error) {
 
 	return hashed, nil
 }
+
+func (tx *Tx) VerifyInput(inputIndex int) (bool, error) {
+	txInput := tx.Inputs[inputIndex]
+	scriptPubKey, err := txInput.ScriptPubKey(tx.isTestnet)
+	if err != nil {
+		return false, err
+	}
+
+	z, err := tx.SignatureHash(inputIndex)
+	if err != nil {
+		return false, err
+	}
+
+	script := scriptPubKey.Add(txInput.ScriptSig)
+	result, err := script.Evaluate(z)
+
+	return result, err
+}
