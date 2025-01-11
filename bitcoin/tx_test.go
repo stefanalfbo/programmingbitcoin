@@ -43,6 +43,25 @@ func TestTx(t *testing.T) {
 		}
 	})
 
+	t.Run("Fee", func(t *testing.T) {
+		t.Skip("WIP")
+		stream := setup()
+		tx, err := bitcoin.Parse(stream)
+		if err != nil {
+			t.Errorf("unexpected error: %v", err)
+		}
+
+		fee, err := tx.Fee(true)
+		if err != nil {
+			t.Errorf("unexpected error: %v", err)
+		}
+
+		expected := big.NewInt(40_000)
+		if fee.Cmp(expected) != 0 {
+			t.Errorf("expected: %d, got: %d", expected, fee)
+		}
+	})
+
 	t.Run("Parse inputs", func(t *testing.T) {
 		t.Skip("WIP")
 		stream := setup()
