@@ -21,9 +21,9 @@ func TestOP0_OP16(t *testing.T) {
 			t.Errorf("expected: %v, got: %v", 1, stack.Size())
 		}
 
-		element, _ := stack.Pop()
-		if element.Hex() != expected {
-			t.Errorf("expected: %v, got: %v", expected, element.Hex())
+		instruction, _ := stack.Pop()
+		if instruction.Hex() != expected {
+			t.Errorf("expected: %v, got: %v", expected, instruction.Hex())
 		}
 	})
 
@@ -39,9 +39,9 @@ func TestOP0_OP16(t *testing.T) {
 			t.Errorf("expected: %v, got: %v", 1, stack.Size())
 		}
 
-		element, _ := stack.Pop()
-		if element.Hex() != expected {
-			t.Errorf("expected: %v, got: %v", expected, element.Hex())
+		instruction, _ := stack.Pop()
+		if instruction.Hex() != expected {
+			t.Errorf("expected: %v, got: %v", expected, instruction.Hex())
 		}
 	})
 
@@ -62,18 +62,18 @@ func TestOP0_OP16(t *testing.T) {
 				t.Errorf("expected: %v, got: %v", 1, stack.Size())
 			}
 
-			element, _ := stack.Pop()
-			if element.Hex() != expected[i] {
-				t.Errorf("expected: %v, got: %v", expected[i], element.Hex())
+			instruction, _ := stack.Pop()
+			if instruction.Hex() != expected[i] {
+				t.Errorf("expected: %v, got: %v", expected[i], instruction.Hex())
 			}
 		}
 	})
 }
 
 func TestNOP(t *testing.T) {
-	element, _ := op.NewElement([]byte{0x01})
+	instruction, _ := op.NewInstruction([]byte{0x01})
 	stack := op.NewStack()
-	stack.Push(element)
+	stack.Push(instruction)
 
 	stack, err := op.NOP(stack)
 	if err != nil {
@@ -95,9 +95,9 @@ func TestVERIFY(t *testing.T) {
 	})
 
 	t.Run("Verify valid transaction", func(t *testing.T) {
-		element, _ := op.NewElement([]byte{0x01})
+		instruction, _ := op.NewInstruction([]byte{0x01})
 		stack := op.NewStack()
-		stack.Push(element)
+		stack.Push(instruction)
 
 		stack, err := op.VERIFY(stack)
 		if err != nil {
@@ -110,9 +110,9 @@ func TestVERIFY(t *testing.T) {
 	})
 
 	t.Run("Verify invalid transaction", func(t *testing.T) {
-		element, _ := op.NewElement([]byte{0x00})
+		instruction, _ := op.NewInstruction([]byte{0x00})
 		stack := op.NewStack()
-		stack.Push(element)
+		stack.Push(instruction)
 
 		_, err := op.VERIFY(stack)
 		if err == nil || err.Error() != "transaction invalid" {
@@ -143,8 +143,8 @@ func TestSWAP(t *testing.T) {
 	})
 
 	t.Run("Swap elements", func(t *testing.T) {
-		element1, _ := op.NewElement([]byte{0x01})
-		element2, _ := op.NewElement([]byte{0x02})
+		element1, _ := op.NewInstruction([]byte{0x01})
+		element2, _ := op.NewInstruction([]byte{0x02})
 		stack := op.NewStack()
 		stack.Push(element1)
 		stack.Push(element2)
@@ -180,8 +180,8 @@ func TestOP2DUP(t *testing.T) {
 	})
 
 	t.Run("Duplicate elements", func(t *testing.T) {
-		element1, _ := op.NewElement([]byte{0x01})
-		element2, _ := op.NewElement([]byte{0x02})
+		element1, _ := op.NewInstruction([]byte{0x01})
+		element2, _ := op.NewInstruction([]byte{0x02})
 		stack := op.NewStack()
 		stack.Push(element1)
 		stack.Push(element2)
@@ -216,10 +216,10 @@ func TestDROP(t *testing.T) {
 		}
 	})
 
-	t.Run("Drop element", func(t *testing.T) {
-		element, _ := op.NewElement([]byte{0x01})
+	t.Run("Drop instruction", func(t *testing.T) {
+		instruction, _ := op.NewInstruction([]byte{0x01})
 		stack := op.NewStack()
-		stack.Push(element)
+		stack.Push(instruction)
 
 		stack, err := op.DROP(stack)
 		if err != nil {
@@ -241,10 +241,10 @@ func TestDUP(t *testing.T) {
 		}
 	})
 
-	t.Run("Duplicate element", func(t *testing.T) {
-		element, _ := op.NewElement([]byte{0x01})
+	t.Run("Duplicate instruction", func(t *testing.T) {
+		instruction, _ := op.NewInstruction([]byte{0x01})
 		stack := op.NewStack()
-		stack.Push(element)
+		stack.Push(instruction)
 
 		stack, err := op.DUP(stack)
 		if err != nil {
@@ -267,8 +267,8 @@ func TestEQUAL(t *testing.T) {
 	})
 
 	t.Run("Equal elements", func(t *testing.T) {
-		element1, _ := op.NewElement([]byte{0x01})
-		element2, _ := op.NewElement([]byte{0x01})
+		element1, _ := op.NewInstruction([]byte{0x01})
+		element2, _ := op.NewInstruction([]byte{0x01})
 		stack := op.NewStack()
 		stack.Push(element1)
 		stack.Push(element2)
@@ -282,15 +282,15 @@ func TestEQUAL(t *testing.T) {
 			t.Errorf("expected: %v, got: %v", 1, stack.Size())
 		}
 
-		element, _ := stack.Pop()
-		if element.Hex() != "01" {
-			t.Errorf("expected: %v, got: %v", "01", element.Hex())
+		instruction, _ := stack.Pop()
+		if instruction.Hex() != "01" {
+			t.Errorf("expected: %v, got: %v", "01", instruction.Hex())
 		}
 	})
 
 	t.Run("Different elements", func(t *testing.T) {
-		element1, _ := op.NewElement([]byte{0x01})
-		element2, _ := op.NewElement([]byte{0x02})
+		element1, _ := op.NewInstruction([]byte{0x01})
+		element2, _ := op.NewInstruction([]byte{0x02})
 		stack := op.NewStack()
 		stack.Push(element1)
 		stack.Push(element2)
@@ -304,9 +304,9 @@ func TestEQUAL(t *testing.T) {
 			t.Errorf("expected: %v, got: %v", 1, stack.Size())
 		}
 
-		element, _ := stack.Pop()
-		if element.Hex() != "00" {
-			t.Errorf("expected: %v, got: %v", "00", element.Hex())
+		instruction, _ := stack.Pop()
+		if instruction.Hex() != "00" {
+			t.Errorf("expected: %v, got: %v", "00", instruction.Hex())
 		}
 	})
 }
@@ -320,10 +320,10 @@ func TestNOT(t *testing.T) {
 		}
 	})
 
-	t.Run("Not element on 0x42 value", func(t *testing.T) {
-		element, _ := op.NewElement([]byte{0x42})
+	t.Run("Not instruction on 0x42 value", func(t *testing.T) {
+		instruction, _ := op.NewInstruction([]byte{0x42})
 		stack := op.NewStack()
-		stack.Push(element)
+		stack.Push(instruction)
 
 		stack, err := op.NOT(stack)
 		if err != nil {
@@ -334,16 +334,16 @@ func TestNOT(t *testing.T) {
 			t.Errorf("expected: %v, got: %v", 1, stack.Size())
 		}
 
-		element, _ = stack.Pop()
-		if element.Hex() != "00" {
-			t.Errorf("expected: %v, got: %v", "00", element.Hex())
+		instruction, _ = stack.Pop()
+		if instruction.Hex() != "00" {
+			t.Errorf("expected: %v, got: %v", "00", instruction.Hex())
 		}
 	})
 
-	t.Run("Not element on 0x00 value", func(t *testing.T) {
-		element, _ := op.NewElement([]byte{0x00})
+	t.Run("Not instruction on 0x00 value", func(t *testing.T) {
+		instruction, _ := op.NewInstruction([]byte{0x00})
 		stack := op.NewStack()
-		stack.Push(element)
+		stack.Push(instruction)
 
 		stack, err := op.NOT(stack)
 		if err != nil {
@@ -354,9 +354,9 @@ func TestNOT(t *testing.T) {
 			t.Errorf("expected: %v, got: %v", 1, stack.Size())
 		}
 
-		element, _ = stack.Pop()
-		if element.Hex() != "01" {
-			t.Errorf("expected: %v, got: %v", "01", element.Hex())
+		instruction, _ = stack.Pop()
+		if instruction.Hex() != "01" {
+			t.Errorf("expected: %v, got: %v", "01", instruction.Hex())
 		}
 	})
 }
@@ -371,8 +371,8 @@ func TestADD(t *testing.T) {
 	})
 
 	t.Run("Add elements", func(t *testing.T) {
-		element1, _ := op.NewElement([]byte{0x01})
-		element2, _ := op.NewElement([]byte{0x02})
+		element1, _ := op.NewInstruction([]byte{0x01})
+		element2, _ := op.NewInstruction([]byte{0x02})
 		stack := op.NewStack()
 		stack.Push(element1)
 		stack.Push(element2)
@@ -386,9 +386,9 @@ func TestADD(t *testing.T) {
 			t.Errorf("expected: %v, got: %v", 1, stack.Size())
 		}
 
-		element, _ := stack.Pop()
-		if element.Hex() != "03" {
-			t.Errorf("expected: %v, got: %v", "03", element.Hex())
+		instruction, _ := stack.Pop()
+		if instruction.Hex() != "03" {
+			t.Errorf("expected: %v, got: %v", "03", instruction.Hex())
 		}
 	})
 }
@@ -403,8 +403,8 @@ func TestMUL(t *testing.T) {
 	})
 
 	t.Run("Multiply elements", func(t *testing.T) {
-		element1, _ := op.NewElement([]byte{0x02})
-		element2, _ := op.NewElement([]byte{0x03})
+		element1, _ := op.NewInstruction([]byte{0x02})
+		element2, _ := op.NewInstruction([]byte{0x03})
 		stack := op.NewStack()
 		stack.Push(element1)
 		stack.Push(element2)
@@ -418,9 +418,9 @@ func TestMUL(t *testing.T) {
 			t.Errorf("expected: %v, got: %v", 1, stack.Size())
 		}
 
-		element, _ := stack.Pop()
-		if element.Hex() != "06" {
-			t.Errorf("expected: %v, got: %v", "06", element.Hex())
+		instruction, _ := stack.Pop()
+		if instruction.Hex() != "06" {
+			t.Errorf("expected: %v, got: %v", "06", instruction.Hex())
 		}
 	})
 }
@@ -434,11 +434,11 @@ func TestSHA1(t *testing.T) {
 		}
 	})
 
-	t.Run("Hash element", func(t *testing.T) {
+	t.Run("Hash instruction", func(t *testing.T) {
 		expected := "2aae6c35c94fcfb415dbe95f408b9ce91ee846ed"
-		element, _ := op.NewElement([]byte("hello world"))
+		instruction, _ := op.NewInstruction([]byte("hello world"))
 		stack := op.NewStack()
-		stack.Push(element)
+		stack.Push(instruction)
 
 		stack, err := op.SHA1(stack)
 		if err != nil {
@@ -465,11 +465,11 @@ func TestHASH160(t *testing.T) {
 		}
 	})
 
-	t.Run("Hash element", func(t *testing.T) {
+	t.Run("Hash instruction", func(t *testing.T) {
 		expected := "d7d5ee7824ff93f94c3055af9382c86c68b5ca92"
-		element, _ := op.NewElement([]byte("hello world"))
+		instruction, _ := op.NewInstruction([]byte("hello world"))
 		stack := op.NewStack()
-		stack.Push(element)
+		stack.Push(instruction)
 
 		stack, err := op.HASH160(stack)
 		if err != nil {
@@ -496,10 +496,10 @@ func TestHASH256(t *testing.T) {
 		}
 	})
 
-	t.Run("Hash element", func(t *testing.T) {
-		element, _ := op.NewElement([]byte{0x01})
+	t.Run("Hash instruction", func(t *testing.T) {
+		instruction, _ := op.NewInstruction([]byte{0x01})
 		stack := op.NewStack()
-		stack.Push(element)
+		stack.Push(instruction)
 
 		stack, err := op.HASH256(stack)
 		if err != nil {
@@ -526,8 +526,8 @@ func TestCHECKSIG(t *testing.T) {
 		secBytes, _ := hex.DecodeString("04887387e452b8eacc4acfde10d9aaf7f6d9a0f975aabb10d006e4da568744d06c61de6d95231cd89026e286df3b6ae4a894a3378e393e93a0f45b666329a0ae34")
 		sigBytes, _ := hex.DecodeString("3045022000eff69ef2b1bd93a66ed5219add4fb51e11a840f404876325a1e8ffe0529a2c022100c7207fee197d27c618aea621406f6bf5ef6fca38681d82b2f06fddbdce6feab601")
 
-		sec, _ := op.NewElement(secBytes)
-		sig, _ := op.NewElement(sigBytes)
+		sec, _ := op.NewInstruction(secBytes)
+		sig, _ := op.NewInstruction(sigBytes)
 
 		stack := op.NewStack()
 		stack.Push(sig)
@@ -542,9 +542,9 @@ func TestCHECKSIG(t *testing.T) {
 			t.Errorf("expected: %v, got: %v", 1, stack.Size())
 		}
 
-		element, _ := stack.Pop()
-		if element.Hex() != "01" {
-			t.Errorf("expected: %v, got: %v", "01", element.Hex())
+		instruction, _ := stack.Pop()
+		if instruction.Hex() != "01" {
+			t.Errorf("expected: %v, got: %v", "01", instruction.Hex())
 		}
 	})
 }

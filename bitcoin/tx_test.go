@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	"github.com/stefanalfbo/programmingbitcoin/bitcoin"
+	"github.com/stefanalfbo/programmingbitcoin/bitcoin/op"
 	"github.com/stefanalfbo/programmingbitcoin/crypto/ecc"
 )
 
@@ -114,9 +115,9 @@ func TestTx(t *testing.T) {
 		sec := privateKey.SECCompressed()
 		sig := append(der, 0x01)
 
-		sigInstructions := bitcoin.NewInstruction(sig)
-		secInstructions := bitcoin.NewInstruction(sec)
-		instructions := []bitcoin.Instruction{*sigInstructions, *secInstructions}
+		sigInstructions, _ := op.NewInstruction(sig)
+		secInstructions, _ := op.NewInstruction(sec)
+		instructions := []op.Instruction{*sigInstructions, *secInstructions}
 		scriptSig := bitcoin.NewScript(instructions)
 
 		tx.Inputs[0].ScriptSig = scriptSig

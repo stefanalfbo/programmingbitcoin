@@ -11,216 +11,216 @@ import (
 
 // An empty array of bytes is pushed onto the stack. (This is not a no-op: an item is added to the stack.)
 func OP0(stack *Stack) (*Stack, error) {
-	element, err := NewElement([]byte{})
+	instruction, err := NewInstruction([]byte{})
 	if err != nil {
 		return nil, err
 	}
 
-	stack.Push(element)
+	stack.Push(instruction)
 
 	return stack, nil
 }
 
 // The number -1 is pushed onto the stack.
 func OP1NEGATE(stack *Stack) (*Stack, error) {
-	element, err := NewElement([]byte{0x81})
+	instruction, err := NewInstruction([]byte{0x81})
 	if err != nil {
 		return nil, err
 	}
 
-	stack.Push(element)
+	stack.Push(instruction)
 
 	return stack, nil
 }
 
 // The number 1 is pushed onto the stack.
 func OP1(stack *Stack) (*Stack, error) {
-	element, err := NewElement([]byte{0x01})
+	instruction, err := NewInstruction([]byte{0x01})
 	if err != nil {
 		return nil, err
 	}
 
-	stack.Push(element)
+	stack.Push(instruction)
 
 	return stack, nil
 }
 
 // The number 2 is pushed onto the stack.
 func OP2(stack *Stack) (*Stack, error) {
-	element, err := NewElement([]byte{0x02})
+	instruction, err := NewInstruction([]byte{0x02})
 	if err != nil {
 		return nil, err
 	}
 
-	stack.Push(element)
+	stack.Push(instruction)
 
 	return stack, nil
 }
 
 // The number 3 is pushed onto the stack.
 func OP3(stack *Stack) (*Stack, error) {
-	element, err := NewElement([]byte{0x03})
+	instruction, err := NewInstruction([]byte{0x03})
 	if err != nil {
 		return nil, err
 	}
 
-	stack.Push(element)
+	stack.Push(instruction)
 
 	return stack, nil
 }
 
 // The number 4 is pushed onto the stack.
 func OP4(stack *Stack) (*Stack, error) {
-	element, err := NewElement([]byte{0x04})
+	instruction, err := NewInstruction([]byte{0x04})
 	if err != nil {
 		return nil, err
 	}
 
-	stack.Push(element)
+	stack.Push(instruction)
 
 	return stack, nil
 }
 
 // The number 5 is pushed onto the stack.
 func OP5(stack *Stack) (*Stack, error) {
-	element, err := NewElement([]byte{0x05})
+	instruction, err := NewInstruction([]byte{0x05})
 	if err != nil {
 		return nil, err
 	}
 
-	stack.Push(element)
+	stack.Push(instruction)
 
 	return stack, nil
 }
 
 // The number 6 is pushed onto the stack.
 func OP6(stack *Stack) (*Stack, error) {
-	element, err := NewElement([]byte{0x06})
+	instruction, err := NewInstruction([]byte{0x06})
 	if err != nil {
 		return nil, err
 	}
 
-	stack.Push(element)
+	stack.Push(instruction)
 
 	return stack, nil
 }
 
 // The number 7 is pushed onto the stack.
 func OP7(stack *Stack) (*Stack, error) {
-	element, err := NewElement([]byte{0x07})
+	instruction, err := NewInstruction([]byte{0x07})
 	if err != nil {
 		return nil, err
 	}
 
-	stack.Push(element)
+	stack.Push(instruction)
 
 	return stack, nil
 }
 
 // The number 8 is pushed onto the stack.
 func OP8(stack *Stack) (*Stack, error) {
-	element, err := NewElement([]byte{0x08})
+	instruction, err := NewInstruction([]byte{0x08})
 	if err != nil {
 		return nil, err
 	}
 
-	stack.Push(element)
+	stack.Push(instruction)
 
 	return stack, nil
 }
 
 // The number 9 is pushed onto the stack.
 func OP9(stack *Stack) (*Stack, error) {
-	element, err := NewElement([]byte{0x09})
+	instruction, err := NewInstruction([]byte{0x09})
 	if err != nil {
 		return nil, err
 	}
 
-	stack.Push(element)
+	stack.Push(instruction)
 
 	return stack, nil
 }
 
 // The number 10 is pushed onto the stack.
 func OP10(stack *Stack) (*Stack, error) {
-	element, err := NewElement([]byte{0x0A})
+	instruction, err := NewInstruction([]byte{0x0A})
 	if err != nil {
 		return nil, err
 	}
 
-	stack.Push(element)
+	stack.Push(instruction)
 
 	return stack, nil
 }
 
 // The number 11 is pushed onto the stack.
 func OP11(stack *Stack) (*Stack, error) {
-	element, err := NewElement([]byte{0x0B})
+	instruction, err := NewInstruction([]byte{0x0B})
 	if err != nil {
 		return nil, err
 	}
 
-	stack.Push(element)
+	stack.Push(instruction)
 
 	return stack, nil
 }
 
 // The number 12 is pushed onto the stack.
 func OP12(stack *Stack) (*Stack, error) {
-	element, err := NewElement([]byte{0x0C})
+	instruction, err := NewInstruction([]byte{0x0C})
 	if err != nil {
 		return nil, err
 	}
 
-	stack.Push(element)
+	stack.Push(instruction)
 
 	return stack, nil
 }
 
 // The number 13 is pushed onto the stack.
 func OP13(stack *Stack) (*Stack, error) {
-	element, err := NewElement([]byte{0x0D})
+	instruction, err := NewInstruction([]byte{0x0D})
 	if err != nil {
 		return nil, err
 	}
 
-	stack.Push(element)
+	stack.Push(instruction)
 
 	return stack, nil
 }
 
 // The number 14 is pushed onto the stack.
 func OP14(stack *Stack) (*Stack, error) {
-	element, err := NewElement([]byte{0x0E})
+	instruction, err := NewInstruction([]byte{0x0E})
 	if err != nil {
 		return nil, err
 	}
 
-	stack.Push(element)
+	stack.Push(instruction)
 
 	return stack, nil
 }
 
 // The number 15 is pushed onto the stack.
 func OP15(stack *Stack) (*Stack, error) {
-	element, err := NewElement([]byte{0x0F})
+	instruction, err := NewInstruction([]byte{0x0F})
 	if err != nil {
 		return nil, err
 	}
 
-	stack.Push(element)
+	stack.Push(instruction)
 
 	return stack, nil
 }
 
 // 16 is pushed onto the stack.
 func OP16(stack *Stack) (*Stack, error) {
-	element, err := NewElement([]byte{0x10})
+	instruction, err := NewInstruction([]byte{0x10})
 	if err != nil {
 		return nil, err
 	}
 
-	stack.Push(element)
+	stack.Push(instruction)
 
 	return stack, nil
 }
@@ -231,24 +231,24 @@ func NOP(stack *Stack) (*Stack, error) {
 }
 
 // If the top stack value is not False, the statements are executed. The top stack value is removed.
-func IF(stack *Stack, items []Element) (*Stack, error) {
+func IF(stack *Stack, items []Instruction) (*Stack, error) {
 	if stack.Size() < 1 {
 		return nil, fmt.Errorf("stack too small")
 	}
 
 	founded := false
 	numberOfEndIfsNeeded := 1
-	trueItems := make([]Element, 0)
-	falseItems := make([]Element, 0)
-	current := make([]Element, 0)
+	trueItems := make([]Instruction, 0)
+	falseItems := make([]Instruction, 0)
+	current := make([]Instruction, 0)
 
 	for _, item := range items {
-		if bytes.Equal(item.element, []byte{0x63}) || bytes.Equal(item.element, []byte{0x64}) {
+		if bytes.Equal(item.instruction, []byte{0x63}) || bytes.Equal(item.instruction, []byte{0x64}) {
 			numberOfEndIfsNeeded++
 			current = append(current, item)
 		} else if numberOfEndIfsNeeded == 1 || numberOfEndIfsNeeded == 103 {
 			current = falseItems
-		} else if bytes.Equal(item.element, []byte{0x68}) {
+		} else if bytes.Equal(item.instruction, []byte{0x68}) {
 			if numberOfEndIfsNeeded == 1 {
 				founded = true
 				break
@@ -265,12 +265,12 @@ func IF(stack *Stack, items []Element) (*Stack, error) {
 		return nil, fmt.Errorf("missing OP_ENDIF")
 	}
 
-	element, err := stack.Pop()
+	instruction, err := stack.Pop()
 	if err != nil {
 		return nil, err
 	}
 
-	if bytes.Equal(element.element, []byte{0x00}) {
+	if bytes.Equal(instruction.instruction, []byte{0x00}) {
 		items = append(falseItems, items...)
 	} else {
 		items = append(trueItems, items...)
@@ -285,12 +285,12 @@ func VERIFY(stack *Stack) (*Stack, error) {
 		return nil, fmt.Errorf("transaction invalid") // Should stack be included in the return?
 	}
 
-	element, err := stack.Pop()
+	instruction, err := stack.Pop()
 	if err != nil {
 		return nil, err
 	}
 
-	if bytes.Equal(element.element, []byte{0x00}) {
+	if bytes.Equal(instruction.instruction, []byte{0x00}) {
 		return nil, fmt.Errorf("transaction invalid") // Should stack be included in the return?
 	}
 
@@ -390,30 +390,30 @@ func EQUAL(stack *Stack) (*Stack, error) {
 	}
 
 	var data []byte
-	if bytes.Equal(element1.element, element2.element) {
+	if bytes.Equal(element1.instruction, element2.instruction) {
 		data = []byte{0x01}
 	} else {
 		data = []byte{0x00}
 	}
 
-	newElement, err := NewElement(data)
+	NewInstruction, err := NewInstruction(data)
 	if err != nil {
 		return nil, err
 	}
 
-	stack.Push(newElement)
+	stack.Push(NewInstruction)
 
 	return stack, nil
 }
 
 // If the input is 0 or 1, it is flipped. Otherwise the output will be 0.
 func NOT(stack *Stack) (*Stack, error) {
-	element, err := stack.Pop()
+	instruction, err := stack.Pop()
 	if err != nil {
 		return nil, err
 	}
 
-	value := new(big.Int).SetBytes(element.element)
+	value := new(big.Int).SetBytes(instruction.instruction)
 
 	var data []byte
 	if value.Cmp(big.NewInt(0)) == 0 {
@@ -422,12 +422,12 @@ func NOT(stack *Stack) (*Stack, error) {
 		data = []byte{0x00}
 	}
 
-	newElement, err := NewElement(data)
+	NewInstruction, err := NewInstruction(data)
 	if err != nil {
 		return nil, err
 	}
 
-	stack.Push(newElement)
+	stack.Push(NewInstruction)
 
 	return stack, nil
 }
@@ -448,11 +448,11 @@ func ADD(stack *Stack) (*Stack, error) {
 		return nil, err
 	}
 
-	bInt := new(big.Int).SetBytes(b.element)
-	aInt := new(big.Int).SetBytes(a.element)
+	bInt := new(big.Int).SetBytes(b.instruction)
+	aInt := new(big.Int).SetBytes(a.instruction)
 
 	sum := new(big.Int).Add(aInt, bInt)
-	sumElement, err := NewElement(sum.Bytes())
+	sumElement, err := NewInstruction(sum.Bytes())
 	if err != nil {
 		return nil, err
 	}
@@ -478,11 +478,11 @@ func MUL(stack *Stack) (*Stack, error) {
 		return nil, err
 	}
 
-	bInt := new(big.Int).SetBytes(b.element)
-	aInt := new(big.Int).SetBytes(a.element)
+	bInt := new(big.Int).SetBytes(b.instruction)
+	aInt := new(big.Int).SetBytes(a.instruction)
 
 	product := new(big.Int).Mul(aInt, bInt)
-	productElement, err := NewElement(product.Bytes())
+	productElement, err := NewInstruction(product.Bytes())
 	if err != nil {
 		return nil, err
 	}
@@ -494,13 +494,13 @@ func MUL(stack *Stack) (*Stack, error) {
 
 // The input is hashed using SHA-1.
 func SHA1(stack *Stack) (*Stack, error) {
-	element, err := stack.Pop()
+	instruction, err := stack.Pop()
 	if err != nil {
 		return nil, err
 	}
 
-	hashed := hash.HashSHA1(element.element)
-	hashedElement, err := NewElement(hashed)
+	hashed := hash.HashSHA1(instruction.instruction)
+	hashedElement, err := NewInstruction(hashed)
 	if err != nil {
 		return nil, err
 	}
@@ -511,13 +511,13 @@ func SHA1(stack *Stack) (*Stack, error) {
 
 // The input is hashed twice: first with SHA-256 and then with RIPEMD-160.
 func HASH160(stack *Stack) (*Stack, error) {
-	element, err := stack.Pop()
+	instruction, err := stack.Pop()
 	if err != nil {
 		return nil, err
 	}
 
-	hashed := hash.Hash160(element.element)
-	hashedElement, err := NewElement(hashed)
+	hashed := hash.Hash160(instruction.instruction)
+	hashedElement, err := NewInstruction(hashed)
 	if err != nil {
 		return nil, err
 	}
@@ -528,13 +528,13 @@ func HASH160(stack *Stack) (*Stack, error) {
 
 // The input is hashed two times with SHA-256.
 func HASH256(stack *Stack) (*Stack, error) {
-	element, err := stack.Pop()
+	instruction, err := stack.Pop()
 	if err != nil {
 		return nil, err
 	}
 
-	hashed := hash.Hash256(element.element)
-	hashedElement, err := NewElement(hashed.Bytes())
+	hashed := hash.Hash256(instruction.instruction)
+	hashedElement, err := NewInstruction(hashed.Bytes())
 	if err != nil {
 		return nil, err
 	}
@@ -562,12 +562,12 @@ func CHECKSIG(stack *Stack, z *big.Int) (*Stack, error) {
 		return nil, err
 	}
 
-	point, err := ecc.Parse(secPubKey.element)
+	point, err := ecc.Parse(secPubKey.instruction)
 	if err != nil {
 		return nil, err
 	}
 
-	signature, err := ecc.ParseDER(derSignature.element[:len(derSignature.element)-1])
+	signature, err := ecc.ParseDER(derSignature.instruction[:len(derSignature.instruction)-1])
 	if err != nil {
 		return nil, err
 	}
@@ -584,12 +584,12 @@ func CHECKSIG(stack *Stack, z *big.Int) (*Stack, error) {
 		data = []byte{0x00}
 	}
 
-	newElement, err := NewElement(data)
+	NewInstruction, err := NewInstruction(data)
 	if err != nil {
 		return nil, err
 	}
 
-	stack.Push(newElement)
+	stack.Push(NewInstruction)
 
 	return stack, nil
 }

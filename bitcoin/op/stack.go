@@ -2,27 +2,32 @@ package op
 
 import "fmt"
 
-type Element struct {
-	element []byte
+// Instruction represents a single instruction or a value in a script.
+type Instruction struct {
+	instruction []byte
 }
 
-func NewElement(data []byte) (*Element, error) {
-	elementSize := len(data)
+func NewInstruction(instruction []byte) (*Instruction, error) {
+	instructionSize := len(instruction)
 
-	if elementSize > 520 {
-		return nil, fmt.Errorf("element too large")
+	if instructionSize > 520 {
+		return nil, fmt.Errorf("instruction too large")
 	}
 
-	return &Element{data}, nil
+	return &Instruction{instruction}, nil
 }
 
-func (e *Element) Equals(other *Element) bool {
-	if len(e.element) != len(other.element) {
+func (i *Instruction) Hex() string {
+	return fmt.Sprintf("%x", i.instruction)
+}
+
+func (e *Instruction) Equals(other *Instruction) bool {
+	if len(e.instruction) != len(other.instruction) {
 		return false
 	}
 
-	for i := range e.element {
-		if e.element[i] != other.element[i] {
+	for i := range e.instruction {
+		if e.instruction[i] != other.instruction[i] {
 			return false
 		}
 	}
@@ -30,19 +35,31 @@ func (e *Element) Equals(other *Element) bool {
 	return true
 }
 
-func (e *Element) Hex() string {
-	return fmt.Sprintf("%x", e.element)
+func (i *Instruction) IsOpCode() bool {
+	if len(i.instruction) != 1 {
+		return false
+	}
+
+	return i.instruction[0] >= 0x01 && i.instruction[0] <= 0x4b
+}
+
+func (i *Instruction) Length() int {
+	return len(i.instruction)
+}
+
+func (i *Instruction) Bytes() []byte {
+	return i.instruction
 }
 
 type Stack struct {
-	stack []Element
+	stack []Instruction
 }
 
 func NewStack() *Stack {
-	return &Stack{make([]Element, 0)}
+	return &Stack{make([]Instruction, 0)}
 }
 
-func (s *Stack) Push(element *Element) {
+func (s *Stack) Push(element *Instruction) {
 	s.stack = append(s.stack, *element)
 }
 
@@ -50,7 +67,7 @@ func (s *Stack) Size() int {
 	return len(s.stack)
 }
 
-func (s *Stack) Pop() (*Element, error) {
+func (s *Stack) Pop() (*Instruction, error) {
 	if s.Size() < 1 {
 		return nil, fmt.Errorf("invalid stack")
 	}
@@ -61,7 +78,7 @@ func (s *Stack) Pop() (*Element, error) {
 	return &element, nil
 }
 
-func (s *Stack) Peek() (*Element, error) {
+func (s *Stack) Peek() (*Instruction, error) {
 	if s.Size() < 1 {
 		return nil, fmt.Errorf("invalid stack")
 	}
@@ -69,7 +86,7 @@ func (s *Stack) Peek() (*Element, error) {
 	return &s.stack[s.Size()-1], nil
 }
 
-func (s *Stack) PeekN(n int) (*Element, error) {
+func (s *Stack) PeekN(n int) (*Instruction, error) {
 	if s.Size() < n+1 {
 		return nil, fmt.Errorf("invalid stack")
 	}

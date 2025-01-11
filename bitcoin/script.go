@@ -11,23 +11,11 @@ import (
 	"github.com/stefanalfbo/programmingbitcoin/encoding/varint"
 )
 
-type Instruction struct {
-	instruction []byte
-}
-
-func NewInstruction(instruction []byte) *Instruction {
-	return &Instruction{instruction}
-}
-
-func (i *Instruction) Hex() string {
-	return fmt.Sprintf("%x", i.instruction)
-}
-
 type Script struct {
-	instructions []Instruction
+	instructions []op.Instruction
 }
 
-func NewScript(instructions []Instruction) *Script {
+func NewScript(instructions []op.Instruction) *Script {
 	return &Script{instructions}
 }
 
@@ -35,7 +23,7 @@ func (script *Script) String() string {
 	return "notImplementedYet"
 }
 
-func (script *Script) Instructions() []Instruction {
+func (script *Script) Instructions() []op.Instruction {
 	return script.instructions
 }
 
@@ -45,7 +33,7 @@ func ParseScript(data io.Reader) (*Script, error) {
 		return nil, err
 	}
 
-	instructions := make([]Instruction, 0)
+	instructions := make([]op.Instruction, 0)
 	scriptLength := int(length.Int64())
 
 	count := 0
@@ -65,7 +53,11 @@ func ParseScript(data io.Reader) (*Script, error) {
 			if err != nil {
 				return nil, err
 			}
-			instructions = append(instructions, Instruction{tmpData})
+			instruction, err := op.NewInstruction(tmpData)
+			if err != nil {
+				return nil, err
+			}
+			instructions = append(instructions, *instruction)
 			count += int(currentByte)
 		} else if currentByte == 76 {
 			lengthContainer := make([]byte, 1)
@@ -80,8 +72,11 @@ func ParseScript(data io.Reader) (*Script, error) {
 			if err != nil {
 				return nil, err
 			}
-
-			instructions = append(instructions, Instruction{tmpData})
+			instruction, err := op.NewInstruction(tmpData)
+			if err != nil {
+				return nil, err
+			}
+			instructions = append(instructions, *instruction)
 
 			count += int(dataLength) + 1
 		} else if currentByte == 77 {
@@ -97,13 +92,19 @@ func ParseScript(data io.Reader) (*Script, error) {
 			if err != nil {
 				return nil, err
 			}
-
-			instructions = append(instructions, Instruction{tmpData})
+			instruction, err := op.NewInstruction(tmpData)
+			if err != nil {
+				return nil, err
+			}
+			instructions = append(instructions, *instruction)
 
 			count += int(dataLength) + 2
 		} else {
-			opCode := []byte{currentByte}
-			instructions = append(instructions, Instruction{opCode})
+			instruction, err := op.NewInstruction([]byte{currentByte})
+			if err != nil {
+				return nil, err
+			}
+			instructions = append(instructions, *instruction)
 		}
 	}
 
@@ -119,10 +120,10 @@ func (script *Script) RawSerialize() ([]byte, error) {
 
 	for _, instruction := range script.instructions {
 
-		if isOpCode(instruction.instruction) {
-			scriptAsBytes = append(scriptAsBytes, instruction.instruction...)
+		if instruction.IsOpCode() {
+			scriptAsBytes = append(scriptAsBytes, instruction.Bytes()...)
 		} else {
-			length := len(instruction.instruction)
+			length := instruction.Length()
 
 			if length < 76 {
 				value := endian.BigIntToLittleEndian(big.NewInt(int64(length)), 1)
@@ -142,18 +143,11 @@ func (script *Script) RawSerialize() ([]byte, error) {
 			} else {
 				return nil, fmt.Errorf("too long of an instruction")
 			}
-			scriptAsBytes = append(scriptAsBytes, instruction.instruction...)
+			scriptAsBytes = append(scriptAsBytes, instruction.Bytes()...)
 		}
 	}
 
 	return scriptAsBytes, nil
-}
-
-func isOpCode(opCode []byte) bool {
-	if len(opCode) != 1 {
-		return false
-	}
-	return opCode[0] >= 0x01 && opCode[0] <= 0x4b
 }
 
 func (script *Script) Serialize() ([]byte, error) {
@@ -182,8 +176,8 @@ func (script *Script) Evaluate(z []byte) (bool, error) {
 	// altStack := NewStack()
 
 	for _, instruction := range script.instructions {
-		if isOpCode(instruction.instruction) {
-			opCode := int(instruction.instruction[0])
+		if instruction.IsOpCode() {
+			opCode := int(instruction.Bytes()[0])
 			operation, exists := op.OP_CODE_FUNCTIONS[opCode]
 			if exists {
 				s, err := operation(stack)
@@ -214,7 +208,7 @@ func (script *Script) Evaluate(z []byte) (bool, error) {
 				}
 			}
 		} else {
-			element, err := op.NewElement(instruction.instruction)
+			element, err := op.NewInstruction(instruction.Bytes())
 			if err != nil {
 				return false, err
 			}

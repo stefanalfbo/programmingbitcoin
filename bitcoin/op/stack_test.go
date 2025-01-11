@@ -6,27 +6,27 @@ import (
 	"github.com/stefanalfbo/programmingbitcoin/bitcoin/op"
 )
 
-func TestElement(t *testing.T) {
-	t.Run("Create a too large element", func(t *testing.T) {
+func TestInstruction(t *testing.T) {
+	t.Run("Create a too large instruction", func(t *testing.T) {
 		data := make([]byte, 521)
-		_, err := op.NewElement(data)
-		if err == nil || err.Error() != "element too large" {
-			t.Errorf("NewElement: expected error, got nil")
+		_, err := op.NewInstruction(data)
+		if err == nil || err.Error() != "instruction too large" {
+			t.Errorf("NewInstruction: expected error, got nil or wrong error")
 		}
 	})
 
 	t.Run("Create an element", func(t *testing.T) {
 		data := []byte{0x01}
-		_, err := op.NewElement(data)
+		_, err := op.NewInstruction(data)
 		if err != nil {
-			t.Errorf("NewElement: got error %v, expected nil", err)
+			t.Errorf("NewInstruction: got error %v, expected nil", err)
 		}
 	})
 
 	t.Run("Equals", func(t *testing.T) {
-		element1, _ := op.NewElement([]byte{0x01})
-		element2, _ := op.NewElement([]byte{0x01})
-		element3, _ := op.NewElement([]byte{0x02})
+		element1, _ := op.NewInstruction([]byte{0x01})
+		element2, _ := op.NewInstruction([]byte{0x01})
+		element3, _ := op.NewInstruction([]byte{0x02})
 
 		if !element1.Equals(element2) {
 			t.Errorf("expected: true, got false")
@@ -50,7 +50,7 @@ func TestElement(t *testing.T) {
 		}
 
 		for _, tc := range testCases {
-			element, _ := op.NewElement(tc.data)
+			element, _ := op.NewInstruction(tc.data)
 			hex := element.Hex()
 			if hex != tc.expected {
 				t.Errorf("expected: %v, got: %v", tc.expected, hex)
@@ -68,7 +68,7 @@ func TestStack(t *testing.T) {
 		}
 	})
 	t.Run("Push", func(t *testing.T) {
-		element, _ := op.NewElement([]byte{0x01})
+		element, _ := op.NewInstruction([]byte{0x01})
 		stack := op.NewStack()
 
 		stack.Push(element)
@@ -79,7 +79,7 @@ func TestStack(t *testing.T) {
 	})
 
 	t.Run("Pop", func(t *testing.T) {
-		element, _ := op.NewElement([]byte{0x01})
+		element, _ := op.NewInstruction([]byte{0x01})
 		stack := op.NewStack()
 		stack.Push(element)
 
@@ -96,7 +96,7 @@ func TestStack(t *testing.T) {
 	})
 
 	t.Run("Peek", func(t *testing.T) {
-		element, _ := op.NewElement([]byte{0x01})
+		element, _ := op.NewInstruction([]byte{0x01})
 		stack := op.NewStack()
 		stack.Push(element)
 
@@ -113,8 +113,8 @@ func TestStack(t *testing.T) {
 	})
 
 	t.Run("PeekN", func(t *testing.T) {
-		element1, _ := op.NewElement([]byte{0x01})
-		element2, _ := op.NewElement([]byte{0x02})
+		element1, _ := op.NewInstruction([]byte{0x01})
+		element2, _ := op.NewInstruction([]byte{0x02})
 		stack := op.NewStack()
 		stack.Push(element1)
 		stack.Push(element2)
