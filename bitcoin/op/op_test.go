@@ -85,6 +85,27 @@ func TestNOP(t *testing.T) {
 	}
 }
 
+func TestIF(t *testing.T) {
+	t.Run("Empty stack", func(t *testing.T) {
+		stack := op.NewStack()
+		_, _, err := op.IF(stack, []op.Instruction{})
+		if err == nil || err.Error() != "stack too small" {
+			t.Errorf("expected 'stack too small', got %v", err)
+		}
+	})
+
+	t.Run("If missing OP_ENDIF", func(t *testing.T) {
+		instruction, _ := op.NewInstruction([]byte{0x01})
+		stack := op.NewStack()
+		stack.Push(instruction)
+
+		_, _, err := op.IF(stack, []op.Instruction{})
+		if err == nil || err.Error() != "missing OP_ENDIF" {
+			t.Errorf("expected 'missing OP_ENDIF', got %v", err)
+		}
+	})
+}
+
 func TestVERIFY(t *testing.T) {
 	t.Run("Empty stack", func(t *testing.T) {
 		stack := op.NewStack()

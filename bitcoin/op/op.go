@@ -231,9 +231,9 @@ func NOP(stack *Stack) (*Stack, error) {
 }
 
 // If the top stack value is not False, the statements are executed. The top stack value is removed.
-func IF(stack *Stack, items []Instruction) (*Stack, error) {
+func IF(stack *Stack, instructions []Instruction) (*Stack, *[]Instruction, error) {
 	if stack.Size() < 1 {
-		return nil, fmt.Errorf("stack too small")
+		return nil, nil, fmt.Errorf("stack too small")
 	}
 
 	founded := false
@@ -242,7 +242,7 @@ func IF(stack *Stack, items []Instruction) (*Stack, error) {
 	falseItems := make([]Instruction, 0)
 	current := make([]Instruction, 0)
 
-	for _, item := range items {
+	for _, item := range instructions {
 		if bytes.Equal(item.instruction, []byte{0x63}) || bytes.Equal(item.instruction, []byte{0x64}) {
 			numberOfEndIfsNeeded++
 			current = append(current, item)
@@ -262,21 +262,21 @@ func IF(stack *Stack, items []Instruction) (*Stack, error) {
 	}
 
 	if !founded {
-		return nil, fmt.Errorf("missing OP_ENDIF")
+		return nil, nil, fmt.Errorf("missing OP_ENDIF")
 	}
 
 	instruction, err := stack.Pop()
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
 	if bytes.Equal(instruction.instruction, []byte{0x00}) {
-		items = append(falseItems, items...)
+		instructions = append(falseItems, instructions...)
 	} else {
-		items = append(trueItems, items...)
+		instructions = append(trueItems, instructions...)
 	}
 
-	return stack, nil
+	return stack, &instructions, nil
 }
 
 // Marks transaction as invalid if top stack value is not true. The top stack value is removed.
