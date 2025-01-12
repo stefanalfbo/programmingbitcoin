@@ -175,7 +175,10 @@ func (script *Script) Evaluate(z []byte) (bool, error) {
 	stack := op.NewStack()
 	// altStack := NewStack()
 
-	for _, instruction := range script.instructions {
+	for len(script.instructions) > 0 {
+		instruction := script.instructions[0]
+		script.instructions = script.instructions[1:]
+
 		if instruction.IsOpCode() {
 			opCode := int(instruction.Bytes()[0])
 			operation, exists := op.OP_CODE_FUNCTIONS[opCode]
@@ -187,13 +190,13 @@ func (script *Script) Evaluate(z []byte) (bool, error) {
 				stack = s
 			} else {
 				if opCode == 99 {
-					// s, err := op.IF(stack, script)
-					// if err != nil {
-					// 	return false, err
-					// }
-					// stack = s
-				}
-				if slices.Contains([]int{99, 100}, opCode) {
+					s, instructions, err := op.IF(stack, script.instructions)
+					if err != nil {
+						return false, err
+					}
+					stack = s
+					script.instructions = *instructions
+				} else if opCode == 100 {
 					// OP_IF, OP_NOTIF
 
 				} else if slices.Contains([]int{107, 108}, opCode) {
