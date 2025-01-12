@@ -38,7 +38,7 @@ func (tx *Tx) hash() []byte {
 	return hash.Hash256(txSerialized).Bytes()
 }
 
-func Parse(data io.Reader) (*Tx, error) {
+func Parse(data io.Reader, isTestnet bool) (*Tx, error) {
 	version, err := parseVersion(data)
 	if err != nil {
 		return nil, err
@@ -59,7 +59,7 @@ func Parse(data io.Reader) (*Tx, error) {
 		return nil, err
 	}
 
-	return NewTx(version, inputs, outputs, lockTime, false), nil
+	return NewTx(version, inputs, outputs, lockTime, isTestnet), nil
 }
 
 func parseVersion(data io.Reader) (int32, error) {
@@ -123,10 +123,10 @@ func (tx *Tx) serializeOutputs() []byte {
 }
 
 // Returns the fee of the transaction.
-func (tx *Tx) Fee(testnet bool) (*big.Int, error) {
+func (tx *Tx) Fee() (*big.Int, error) {
 	inputSum, outputSum := big.NewInt(0), big.NewInt(0)
 	for _, txIn := range tx.Inputs {
-		value, err := txIn.Value(testnet)
+		value, err := txIn.Value(tx.isTestnet)
 		if err != nil {
 			return nil, err
 		}
@@ -202,4 +202,25 @@ func (tx *Tx) VerifyInput(inputIndex int) (bool, error) {
 	result, err := script.Evaluate(z)
 
 	return result, err
+}
+
+// Verify this transaction
+func (tx *Tx) Verify() (bool, error) {
+	fee, err := tx.Fee()
+	if err != nil {
+		return false, err
+	}
+
+	if fee.Cmp(big.NewInt(0)) == -1 {
+		return false, fmt.Errorf("Fee must be positive")
+	}
+
+	for index := 0; index < len(tx.Inputs); index++ {
+		_, err := tx.VerifyInput(index)
+		if err != nil {
+			return false, err
+		}
+	}
+
+	return true, nil
 }

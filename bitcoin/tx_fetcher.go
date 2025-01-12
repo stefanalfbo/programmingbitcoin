@@ -68,13 +68,13 @@ func (txf *TxFetcher) Fetch(txId string, isFresh bool) (*Tx, error) {
 		var tx *Tx
 		if raw[4] == 0 {
 			raw = append(raw[:4], raw[6:]...)
-			tx, err = Parse(bytes.NewReader(raw)) // , txf.isTestnet)
+			tx, err = Parse(bytes.NewReader(raw), txf.isTestnet)
 			tx.LockTime = endian.LittleEndianToInt32(raw[len(raw)-4:])
 			if err != nil {
 				return nil, err
 			}
 		} else {
-			tx, err = Parse(bytes.NewReader(raw)) // , txf.isTestnet)
+			tx, err = Parse(bytes.NewReader(raw), txf.isTestnet)
 			if err != nil {
 				return nil, err
 			}
