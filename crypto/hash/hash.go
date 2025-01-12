@@ -3,12 +3,11 @@ package hash
 import (
 	"crypto/sha1"
 	"crypto/sha256"
-	"math/big"
 
 	"golang.org/x/crypto/ripemd160"
 )
 
-func Hash256(data []byte) *big.Int {
+func Hash256(data []byte) []byte {
 	h := sha256.New()
 	_, err := h.Write(data)
 	if err != nil {
@@ -22,7 +21,7 @@ func Hash256(data []byte) *big.Int {
 		return nil
 	}
 
-	return new(big.Int).SetBytes(h.Sum(nil))
+	return h.Sum(nil)
 }
 
 // SHA256 followed by RIPEMD-160

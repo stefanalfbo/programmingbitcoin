@@ -35,7 +35,7 @@ func (tx *Tx) Id() string {
 func (tx *Tx) hash() []byte {
 	txSerialized := tx.Serialize()
 
-	return hash.Hash256(txSerialized).Bytes()
+	return hash.Hash256(txSerialized)
 }
 
 func Parse(data io.Reader, isTestnet bool) (*Tx, error) {
@@ -181,7 +181,7 @@ func (tx *Tx) SignatureHash(inputIndex int) ([]byte, error) {
 	SIGHASH_ALL := 1
 	signature = append(signature, endian.BigIntToLittleEndian(big.NewInt(int64(SIGHASH_ALL)), 4)...)
 
-	hashed := hash.Hash256(signature).Bytes()
+	hashed := hash.Hash256(signature)
 
 	return hashed, nil
 }
