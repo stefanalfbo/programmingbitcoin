@@ -2,8 +2,9 @@
 package base58
 
 import (
-	"crypto/sha256"
 	"math/big"
+
+	"github.com/stefanalfbo/programmingbitcoin/crypto/hash"
 )
 
 var base58Alphabet = []byte("123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz")
@@ -41,25 +42,8 @@ func Encode(s []byte) string {
 	return string(append(prefix, encoded...))
 }
 
-func hash256(data []byte) []byte {
-	h := sha256.New()
-	_, err := h.Write([]byte(data))
-	if err != nil {
-		return nil
-	}
-	firstRound := h.Sum(nil)
-	h.Reset()
-
-	_, err = h.Write(firstRound)
-	if err != nil {
-		return nil
-	}
-
-	return h.Sum(nil)
-}
-
 func Checksum(data []byte) string {
-	hash := hash256(data)
+	hash := hash.Hash256(data)
 	dataWithChecksum := append(data, hash[:4]...)
 
 	return Encode(dataWithChecksum)
