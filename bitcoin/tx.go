@@ -5,6 +5,8 @@ import (
 	"io"
 	"math/big"
 
+	"github.com/stefanalfbo/programmingbitcoin/bitcoin/op"
+	"github.com/stefanalfbo/programmingbitcoin/crypto/ecc"
 	"github.com/stefanalfbo/programmingbitcoin/crypto/hash"
 	"github.com/stefanalfbo/programmingbitcoin/encoding/endian"
 	"github.com/stefanalfbo/programmingbitcoin/encoding/varint"
@@ -223,4 +225,36 @@ func (tx *Tx) Verify() (bool, error) {
 	}
 
 	return true, nil
+}
+
+func (tx *Tx) SignInput(inputIndex int, privateKey *ecc.PrivateKey) (bool, error) {
+	z, err := tx.SignatureHash(inputIndex)
+	if err != nil {
+		return false, err
+	}
+
+	signature, err := privateKey.Sign(big.NewInt(0).SetBytes(z))
+	if err != nil {
+		return false, err
+	}
+
+	der := signature.DER()
+	sig := append(der, byte(1))
+
+	sec := privateKey.SECCompressed()
+
+	sigInstruction, err := op.NewInstruction(sig)
+	if err != nil {
+		return false, err
+	}
+
+	secInstruction, err := op.NewInstruction(sec)
+	if err != nil {
+		return false, err
+	}
+
+	scriptSig := NewScript([]op.Instruction{*sigInstruction, *secInstruction})
+	tx.Inputs[inputIndex].ScriptSig = scriptSig
+
+	return tx.VerifyInput(inputIndex)
 }
