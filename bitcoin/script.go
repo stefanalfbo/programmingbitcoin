@@ -233,3 +233,41 @@ func (script *Script) Evaluate(z []byte) (bool, error) {
 	}
 	return true, nil
 }
+
+func ToP2PKHScript(h160 []byte) (*Script, error) {
+
+	dup, err := op.NewInstruction([]byte{0x76})
+	if err != nil {
+		return nil, err
+	}
+
+	hash160, err := op.NewInstruction([]byte{0xa9})
+	if err != nil {
+		return nil, err
+	}
+
+	data, err := op.NewInstruction(h160)
+	if err != nil {
+		return nil, err
+	}
+
+	equalVerify, err := op.NewInstruction([]byte{0x88})
+	if err != nil {
+		return nil, err
+	}
+
+	checkSignature, err := op.NewInstruction([]byte{0xac})
+	if err != nil {
+		return nil, err
+	}
+
+	p2pkh := NewScript([]op.Instruction{
+		*dup,
+		*hash160,
+		*data,
+		*equalVerify,
+		*checkSignature,
+	})
+
+	return p2pkh, nil
+}
