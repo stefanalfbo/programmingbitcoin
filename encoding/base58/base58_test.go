@@ -25,3 +25,18 @@ func TestEncode(t *testing.T) {
 		}
 	}
 }
+
+func TestDecode(t *testing.T) {
+	expected := "507b27411ccf7f16f10297de6cef3f291623eddf"
+	address := "mnrVtF8DWjMu839VW3rBfgYaAfKk8983Xf"
+
+	decoded, err := base58.Decode(address)
+	if err != nil {
+		t.Errorf("unexpected error: %v", err)
+	}
+	decodedAsHex := hex.EncodeToString(decoded)
+
+	if decodedAsHex != expected {
+		t.Errorf("Decode(%s): got %s, expected %s", address, decodedAsHex, expected)
+	}
+}

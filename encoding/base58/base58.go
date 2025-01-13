@@ -2,7 +2,10 @@
 package base58
 
 import (
+	"bytes"
+	"fmt"
 	"math/big"
+	"strings"
 
 	"github.com/stefanalfbo/programmingbitcoin/crypto/hash"
 )
@@ -40,6 +43,31 @@ func Encode(s []byte) string {
 	}
 
 	return string(append(prefix, encoded...))
+}
+
+func Decode(s string) ([]byte, error) {
+	num := big.NewInt(0)
+	for _, char := range s {
+		num = num.Mul(num, big.NewInt(58))
+		index := strings.Index(string(base58Alphabet), string(char))
+		if index == -1 {
+			return nil, fmt.Errorf("invalid character in BASE58")
+		}
+		num = num.Add(num, big.NewInt(int64(index)))
+	}
+
+	combined := make([]byte, 25)
+	num.FillBytes(combined)
+	checksum := combined[len(combined)-4:]
+	withoutChecksum := combined[:len(combined)-4]
+
+	calcChecksum := hash.Hash256(withoutChecksum)
+
+	if !bytes.Equal(checksum, calcChecksum[:4]) {
+		return nil, fmt.Errorf("checksum does not match")
+	}
+
+	return combined[1 : len(combined)-4], nil
 }
 
 func Checksum(data []byte) string {
