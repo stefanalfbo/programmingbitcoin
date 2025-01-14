@@ -594,6 +594,114 @@ func CHECKSIG(stack *Stack, z *big.Int) (*Stack, error) {
 	return stack, nil
 }
 
+// Compares the first signature against each public key until it
+// finds an ECDSA match. Starting with the subsequent public key,
+// it compares the second signature against each remaining public
+// key until it finds an ECDSA match. The process is repeated
+// until all signatures have been checked or not enough public
+// keys remain to produce a successful result. All signatures
+// need to match a public key. Because public keys are not checked
+// again if they fail any signature comparison, signatures must be
+// placed in the scriptSig using the same order as their
+// corresponding public keys were placed in the scriptPubKey or
+// redeemScript. If all signatures are valid, 1 is returned, 0
+// otherwise. Due to a bug, one extra unused value is removed from
+// the stack.
+func CHECKMULTISIG(stack *Stack, z *big.Int) (*Stack, error) {
+	if stack.Size() < 1 {
+		return nil, fmt.Errorf("stack too small")
+	}
+
+	n, err := stack.Pop()
+	if err != nil {
+		return nil, err
+	}
+
+	if int64(stack.Size()) < (n.Int64() + 1) {
+		return nil, fmt.Errorf("stack too small")
+	}
+
+	secPubKey := make([]Instruction, n.Int64())
+
+	for i := 0; i < int(n.Int64()); i++ {
+		instruction, err := stack.Pop()
+		if err != nil {
+			return nil, err
+		}
+
+		secPubKey[i] = *instruction
+	}
+
+	m, err := stack.Pop()
+	if err != nil {
+		return nil, err
+	}
+
+	derSignatures := make([]Instruction, m.Int64())
+
+	for i := 0; i < int(m.Int64()); i++ {
+		instruction, err := stack.Pop()
+		if err != nil {
+			return nil, err
+		}
+
+		derSignatures[i] = *instruction
+	}
+
+	_, err = stack.Pop()
+	if err != nil {
+		return nil, err
+	}
+
+	points := make([]*ecc.S256Point, len(secPubKey))
+	for index, sec := range secPubKey {
+		point, err := ecc.Parse(sec.Bytes())
+		if err != nil {
+			return nil, err
+		}
+
+		points[index] = point
+	}
+
+	sigs := make([]*ecc.Signature, len(derSignatures))
+	for index, der := range derSignatures {
+		signature, err := ecc.ParseDER(der.Bytes())
+		if err != nil {
+			return nil, err
+		}
+
+		sigs[index] = signature
+	}
+
+	for _, sig := range sigs {
+		if len(points) == 0 {
+			return nil, fmt.Errorf("signatures do not match public keys")
+		}
+
+		for len(points) > 0 {
+			point := points[0]
+			points = points[1:]
+
+			ok, err := point.Verify(z, sig)
+			if err != nil {
+				return nil, err
+			}
+
+			if ok {
+				break
+			}
+		}
+	}
+
+	data, err := NewInstruction([]byte{0x01})
+	if err != nil {
+		return nil, err
+	}
+	stack.Push(data)
+
+	return stack, nil
+}
+
 var OP_CODE_FUNCTIONS = map[int]func(*Stack) (*Stack, error){
 	0:  OP0,
 	79: OP1NEGATE,
@@ -629,4 +737,5 @@ var OP_CODE_FUNCTIONS = map[int]func(*Stack) (*Stack, error){
 	169: HASH160,
 	170: HASH256,
 	// 172: CHECKSIG,
+	// 174: CHECKMULTISIG,
 }

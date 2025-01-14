@@ -569,3 +569,13 @@ func TestCHECKSIG(t *testing.T) {
 		}
 	})
 }
+
+func TestCHECKMULTISIG(t *testing.T) {
+	t.Run("Empty stack", func(t *testing.T) {
+		stack := op.NewStack()
+		_, err := op.CHECKMULTISIG(stack, nil)
+		if err == nil || err.Error() != "stack too small" {
+			t.Errorf("expected error, got nil")
+		}
+	})
+}
