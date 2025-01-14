@@ -1,6 +1,9 @@
 package op
 
-import "fmt"
+import (
+	"fmt"
+	"math/big"
+)
 
 // Instruction represents a single instruction or a value in a script.
 type Instruction struct {
@@ -49,6 +52,11 @@ func (i *Instruction) Length() int {
 
 func (i *Instruction) Bytes() []byte {
 	return i.instruction
+}
+
+func (i *Instruction) Int64() int64 {
+	n := big.NewInt(0).SetBytes(i.instruction)
+	return n.Int64()
 }
 
 type Stack struct {
