@@ -228,6 +228,33 @@ func TestOP2DUP(t *testing.T) {
 	})
 }
 
+func TestOP2DROP(t *testing.T) {
+	t.Run("Empty stack", func(t *testing.T) {
+		stack := op.NewStack()
+		_, err := op.OP2DROP(stack)
+		if err == nil || err.Error() != "stack too small" {
+			t.Errorf("expected error, got nil")
+		}
+	})
+
+	t.Run("Drop elements", func(t *testing.T) {
+		element1, _ := op.NewInstruction([]byte{0x01})
+		element2, _ := op.NewInstruction([]byte{0x02})
+		stack := op.NewStack()
+		stack.Push(element1)
+		stack.Push(element2)
+
+		stack, err := op.OP2DROP(stack)
+		if err != nil {
+			t.Errorf("expected nil, got %v", err)
+		}
+
+		if stack.Size() != 0 {
+			t.Errorf("expected: %v, got: %v", 0, stack.Size())
+		}
+	})
+}
+
 func TestDROP(t *testing.T) {
 	t.Run("Empty stack", func(t *testing.T) {
 		stack := op.NewStack()

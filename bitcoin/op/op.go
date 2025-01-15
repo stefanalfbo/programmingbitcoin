@@ -329,6 +329,25 @@ func OP2DUP(stack *Stack) (*Stack, error) {
 	return stack, nil
 }
 
+// Removes the top two stack items.
+func OP2DROP(stack *Stack) (*Stack, error) {
+	if stack.Size() < 2 {
+		return nil, fmt.Errorf("stack too small")
+	}
+
+	_, err := stack.Pop()
+	if err != nil {
+		return nil, err
+	}
+
+	_, err = stack.Pop()
+	if err != nil {
+		return nil, err
+	}
+
+	return stack, nil
+}
+
 // Removes the top stack item.
 func DROP(stack *Stack) (*Stack, error) {
 	_, err := stack.Pop()
@@ -725,6 +744,7 @@ var OP_CODE_FUNCTIONS = map[int]func(*Stack) (*Stack, error){
 	// 99:  IF,
 	105: VERIFY,
 	106: RETURN,
+	109: OP2DUP,
 	110: OP2DUP,
 	117: DROP,
 	118: DUP,
