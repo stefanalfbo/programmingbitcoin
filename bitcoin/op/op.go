@@ -744,7 +744,7 @@ var OP_CODE_FUNCTIONS = map[int]func(*Stack) (*Stack, error){
 	// 99:  IF,
 	105: VERIFY,
 	106: RETURN,
-	109: OP2DUP,
+	109: OP2DROP,
 	110: OP2DUP,
 	117: DROP,
 	118: DUP,
