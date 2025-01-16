@@ -98,7 +98,7 @@ func (s *Stack) Pop() (*Instruction, error) {
 
 func (s *Stack) Peek() (*Instruction, error) {
 	if s.Size() < 1 {
-		return nil, fmt.Errorf("invalid stack")
+		return nil, fmt.Errorf("stack is empty")
 	}
 
 	return &s.stack[s.Size()-1], nil

@@ -255,6 +255,51 @@ func TestOP2DROP(t *testing.T) {
 	})
 }
 
+func TestIFDUP(t *testing.T) {
+	t.Run("Empty stack", func(t *testing.T) {
+		stack := op.NewStack()
+		_, err := op.IFDUP(stack)
+		if err == nil || err.Error() != "stack is empty" {
+			t.Errorf("expected error, got %v", err)
+		}
+	})
+
+	t.Run("Duplicate element", func(t *testing.T) {
+		element, _ := op.NewInstruction([]byte{0x01})
+		stack := op.NewStack()
+		stack.Push(element)
+
+		stack, err := op.IFDUP(stack)
+		if err != nil {
+			t.Errorf("expected nil, got %v", err)
+		}
+
+		if stack.Size() != 2 {
+			t.Errorf("expected: %v, got: %v", 2, stack.Size())
+		}
+
+		element2, _ := stack.Peek()
+		if !element2.Equals(element) {
+			t.Errorf("expected: %v, got: %v", element, element2)
+		}
+	})
+
+	t.Run("Do not duplicate element", func(t *testing.T) {
+		element, _ := op.NewInstruction([]byte{0x00})
+		stack := op.NewStack()
+		stack.Push(element)
+
+		stack, err := op.IFDUP(stack)
+		if err != nil {
+			t.Errorf("expected nil, got %v", err)
+		}
+
+		if stack.Size() != 1 {
+			t.Errorf("expected: %v, got: %v", 1, stack.Size())
+		}
+	})
+}
+
 func TestDROP(t *testing.T) {
 	t.Run("Empty stack", func(t *testing.T) {
 		stack := op.NewStack()
@@ -284,7 +329,7 @@ func TestDUP(t *testing.T) {
 	t.Run("Empty stack", func(t *testing.T) {
 		stack := op.NewStack()
 		_, err := op.DUP(stack)
-		if err == nil || err.Error() != "invalid stack" {
+		if err == nil || err.Error() != "stack is empty" {
 			t.Errorf("expected error, got nil")
 		}
 	})
