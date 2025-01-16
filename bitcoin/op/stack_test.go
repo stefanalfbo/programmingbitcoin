@@ -57,6 +57,19 @@ func TestInstruction(t *testing.T) {
 			}
 		}
 	})
+
+	t.Run("IsZero", func(t *testing.T) {
+		element1, _ := op.NewInstruction([]byte{0x00})
+		element2, _ := op.NewInstruction([]byte{0x01})
+
+		if !element1.IsZero() {
+			t.Errorf("expected: true, got false")
+		}
+
+		if element2.IsZero() {
+			t.Errorf("expected: false, got true")
+		}
+	})
 }
 
 func TestStack(t *testing.T) {

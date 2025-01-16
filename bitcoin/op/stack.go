@@ -38,6 +38,16 @@ func (e *Instruction) Equals(other *Instruction) bool {
 	return true
 }
 
+func (i *Instruction) IsZero() bool {
+	for _, b := range i.instruction {
+		if b != 0 {
+			return false
+		}
+	}
+
+	return true
+}
+
 func (i *Instruction) IsOpCode() bool {
 	if len(i.instruction) != 1 {
 		return false
