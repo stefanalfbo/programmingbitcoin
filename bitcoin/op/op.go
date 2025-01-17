@@ -364,6 +364,19 @@ func IFDUP(stack *Stack) (*Stack, error) {
 	return stack, nil
 }
 
+// Puts the number of stack items onto the stack.
+func DEPTH(stack *Stack) (*Stack, error) {
+	size := []byte{byte(stack.Size())}
+	instruction, err := NewInstruction(size)
+	if err != nil {
+		return nil, err
+	}
+
+	stack.Push(instruction)
+
+	return stack, nil
+}
+
 // Removes the top stack item.
 func DROP(stack *Stack) (*Stack, error) {
 	_, err := stack.Pop()
@@ -763,6 +776,7 @@ var OP_CODE_FUNCTIONS = map[int]func(*Stack) (*Stack, error){
 	109: OP2DROP,
 	110: OP2DUP,
 	115: IFDUP,
+	116: DEPTH,
 	117: DROP,
 	118: DUP,
 	123: SWAP,

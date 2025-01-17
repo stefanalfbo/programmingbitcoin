@@ -300,6 +300,42 @@ func TestIFDUP(t *testing.T) {
 	})
 }
 
+func TestDEPTH(t *testing.T) {
+	t.Run("Empty stack", func(t *testing.T) {
+		stack := op.NewStack()
+		stack, err := op.DEPTH(stack)
+		if err != nil {
+			t.Errorf("expected nil, got %v", err)
+		}
+
+		if stack.Size() != 1 {
+			t.Errorf("expected: %v, got: %v", 1, stack.Size())
+		}
+	})
+
+	t.Run("Get stack depth", func(t *testing.T) {
+		element1, _ := op.NewInstruction([]byte{0x01})
+		element2, _ := op.NewInstruction([]byte{0x02})
+		stack := op.NewStack()
+		stack.Push(element1)
+		stack.Push(element2)
+
+		stack, err := op.DEPTH(stack)
+		if err != nil {
+			t.Errorf("expected nil, got %v", err)
+		}
+
+		if stack.Size() != 3 {
+			t.Errorf("expected: %v, got: %v", 3, stack.Size())
+		}
+
+		instruction, _ := stack.Pop()
+		if instruction.Hex() != "02" {
+			t.Errorf("expected: %v, got: %v", "02", instruction.Hex())
+		}
+	})
+}
+
 func TestDROP(t *testing.T) {
 	t.Run("Empty stack", func(t *testing.T) {
 		stack := op.NewStack()
