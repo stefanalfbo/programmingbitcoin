@@ -1,6 +1,7 @@
 package bitcoin
 
 import (
+	"bytes"
 	"fmt"
 	"io"
 	"math/big"
@@ -216,6 +217,42 @@ func (script *Script) Evaluate(z []byte) (bool, error) {
 				return false, err
 			}
 			stack.Push(element)
+			if len(script.instructions) == 3 &&
+				script.instructions[0].Equals(&op.OP_CODE.HASH160) &&
+				script.instructions[1].Length() == 20 &&
+				script.instructions[2].Equals(&op.OP_CODE.EQUAL) {
+
+				hash160 := script.instructions[1]
+
+				script.instructions = script.instructions[3:]
+				stack, err := op.HASH160(stack)
+				if err != nil {
+					return false, err
+				}
+				stack.Push(&hash160)
+
+				stack, err = op.EQUAL(stack)
+				if err != nil {
+					return false, err
+				}
+
+				stack, err = op.VERIFY(stack)
+				if err != nil {
+					return false, err
+				}
+
+				length, err := varint.Encode(big.NewInt(int64(instruction.Length())))
+				if err != nil {
+					return false, err
+				}
+
+				redeemScript, err := ParseScript(bytes.NewReader(append(length, instruction.Bytes()...)))
+				if err != nil {
+					return false, err
+				}
+
+				script.instructions = append(redeemScript.instructions, script.instructions...)
+			}
 		}
 	}
 
