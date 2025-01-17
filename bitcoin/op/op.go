@@ -790,3 +790,11 @@ var OP_CODE_FUNCTIONS = map[int]func(*Stack) (*Stack, error){
 	// 172: CHECKSIG,
 	// 174: CHECKMULTISIG,
 }
+
+var OP_CODE = struct {
+	EQUAL   Instruction
+	HASH160 Instruction
+}{
+	EQUAL:   Instruction{instruction: []byte{0x87}},
+	HASH160: Instruction{instruction: []byte{0xa9}},
+}
