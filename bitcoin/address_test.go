@@ -8,8 +8,8 @@ import (
 )
 
 func TestH160PSHAddress(t *testing.T) {
-	expectedMainnet := "2N3u1R6uwQfuobCqbCgBkpsgBxvr1tZpe7B"
-	expectedTestnet := "2N3u1R6uwQfuobCqbCgBkpsgBxvr1tZpe7f"
+	expectedMainnet := "3CLoMMyuoDQTPRD3XYZtCvgvkadrAdvdXh"
+	expectedTestnet := "2N3u1R6uwQfuobCqbCgBkpsgBxvr1tZpe7B"
 	h160, _ := hex.DecodeString("74d691da1574e6b3c192ecfb52cc8984ee7b6c56")
 
 	// Mainnet
