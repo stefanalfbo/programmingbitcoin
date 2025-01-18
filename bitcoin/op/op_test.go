@@ -191,6 +191,38 @@ func TestSWAP(t *testing.T) {
 	})
 }
 
+func TestSIZE(t *testing.T) {
+	t.Run("Stack too small", func(t *testing.T) {
+		stack := op.NewStack()
+		_, err := op.SIZE(stack)
+		if err == nil || err.Error() != "stack too small" {
+			t.Errorf("expected error, got nil")
+		}
+	})
+
+	t.Run("Size", func(t *testing.T) {
+		element1, _ := op.NewInstruction([]byte{0x01})
+		element2, _ := op.NewInstruction([]byte{0x02})
+		stack := op.NewStack()
+		stack.Push(element1)
+		stack.Push(element2)
+
+		stack, err := op.SIZE(stack)
+		if err != nil {
+			t.Errorf("expected nil, got %v", err)
+		}
+
+		if stack.Size() != 3 {
+			t.Errorf("expected: %v, got: %v", 3, stack.Size())
+		}
+
+		lengthOfElement2, _ := stack.Pop()
+		if lengthOfElement2.Hex() != "01" {
+			t.Errorf("expected: %v, got: %v", "02", lengthOfElement2.Hex())
+		}
+	})
+}
+
 func TestOP2DUP(t *testing.T) {
 	t.Run("Empty stack", func(t *testing.T) {
 		stack := op.NewStack()

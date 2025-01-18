@@ -421,6 +421,28 @@ func SWAP(stack *Stack) (*Stack, error) {
 	return stack, nil
 }
 
+// Pushes the string length of the top element of the stack (without popping it).
+func SIZE(stack *Stack) (*Stack, error) {
+	if stack.Size() < 1 {
+		return nil, fmt.Errorf("stack too small")
+	}
+
+	instruction, err := stack.Peek()
+	if err != nil {
+		return nil, err
+	}
+
+	size := len(instruction.instruction)
+	data, err := NewInstruction([]byte{byte(size)})
+	if err != nil {
+		return nil, err
+	}
+
+	stack.Push(data)
+
+	return stack, nil
+}
+
 // Returns 1 if the inputs are exactly equal, 0 otherwise.
 func EQUAL(stack *Stack) (*Stack, error) {
 	if stack.Size() < 2 {
@@ -780,6 +802,7 @@ var OP_CODE_FUNCTIONS = map[int]func(*Stack) (*Stack, error){
 	117: DROP,
 	118: DUP,
 	123: SWAP,
+	130: SIZE,
 	135: EQUAL,
 	145: NOT,
 	147: ADD,
