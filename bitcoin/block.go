@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"slices"
 
+	"github.com/stefanalfbo/programmingbitcoin/crypto/hash"
 	"github.com/stefanalfbo/programmingbitcoin/encoding/endian"
 )
 
@@ -11,12 +12,12 @@ type Block struct {
 	Version       int32
 	PreviousBlock []byte
 	MerkleRoot    []byte
-	Timestamp     int32
-	Bits          int32
-	Nonce         int32
+	Timestamp     uint32
+	Bits          uint32
+	Nonce         uint32
 }
 
-func NewBlock(version int32, previousBlock []byte, merkleRoot []byte, timestamp int32, bits int32, nonce int32) *Block {
+func NewBlock(version int32, previousBlock []byte, merkleRoot []byte, timestamp uint32, bits uint32, nonce uint32) *Block {
 	return &Block{version, previousBlock, merkleRoot, timestamp, bits, nonce}
 }
 
@@ -33,9 +34,9 @@ func ParseBlock(data []byte) (*Block, error) {
 	merkleRoot := data[36:68]
 	slices.Reverse(merkleRoot)
 
-	timestamp := endian.LittleEndianToInt32(data[68:72])
-	bits := endian.LittleEndianToInt32(data[72:76])
-	nonce := endian.LittleEndianToInt32(data[76:80])
+	timestamp := endian.LittleEndianToUint32(data[68:72])
+	bits := endian.LittleEndianToUint32(data[72:76])
+	nonce := endian.LittleEndianToUint32(data[76:80])
 
 	return &Block{
 		Version:       version,
@@ -52,20 +53,36 @@ func (block *Block) Serialize() ([]byte, error) {
 
 	// Version
 	data = append(data, endian.Int32ToLittleEndian(block.Version)...)
+
 	// PreviousBlock
 	previousBlock := make([]byte, 32)
 	copy(previousBlock, block.PreviousBlock)
 	slices.Reverse(previousBlock)
-	data = append(data, block.PreviousBlock...)
+	data = append(data, previousBlock...)
+
 	// MerkleRoot
 	merkleRoot := make([]byte, 32)
 	copy(merkleRoot, block.MerkleRoot)
 	slices.Reverse(merkleRoot)
-	data = append(data, block.MerkleRoot...)
+	data = append(data, merkleRoot...)
+
 	// Timestamp, Bits, Nonce
-	data = append(data, endian.Int32ToLittleEndian(block.Timestamp)...)
-	data = append(data, endian.Int32ToLittleEndian(block.Bits)...)
-	data = append(data, endian.Int32ToLittleEndian(block.Nonce)...)
+	data = append(data, endian.Uint32ToLittleEndian(block.Timestamp)...)
+	data = append(data, endian.Uint32ToLittleEndian(block.Bits)...)
+	data = append(data, endian.Uint32ToLittleEndian(block.Nonce)...)
 
 	return data, nil
+}
+
+// Returns the hash256 interpreted little endian of the block
+func (block *Block) Hash() ([]byte, error) {
+	serialized, err := block.Serialize()
+	if err != nil {
+		return nil, err
+	}
+
+	hashed := hash.Hash256(serialized)
+	slices.Reverse(hashed)
+
+	return hashed, nil
 }
