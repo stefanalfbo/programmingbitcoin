@@ -1,6 +1,7 @@
 package bitcoin_test
 
 import (
+	"bytes"
 	"encoding/hex"
 	"testing"
 
@@ -40,6 +41,25 @@ func TestBlock(t *testing.T) {
 
 		if block.Nonce != 773550753 {
 			t.Errorf("expected nonce 773550753, got %d", block.Nonce)
+		}
+	})
+
+	t.Run("Serialize", func(t *testing.T) {
+		hexString := "020000208ec39428b17323fa0ddec8e887b4a7c53b8c0a0a220cfd0000000000000000005b0750fce0a889502d40508d39576821155e9c9e3f5c3157f961db38fd8b25be1e77a759e93c0118a4ffd71d"
+		data, _ := hex.DecodeString(hexString)
+
+		block, err := bitcoin.ParseBlock(data)
+		if err != nil {
+			t.Errorf("unexpected error: %v", err)
+		}
+
+		serialized, err := block.Serialize()
+		if err != nil {
+			t.Errorf("unexpected error: %v", err)
+		}
+
+		if !bytes.Equal(serialized, data) {
+			t.Errorf("expected serialized block to be %x, got %x", data, serialized)
 		}
 	})
 }

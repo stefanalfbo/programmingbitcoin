@@ -46,3 +46,26 @@ func ParseBlock(data []byte) (*Block, error) {
 		Nonce:         nonce,
 	}, nil
 }
+
+func (block *Block) Serialize() ([]byte, error) {
+	data := make([]byte, 0)
+
+	// Version
+	data = append(data, endian.Int32ToLittleEndian(block.Version)...)
+	// PreviousBlock
+	previousBlock := make([]byte, 32)
+	copy(previousBlock, block.PreviousBlock)
+	slices.Reverse(previousBlock)
+	data = append(data, block.PreviousBlock...)
+	// MerkleRoot
+	merkleRoot := make([]byte, 32)
+	copy(merkleRoot, block.MerkleRoot)
+	slices.Reverse(merkleRoot)
+	data = append(data, block.MerkleRoot...)
+	// Timestamp, Bits, Nonce
+	data = append(data, endian.Int32ToLittleEndian(block.Timestamp)...)
+	data = append(data, endian.Int32ToLittleEndian(block.Bits)...)
+	data = append(data, endian.Int32ToLittleEndian(block.Nonce)...)
+
+	return data, nil
+}
