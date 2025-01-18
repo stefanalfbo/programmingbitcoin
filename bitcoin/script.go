@@ -28,6 +28,15 @@ func (script *Script) Instructions() []op.Instruction {
 	return script.instructions
 }
 
+// Returns whether this follows the
+// OP_HASH160 <20 byte hash> OP_EQUAL pattern.
+func (script *Script) IsP2SHScriptPubKey() bool {
+	return len(script.instructions) == 3 &&
+		script.instructions[0].Equals(&op.OP_CODE.HASH160) &&
+		script.instructions[1].Length() == 20 &&
+		script.instructions[2].Equals(&op.OP_CODE.EQUAL)
+}
+
 func ParseScript(data io.Reader) (*Script, error) {
 	length, err := varint.Decode(data)
 	if err != nil {
