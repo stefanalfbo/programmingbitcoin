@@ -282,3 +282,25 @@ func (tx *Tx) SignInput(inputIndex int, privateKey *ecc.PrivateKey) (bool, error
 
 	return tx.VerifyInput(inputIndex)
 }
+
+func (tx *Tx) IsCoinbase() bool {
+	// Coinbase transactions have only one input
+	if len(tx.Inputs) != 1 {
+		return false
+	}
+
+	firstInput := tx.Inputs[0]
+
+	// The previous transaction must be 32 bytes of 00
+	zeroBytes := make([]byte, 32)
+	if len(firstInput.PrevTx) != 32 || !bytes.Equal(firstInput.PrevTx, zeroBytes) {
+		return false
+	}
+
+	// The previous index must be 0xffffffff
+	if firstInput.PrevIndex.Cmp(big.NewInt(0xffffffff)) != 0 {
+		return false
+	}
+
+	return true
+}

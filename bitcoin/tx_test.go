@@ -127,4 +127,31 @@ func TestTx(t *testing.T) {
 			t.Errorf("expected: %s, got: %s", expected, value)
 		}
 	})
+
+	t.Run("IsCoinbase return false when tx is not a coinbase transaction", func(t *testing.T) {
+		stream := setup()
+		tx, err := bitcoin.Parse(stream, false)
+		if err != nil {
+			t.Errorf("unexpected error: %v", err)
+		}
+
+		if tx.IsCoinbase() {
+			t.Errorf("expected not a coinbase transaction")
+		}
+	})
+
+	t.Run("IsCoinbase return true when tx is a coinbase transaction", func(t *testing.T) {
+		hexString := "01000000010000000000000000000000000000000000000000000000000000000000000000ffffffff5e03d71b07254d696e656420627920416e74506f6f6c20626a31312f4542312f4144362f43205914293101fabe6d6d678e2c8c34afc36896e7d9402824ed38e856676ee94bfdb0c6c4bcd8b2e5666a0400000000000000c7270000a5e00e00ffffffff01faf20b58000000001976a914338c84849423992471bffb1a54a8d9b1d69dc28a88ac00000000"
+
+		dataBytes, _ := hex.DecodeString(hexString)
+		stream := bytes.NewReader(dataBytes)
+		tx, err := bitcoin.Parse(stream, false)
+		if err != nil {
+			t.Errorf("unexpected error: %v", err)
+		}
+
+		if !tx.IsCoinbase() {
+			t.Errorf("expected a coinbase transaction")
+		}
+	})
 }
