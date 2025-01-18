@@ -1,6 +1,7 @@
 package bitcoin
 
 import (
+	"bytes"
 	"fmt"
 	"io"
 	"math/big"
@@ -141,7 +142,7 @@ func (tx *Tx) Fee() (*big.Int, error) {
 	return new(big.Int).Sub(inputSum, outputSum), nil
 }
 
-func (tx *Tx) SignatureHash(inputIndex int) ([]byte, error) {
+func (tx *Tx) SignatureHash(inputIndex int, redeemScript *Script) ([]byte, error) {
 	signature := endian.BigIntToLittleEndian(big.NewInt(int64(tx.Version)), 4)
 
 	length, err := varint.Encode(big.NewInt(int64(len(tx.Inputs))))
@@ -153,13 +154,20 @@ func (tx *Tx) SignatureHash(inputIndex int) ([]byte, error) {
 
 	for i, txIn := range tx.Inputs {
 		if i == inputIndex {
-			scriptSignature, err := txIn.ScriptPubKey(tx.isTestnet)
-			if err != nil {
-				return nil, err
-			}
-			tmpTxIn := NewTxInput(txIn.PrevTx, txIn.PrevIndex, scriptSignature, txIn.Sequence)
+			if redeemScript != nil {
+				signature, err = redeemScript.Serialize()
+				if err != nil {
+					return nil, err
+				}
+			} else {
+				scriptSignature, err := txIn.ScriptPubKey(tx.isTestnet)
+				if err != nil {
+					return nil, err
+				}
+				tmpTxIn := NewTxInput(txIn.PrevTx, txIn.PrevIndex, scriptSignature, txIn.Sequence)
 
-			signature = append(signature, tmpTxIn.Serialize()...)
+				signature = append(signature, tmpTxIn.Serialize()...)
+			}
 		} else {
 			tmpTxIn := NewTxInput(txIn.PrevTx, txIn.PrevIndex, nil, txIn.Sequence)
 
@@ -195,7 +203,23 @@ func (tx *Tx) VerifyInput(inputIndex int) (bool, error) {
 		return false, err
 	}
 
-	z, err := tx.SignatureHash(inputIndex)
+	var redeemScript *Script
+	if scriptPubKey.IsP2SHScriptPubKey() {
+		instruction := scriptPubKey.instructions[len(scriptPubKey.instructions)-1]
+		lenBytes, err := varint.Encode(big.NewInt(int64(instruction.Length())))
+		if err != nil {
+			return false, err
+		}
+		rawRedeemScript := append(lenBytes, instruction.Bytes()...)
+		redeemScript, err = ParseScript(bytes.NewReader(rawRedeemScript))
+		if err != nil {
+			return false, err
+		}
+	} else {
+		redeemScript = nil
+	}
+
+	z, err := tx.SignatureHash(inputIndex, redeemScript)
 	if err != nil {
 		return false, err
 	}
@@ -228,7 +252,7 @@ func (tx *Tx) Verify() (bool, error) {
 }
 
 func (tx *Tx) SignInput(inputIndex int, privateKey *ecc.PrivateKey) (bool, error) {
-	z, err := tx.SignatureHash(inputIndex)
+	z, err := tx.SignatureHash(inputIndex, nil)
 	if err != nil {
 		return false, err
 	}

@@ -97,7 +97,7 @@ func TestTx(t *testing.T) {
 			t.Errorf("unexpected error: %v", err)
 		}
 
-		z, err := tx.SignatureHash(0)
+		z, err := tx.SignatureHash(0, nil)
 		if err != nil {
 			t.Errorf("unexpected error: %v", err)
 		}
