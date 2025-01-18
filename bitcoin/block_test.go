@@ -81,4 +81,32 @@ func TestBlock(t *testing.T) {
 			t.Errorf("expected hash to be %x, got %x", expectedHash, blockHash)
 		}
 	})
+
+	t.Run("Is BIP9 readiness", func(t *testing.T) {
+		hexString := "020000208ec39428b17323fa0ddec8e887b4a7c53b8c0a0a220cfd0000000000000000005b0750fce0a889502d40508d39576821155e9c9e3f5c3157f961db38fd8b25be1e77a759e93c0118a4ffd71d"
+		data, _ := hex.DecodeString(hexString)
+
+		block, err := bitcoin.ParseBlock(data)
+		if err != nil {
+			t.Errorf("unexpected error: %v", err)
+		}
+
+		if !block.BIP9() {
+			t.Errorf("expected block to not be BIP9 ready")
+		}
+	})
+
+	t.Run("Is not BIP9 readiness", func(t *testing.T) {
+		hexString := "0400000039fa821848781f027a2e6dfabbf6bda920d9ae61b63400030000000000000000ecae536a304042e3154be0e3e9a8220e5568c3433a9ab49ac4cbb74f8df8e8b0cc2acf569fb9061806652c27"
+		data, _ := hex.DecodeString(hexString)
+
+		block, err := bitcoin.ParseBlock(data)
+		if err != nil {
+			t.Errorf("unexpected error: %v", err)
+		}
+
+		if block.BIP9() {
+			t.Errorf("expected block to not be BIP9 ready")
+		}
+	})
 }

@@ -86,3 +86,8 @@ func (block *Block) Hash() ([]byte, error) {
 
 	return hashed, nil
 }
+
+// Returns whether this block is signaling readiness for BIP9
+func (block *Block) BIP9() bool {
+	return block.Version>>29 == 0b001
+}
