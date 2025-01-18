@@ -304,3 +304,15 @@ func (tx *Tx) IsCoinbase() bool {
 
 	return true
 }
+
+func (tx *Tx) CoinbaseHeight() (int, error) {
+	if !tx.IsCoinbase() {
+		return 0, fmt.Errorf("tx is not a coinbase transaction")
+	}
+
+	data := tx.Inputs[0].ScriptSig.instructions[0].Bytes()
+
+	height := endian.LittleEndianToInt32(data)
+
+	return int(height), nil
+}
