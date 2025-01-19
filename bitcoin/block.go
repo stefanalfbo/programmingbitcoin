@@ -91,3 +91,7 @@ func (block *Block) Hash() ([]byte, error) {
 func (block *Block) BIP9() bool {
 	return block.Version>>29 == 0b001
 }
+
+func (block *Block) BIP91() bool {
+	return block.Version>>4&1 == 1
+}
