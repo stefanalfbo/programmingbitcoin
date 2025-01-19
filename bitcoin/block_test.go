@@ -203,3 +203,20 @@ func TestBlock(t *testing.T) {
 		}
 	})
 }
+
+func TestTargetToBits(t *testing.T) {
+	expected := []byte{0xe9, 0x3c, 0x01, 0x18}
+	target := new(big.Int)
+	target.SetString("13ce9000000000000000000000000000000000000000000", 16)
+
+	bits := bitcoin.TargetToBits(target)
+	if len(bits) != 4 {
+		t.Errorf("expected bits to be 4 bytes, got %d", len(bits))
+	}
+
+	for i, b := range bits {
+		if b != expected[i] {
+			t.Errorf("expected bits to be %x, got %x", expected, bits)
+		}
+	}
+}

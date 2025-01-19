@@ -116,3 +116,23 @@ func (block *Block) Difficulty() *big.Int {
 
 	return big.NewInt(0).Div(lowest, block.Target())
 }
+
+func TargetToBits(target *big.Int) []byte {
+	rawBytes := target.Bytes()
+
+	var exponent int
+	var coefficient []byte
+	if rawBytes[0] > 0x7f {
+		exponent = len(rawBytes) + 1
+		coefficient = append([]byte{0x00}, rawBytes[:2]...)
+	} else {
+		exponent = len(rawBytes)
+		coefficient = rawBytes[:3]
+	}
+
+	slices.Reverse(coefficient)
+
+	bits := append(coefficient, byte(exponent))
+
+	return bits
+}
