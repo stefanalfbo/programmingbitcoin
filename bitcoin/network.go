@@ -81,3 +81,20 @@ func ParseNetworkEnvelope(data []byte) (*NetworkEnvelope, error) {
 		payload: payload,
 	}, nil
 }
+
+func (ne *NetworkEnvelope) Serialize() []byte {
+	command := make([]byte, 12)
+	copy(command, ne.command)
+
+	payloadLength := endian.Int32ToLittleEndian(int32(len(ne.payload)))
+	checksum := hash.Hash256(ne.payload)[:4]
+
+	result := make([]byte, 0)
+	result = append(result, ne.magic...)
+	result = append(result, command...)
+	result = append(result, payloadLength...)
+	result = append(result, checksum...)
+	result = append(result, ne.payload...)
+
+	return result
+}
