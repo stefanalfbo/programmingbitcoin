@@ -109,3 +109,10 @@ func (block *Block) Target() *big.Int {
 	exponentPart := big.NewInt(0).Exp(big.NewInt(256), big.NewInt(exponent-3), nil)
 	return big.NewInt(0).Mul(coefficient, exponentPart)
 }
+
+func (block *Block) Difficulty() *big.Int {
+	// difficulty = 0xffff * 256^(0x1d - 3) / target
+	lowest := big.NewInt(0).Mul(big.NewInt(0xffff), big.NewInt(0).Exp(big.NewInt(256), big.NewInt(0x1d-3), nil))
+
+	return big.NewInt(0).Div(lowest, block.Target())
+}
