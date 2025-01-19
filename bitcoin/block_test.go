@@ -220,3 +220,30 @@ func TestTargetToBits(t *testing.T) {
 		}
 	}
 }
+
+func TestCalculateNewBits(t *testing.T) {
+	expected := "50610718"
+	lastBlockHexData := "00000020fdf740b0e49cf75bb3d5168fb3586f7613dcc5cd89675b0100000000000000002e37b144c0baced07eb7e7b64da916cd3121f2427005551aeb0ec6a6402ac7d7f0e4235954d801187f5da9f5"
+	lastBlockData, _ := hex.DecodeString(lastBlockHexData)
+
+	lastBlock, err := bitcoin.ParseBlock(lastBlockData)
+	if err != nil {
+		t.Errorf("unexpected error: %v", err)
+	}
+
+	firstBlockHexData := "000000201ecd89664fd205a37566e694269ed76e425803003628ab010000000000000000bfcade29d080d9aae8fd461254b041805ae442749f2a40100440fc0e3d5868e55019345954d80118a1721b2e"
+	firstBlockData, _ := hex.DecodeString(firstBlockHexData)
+
+	firstBlock, err := bitcoin.ParseBlock(firstBlockData)
+	if err != nil {
+		t.Errorf("unexpected error: %v", err)
+	}
+
+	timeDifferential := lastBlock.Timestamp - firstBlock.Timestamp
+
+	newBits := bitcoin.CalculateNewBits(lastBlock.Bits, int64(timeDifferential))
+	bitsAsHex := hex.EncodeToString(newBits)
+	if bitsAsHex != expected {
+		t.Errorf("expected new bits to be %s, got %s", expected, bitsAsHex)
+	}
+}

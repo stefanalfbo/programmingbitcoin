@@ -102,9 +102,13 @@ func (block *Block) BIP141() bool {
 }
 
 func (block *Block) Target() *big.Int {
+	return bitsToTarget(block.Bits)
+}
+
+func bitsToTarget(bits []byte) *big.Int {
 	// target = coefficient * 256^(exponent-3)
-	exponent := int64(block.Bits[3])
-	coefficient := big.NewInt(int64(endian.LittleEndianToUint32(block.Bits[:3])))
+	exponent := int64(bits[3])
+	coefficient := big.NewInt(int64(endian.LittleEndianToUint32(bits[:3])))
 
 	exponentPart := big.NewInt(0).Exp(big.NewInt(256), big.NewInt(exponent-3), nil)
 	return big.NewInt(0).Mul(coefficient, exponentPart)
@@ -135,4 +139,24 @@ func TargetToBits(target *big.Int) []byte {
 	bits := append(coefficient, byte(exponent))
 
 	return bits
+}
+
+func CalculateNewBits(previousBits []byte, timeDifferential int64) []byte {
+	TWO_WEEKS_IN_SECONDS := int64(60 * 60 * 24 * 14)
+
+	// if the differential > 8 weeks, set to 8 weeks
+	if timeDifferential > (TWO_WEEKS_IN_SECONDS * 4) {
+		timeDifferential = TWO_WEEKS_IN_SECONDS * 4
+	}
+
+	// if the differential < 1/2 week, set to 1/2 week
+	if timeDifferential < (TWO_WEEKS_IN_SECONDS / 4) {
+		timeDifferential = TWO_WEEKS_IN_SECONDS / 4
+	}
+
+	target := bitsToTarget(previousBits)
+	newTarget := new(big.Int).Mul(target, big.NewInt(timeDifferential))
+	newTarget = new(big.Int).Div(newTarget, big.NewInt(TWO_WEEKS_IN_SECONDS))
+
+	return TargetToBits(newTarget)
 }
