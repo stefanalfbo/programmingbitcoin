@@ -95,3 +95,7 @@ func (block *Block) BIP9() bool {
 func (block *Block) BIP91() bool {
 	return block.Version>>4&1 == 1
 }
+
+func (block *Block) BIP141() bool {
+	return block.Version>>1&1 == 1
+}
