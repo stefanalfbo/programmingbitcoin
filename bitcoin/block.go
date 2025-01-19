@@ -121,6 +121,20 @@ func (block *Block) Difficulty() *big.Int {
 	return big.NewInt(0).Div(lowest, block.Target())
 }
 
+func (block *Block) CheckProofOfWork() bool {
+	serialized, err := block.Serialize()
+	if err != nil {
+		return false
+	}
+
+	sha := hash.Hash256(serialized)
+
+	proof := endian.LittleEndianToBigInt(sha)
+	target := block.Target()
+
+	return proof.Cmp(target) == -1
+}
+
 func TargetToBits(target *big.Int) []byte {
 	rawBytes := target.Bytes()
 

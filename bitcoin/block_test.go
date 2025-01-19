@@ -202,6 +202,34 @@ func TestBlock(t *testing.T) {
 			t.Errorf("expected difficulty to be %f, got %f", expectedDifficulty, difficulty)
 		}
 	})
+
+	t.Run("Check that proof of work is valid", func(t *testing.T) {
+		blockDataAsHexString := "04000000fbedbbf0cfdaf278c094f187f2eb987c86a199da22bbb20400000000000000007b7697b29129648fa08b4bcd13c9d5e60abb973a1efac9c8d573c71c807c56c3d6213557faa80518c3737ec1"
+		blockData, _ := hex.DecodeString(blockDataAsHexString)
+
+		block, err := bitcoin.ParseBlock(blockData)
+		if err != nil {
+			t.Errorf("unexpected error: %v", err)
+		}
+
+		if !block.CheckProofOfWork() {
+			t.Errorf("expected block to pass proof of work")
+		}
+	})
+
+	t.Run("Check that proof of work is invalid", func(t *testing.T) {
+		blockDataAsHexString := "04000000fbedbbf0cfdaf278c094f187f2eb987c86a199da22bbb20400000000000000007b7697b29129648fa08b4bcd13c9d5e60abb973a1efac9c8d573c71c807c56c3d6213557faa80518c3737ec0"
+		blockData, _ := hex.DecodeString(blockDataAsHexString)
+
+		block, err := bitcoin.ParseBlock(blockData)
+		if err != nil {
+			t.Errorf("unexpected error: %v", err)
+		}
+
+		if block.CheckProofOfWork() {
+			t.Errorf("expected block to pass proof of work")
+		}
+	})
 }
 
 func TestTargetToBits(t *testing.T) {
