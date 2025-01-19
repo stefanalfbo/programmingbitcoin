@@ -1,7 +1,9 @@
 package bitcoin_test
 
 import (
+	"encoding/binary"
 	"encoding/hex"
+	"math/big"
 	"testing"
 
 	"github.com/stefanalfbo/programmingbitcoin/bitcoin"
@@ -34,8 +36,9 @@ func TestBlock(t *testing.T) {
 			t.Errorf("expected timestamp 1496586576, got %d", block.Timestamp)
 		}
 
-		if block.Bits != 402774100 {
-			t.Errorf("expected bits 402774100, got %d", block.Bits)
+		bits := binary.LittleEndian.Uint32(block.Bits)
+		if bits != 402774100 {
+			t.Errorf("expected bits 402774100, got %d", bits)
 		}
 
 		if block.Nonce != 773550753 {
@@ -165,4 +168,22 @@ func TestBlock(t *testing.T) {
 			t.Errorf("expected block to not be BIP141 ready")
 		}
 	})
+
+	t.Run("Bits to target", func(t *testing.T) {
+		hexString := "020000208ec39428b17323fa0ddec8e887b4a7c53b8c0a0a220cfd0000000000000000005b0750fce0a889502d40508d39576821155e9c9e3f5c3157f961db38fd8b25be1e77a759e93c0118a4ffd71d"
+		data, _ := hex.DecodeString(hexString)
+
+		block, err := bitcoin.ParseBlock(data)
+		if err != nil {
+			t.Errorf("unexpected error: %v", err)
+		}
+
+		target := block.Target()
+		expectedTarget := new(big.Int)
+		expectedTarget.SetString("13ce9000000000000000000000000000000000000000000", 16)
+		if target.Cmp(expectedTarget) != 0 {
+			t.Errorf("expected target to be %x, got %x", expectedTarget, target)
+		}
+	})
+
 }

@@ -2,6 +2,7 @@ package bitcoin
 
 import (
 	"fmt"
+	"math/big"
 	"slices"
 
 	"github.com/stefanalfbo/programmingbitcoin/crypto/hash"
@@ -13,11 +14,11 @@ type Block struct {
 	PreviousBlock []byte
 	MerkleRoot    []byte
 	Timestamp     uint32
-	Bits          uint32
+	Bits          []byte
 	Nonce         uint32
 }
 
-func NewBlock(version int32, previousBlock []byte, merkleRoot []byte, timestamp uint32, bits uint32, nonce uint32) *Block {
+func NewBlock(version int32, previousBlock []byte, merkleRoot []byte, timestamp uint32, bits []byte, nonce uint32) *Block {
 	return &Block{version, previousBlock, merkleRoot, timestamp, bits, nonce}
 }
 
@@ -35,7 +36,7 @@ func ParseBlock(data []byte) (*Block, error) {
 	slices.Reverse(merkleRoot)
 
 	timestamp := endian.LittleEndianToUint32(data[68:72])
-	bits := endian.LittleEndianToUint32(data[72:76])
+	bits := data[72:76] //endian.LittleEndianToUint32(data[72:76])
 	nonce := endian.LittleEndianToUint32(data[76:80])
 
 	return &Block{
@@ -68,7 +69,7 @@ func (block *Block) Serialize() ([]byte, error) {
 
 	// Timestamp, Bits, Nonce
 	data = append(data, endian.Uint32ToLittleEndian(block.Timestamp)...)
-	data = append(data, endian.Uint32ToLittleEndian(block.Bits)...)
+	data = append(data, block.Bits...)
 	data = append(data, endian.Uint32ToLittleEndian(block.Nonce)...)
 
 	return data, nil
@@ -98,4 +99,13 @@ func (block *Block) BIP91() bool {
 
 func (block *Block) BIP141() bool {
 	return block.Version>>1&1 == 1
+}
+
+func (block *Block) Target() *big.Int {
+	// target = coefficient * 256^(exponent-3)
+	exponent := int64(block.Bits[3])
+	coefficient := big.NewInt(int64(endian.LittleEndianToUint32(block.Bits[:3])))
+
+	exponentPart := big.NewInt(0).Exp(big.NewInt(256), big.NewInt(exponent-3), nil)
+	return big.NewInt(0).Mul(coefficient, exponentPart)
 }
