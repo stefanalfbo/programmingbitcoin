@@ -1,9 +1,16 @@
 package bitcoin
 
 import (
+	"bytes"
 	"encoding/hex"
 	"fmt"
+
+	"github.com/stefanalfbo/programmingbitcoin/crypto/hash"
+	"github.com/stefanalfbo/programmingbitcoin/encoding/endian"
 )
+
+var mainnetMagic = []byte{0xf9, 0xbe, 0xb4, 0xd9}
+var testnetMagic = []byte{0x0b, 0x11, 0x09, 0x07}
 
 type NetworkEnvelope struct {
 	magic   []byte
@@ -14,9 +21,9 @@ type NetworkEnvelope struct {
 func NewNetworkEnvelope(command []byte, payload []byte, isTestnet bool) *NetworkEnvelope {
 	var magic []byte
 	if isTestnet {
-		magic = []byte{0x0b, 0x11, 0x09, 0x07}
+		magic = testnetMagic
 	} else {
-		magic = []byte{0xf9, 0xbe, 0xb4, 0xd9}
+		magic = mainnetMagic
 	}
 
 	return &NetworkEnvelope{
@@ -27,9 +34,16 @@ func NewNetworkEnvelope(command []byte, payload []byte, isTestnet bool) *Network
 }
 
 func (ne *NetworkEnvelope) String() string {
+	command := string(trimCommand(ne.command))
+	payload := hex.EncodeToString(ne.payload)
+
+	return fmt.Sprintf("%s: %s", command, payload)
+}
+
+func trimCommand(command []byte) []byte {
 	trimmed := make([]byte, 0)
 
-	for _, b := range ne.command {
+	for _, b := range command {
 		if b == 0x00 {
 			break
 		}
@@ -37,8 +51,33 @@ func (ne *NetworkEnvelope) String() string {
 		trimmed = append(trimmed, b)
 	}
 
-	command := string(trimmed)
-	payload := hex.EncodeToString(ne.payload)
+	return trimmed
+}
 
-	return fmt.Sprintf("%s: %s", command, payload)
+func ParseNetworkEnvelope(data []byte) (*NetworkEnvelope, error) {
+	magic := data[:4]
+
+	if !bytes.Equal(magic, mainnetMagic) && !bytes.Equal(magic, testnetMagic) {
+		return nil, fmt.Errorf("invalid magic: %x", magic)
+	}
+
+	command := trimCommand(data[4:16])
+	payloadLength := endian.LittleEndianToInt32(data[16:20])
+	checksum := data[20:24]
+	payload := data[24:]
+
+	if len(payload) != int(payloadLength) {
+		return nil, fmt.Errorf("invalid payload length: %d", len(payload))
+	}
+
+	calculatedChecksum := hash.Hash256(payload)
+	if !bytes.Equal(checksum, calculatedChecksum[:4]) {
+		return nil, fmt.Errorf("invalid checksum: %x", checksum)
+	}
+
+	return &NetworkEnvelope{
+		magic:   magic,
+		command: command,
+		payload: payload,
+	}, nil
 }
