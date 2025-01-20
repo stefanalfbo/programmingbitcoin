@@ -8,6 +8,7 @@ import (
 )
 
 type VersionMessage struct {
+	command          []byte
 	Version          int32
 	Services         uint64
 	Timestamp        int64
@@ -25,6 +26,7 @@ type VersionMessage struct {
 
 func NewVersionMessage() *VersionMessage {
 	return &VersionMessage{
+		command:          []byte("version"),
 		Version:          70015,
 		Services:         0,
 		Timestamp:        0,
