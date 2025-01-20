@@ -1,4 +1,4 @@
-package bitcoin
+package network
 
 import (
 	"bytes"

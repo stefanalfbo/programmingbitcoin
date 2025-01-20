@@ -1,10 +1,10 @@
-package bitcoin_test
+package network_test
 
 import (
 	"bytes"
 	"testing"
 
-	"github.com/stefanalfbo/programmingbitcoin/bitcoin"
+	"github.com/stefanalfbo/programmingbitcoin/bitcoin/network"
 )
 
 func TestString(t *testing.T) {
@@ -12,7 +12,7 @@ func TestString(t *testing.T) {
 		command := []byte{0x76, 0x65, 0x72, 0x61, 0x63, 0x6b, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}
 		payload := []byte{}
 
-		ne := bitcoin.NewNetworkEnvelope(command, payload, false)
+		ne := network.NewNetworkEnvelope(command, payload, false)
 		expected := "verack: "
 		actual := ne.String()
 
@@ -25,7 +25,7 @@ func TestString(t *testing.T) {
 		command := []byte("hello, world!")
 		payload := []byte{0xDE, 0xAD, 0xBE, 0xEF}
 
-		ne := bitcoin.NewNetworkEnvelope(command, payload, false)
+		ne := network.NewNetworkEnvelope(command, payload, false)
 		expected := "hello, world!: deadbeef"
 		actual := ne.String()
 
@@ -41,7 +41,7 @@ func TestParseNetworkEnvelope(t *testing.T) {
 			0xDE, 0xAD, 0xBE, 0xEF, // invalid magic
 		}
 
-		_, err := bitcoin.ParseNetworkEnvelope(message)
+		_, err := network.ParseNetworkEnvelope(message)
 		if err == nil || err.Error() != "invalid magic: deadbeef" {
 			t.Errorf("expected error but got: %v", err)
 		}
@@ -55,7 +55,7 @@ func TestParseNetworkEnvelope(t *testing.T) {
 			0xDE, 0xAD, 0xBE, 0xEF, // invalid checksum
 		}
 
-		_, err := bitcoin.ParseNetworkEnvelope(message)
+		_, err := network.ParseNetworkEnvelope(message)
 		if err == nil || err.Error() != "invalid checksum: deadbeef" {
 			t.Errorf("expected error but got: %v", err)
 		}
@@ -69,7 +69,7 @@ func TestParseNetworkEnvelope(t *testing.T) {
 			0x5d, 0xf6, 0xe0, 0xe2, // checksum
 		}
 
-		ne, err := bitcoin.ParseNetworkEnvelope(message)
+		ne, err := network.ParseNetworkEnvelope(message)
 		if err != nil {
 			t.Errorf("unexpected error: %v", err)
 		}
@@ -101,7 +101,7 @@ func TestParseNetworkEnvelope(t *testing.T) {
 			0xcf, 0x05, 0x05, 0x00, 0x01, // payload
 		}
 
-		ne, err := bitcoin.ParseNetworkEnvelope(message)
+		ne, err := network.ParseNetworkEnvelope(message)
 		if err != nil {
 			t.Errorf("unexpected error: %v", err)
 		}
@@ -122,7 +122,7 @@ func TestSerializeNetworkEnvelope(t *testing.T) {
 			0x5d, 0xf6, 0xe0, 0xe2, // checksum
 		}
 
-		ne, err := bitcoin.ParseNetworkEnvelope(message)
+		ne, err := network.ParseNetworkEnvelope(message)
 		if err != nil {
 			t.Errorf("unexpected error: %v", err)
 		}
@@ -154,7 +154,7 @@ func TestSerializeNetworkEnvelope(t *testing.T) {
 			0xcf, 0x05, 0x05, 0x00, 0x01, // payload
 		}
 
-		ne, err := bitcoin.ParseNetworkEnvelope(message)
+		ne, err := network.ParseNetworkEnvelope(message)
 		if err != nil {
 			t.Errorf("unexpected error: %v", err)
 		}
