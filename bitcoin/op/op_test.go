@@ -154,6 +154,40 @@ func TestRETURN(t *testing.T) {
 	}
 }
 
+func TestPICK(t *testing.T) {
+	t.Run("Empty stack", func(t *testing.T) {
+		stack := op.NewStack()
+		_, err := op.PICK(stack)
+		if err == nil || err.Error() != "stack too small" {
+			t.Errorf("expected error, got nil")
+		}
+	})
+
+	t.Run("Pick element", func(t *testing.T) {
+		one, _ := op.NewInstruction([]byte{0x01})
+		two, _ := op.NewInstruction([]byte{0x02})
+		stack := op.NewStack()
+
+		stack.Push(two)
+		stack.Push(one)
+		stack.Push(one)
+
+		stack, err := op.PICK(stack)
+		if err != nil {
+			t.Errorf("expected nil, got %v", err)
+		}
+
+		if stack.Size() != 3 {
+			t.Errorf("expected: %v, got: %v", 3, stack.Size())
+		}
+
+		top, _ := stack.Peek()
+		if !top.Equals(two) {
+			t.Errorf("expected: %v, got: %v", two, top)
+		}
+	})
+}
+
 func TestSWAP(t *testing.T) {
 	t.Run("Empty stack", func(t *testing.T) {
 		stack := op.NewStack()

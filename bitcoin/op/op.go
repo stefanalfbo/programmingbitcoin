@@ -399,6 +399,32 @@ func DUP(stack *Stack) (*Stack, error) {
 	return stack, nil
 }
 
+// The item n back in the stack is copied to the top.
+func PICK(stack *Stack) (*Stack, error) {
+	if stack.Size() < 1 {
+		return nil, fmt.Errorf("stack too small")
+	}
+
+	data, err := stack.Pop()
+	if err != nil {
+		return nil, err
+	}
+
+	index := new(big.Int).Add(new(big.Int).SetInt64(1), new(big.Int).SetBytes(data.instruction))
+	if index.Cmp(big.NewInt(int64(stack.Size()))) > 0 {
+		return nil, fmt.Errorf("stack too small")
+	}
+
+	element, err := stack.PeekN(int(index.Int64()) - 1)
+	if err != nil {
+		return nil, err
+	}
+
+	stack.Push(element)
+
+	return stack, nil
+}
+
 // The top two items on the stack are swapped.
 func SWAP(stack *Stack) (*Stack, error) {
 	if stack.Size() < 2 {
@@ -801,6 +827,7 @@ var OP_CODE_FUNCTIONS = map[int]func(*Stack) (*Stack, error){
 	116: DEPTH,
 	117: DROP,
 	118: DUP,
+	121: PICK,
 	123: SWAP,
 	130: SIZE,
 	135: EQUAL,
