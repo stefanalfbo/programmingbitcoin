@@ -43,6 +43,10 @@ func NewVersionMessage() *VersionMessage {
 	}
 }
 
+func (vm *VersionMessage) Command() []byte {
+	return vm.command
+}
+
 func (vm *VersionMessage) Serialize() ([]byte, error) {
 	ip4Prefix := []byte{0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xff, 0xff}
 	result := make([]byte, 0)

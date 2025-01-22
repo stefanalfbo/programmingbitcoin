@@ -12,6 +12,11 @@ import (
 var mainnetMagic = []byte{0xf9, 0xbe, 0xb4, 0xd9}
 var testnetMagic = []byte{0x0b, 0x11, 0x09, 0x07}
 
+type Message interface {
+	Command() []byte
+	Serialize() []byte
+}
+
 type NetworkEnvelope struct {
 	magic   []byte
 	command []byte

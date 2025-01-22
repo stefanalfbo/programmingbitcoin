@@ -10,6 +10,10 @@ func NewVerAckMessage() *VerAckMessage {
 	return &VerAckMessage{command: command}
 }
 
+func (vam *VerAckMessage) Command() []byte {
+	return vam.command
+}
+
 func (vam *VerAckMessage) Serialize() []byte {
 	return []byte{}
 }
