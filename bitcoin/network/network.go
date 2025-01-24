@@ -14,7 +14,7 @@ var testnetMagic = []byte{0x0b, 0x11, 0x09, 0x07}
 
 type Message interface {
 	Command() []byte
-	Serialize() []byte
+	Serialize() ([]byte, error)
 }
 
 type NetworkEnvelope struct {

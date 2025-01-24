@@ -6,25 +6,29 @@ import (
 )
 
 type SimpleNode struct {
-	host      string
-	port      int
+	address   net.Addr
 	isTestnet bool
 	isLogging bool
 }
 
-func NewSimpleNode(host string, port int, isTestnet bool, isLogging bool) *SimpleNode {
-	return &SimpleNode{host, port, isTestnet, isLogging}
+func NewSimpleNode(address net.Addr, isTestnet bool, isLogging bool) *SimpleNode {
+	return &SimpleNode{address, isTestnet, isLogging}
 }
 
 // Send a message to the connected node
 func (n *SimpleNode) Send(message Message) error {
-	envelope := NewNetworkEnvelope(message.Command(), message.Serialize(), n.isTestnet)
+	serializedMessage, err := message.Serialize()
+	if err != nil {
+		return err
+	}
+
+	envelope := NewNetworkEnvelope(message.Command(), serializedMessage, n.isTestnet)
 
 	if n.isLogging {
 		fmt.Println("Sending:", envelope)
 	}
 
-	conn, err := net.Dial("tcp", fmt.Sprintf("%s:%d", n.host, n.port))
+	conn, err := net.Dial("tcp", n.address.String())
 	if err != nil {
 		return err
 	}
@@ -40,7 +44,7 @@ func (n *SimpleNode) Send(message Message) error {
 
 // Read a message from the socket
 func (n *SimpleNode) Read() (*NetworkEnvelope, error) {
-	conn, err := net.Dial("tcp", fmt.Sprintf("%s:%d", n.host, n.port))
+	conn, err := net.Dial("tcp", n.address.String())
 	if err != nil {
 		return nil, err
 	}
