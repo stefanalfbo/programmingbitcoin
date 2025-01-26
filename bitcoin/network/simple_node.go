@@ -1,6 +1,8 @@
 package network
 
 import (
+	"bytes"
+	"encoding/binary"
 	"fmt"
 	"net"
 )
@@ -66,4 +68,35 @@ func (n *SimpleNode) Read() (*NetworkEnvelope, error) {
 	}
 
 	return envelope, nil
+}
+
+func (n *SimpleNode) WaitFor(messages []Message) (*Message, error) {
+	for {
+		envelope, err := n.Read()
+		if err != nil {
+			return nil, err
+		}
+
+		for _, message := range messages {
+
+			if bytes.Equal(envelope.Command(), message.Command()) {
+				msg, err := message.Parse(envelope.Payload())
+				if err != nil {
+					return nil, err
+				}
+
+				return &msg, nil
+			}
+		}
+
+		switch command := string(trimCommand(envelope.Command())); command {
+		case "version":
+			message := NewVerAckMessage()
+			n.Send(message)
+		case "ping":
+			nonce := binary.LittleEndian.Uint64(envelope.Payload())
+			message := NewPongMessage(nonce)
+			n.Send(message)
+		}
+	}
 }
