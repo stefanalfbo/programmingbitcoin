@@ -1,6 +1,9 @@
 package network
 
 import (
+	"bytes"
+	"encoding/binary"
+	"fmt"
 	"math/big"
 
 	"github.com/stefanalfbo/programmingbitcoin/encoding/endian"
@@ -88,4 +91,49 @@ func (vm *VersionMessage) Serialize() ([]byte, error) {
 	}
 
 	return result, nil
+}
+
+func (vm *VersionMessage) Parse(data []byte) (Message, error) {
+
+	if len(data) < 85 {
+		return nil, fmt.Errorf("invalid data length")
+	}
+
+	version := endian.LittleEndianToInt32(data[:4])
+	services := binary.LittleEndian.Uint64(data[4:12])
+	timestamp := int64(binary.LittleEndian.Uint64(data[12:20]))
+	receiverServices := binary.LittleEndian.Uint64(data[20:28])
+	receiverIP := data[28:40]
+	receiverPort := binary.LittleEndian.Uint16(data[40:42])
+	senderServices := binary.LittleEndian.Uint64(data[42:50])
+	senderIP := data[50:62]
+	senderPort := binary.LittleEndian.Uint16(data[62:64])
+	var nonce [8]byte
+	copy(nonce[:], data[64:72])
+
+	_, err := varint.Decode(bytes.NewReader(data[72:]))
+	if err != nil {
+		return nil, err
+	}
+	userAgent := []byte("todo: parse user agent")
+
+	latestBlock := int32(binary.LittleEndian.Uint32(data[len(data)-5 : len(data)-1]))
+
+	relay := data[len(data)-1] == 0x01
+
+	return &VersionMessage{
+		Version:          version,
+		Services:         services,
+		Timestamp:        timestamp,
+		ReceiverServices: receiverServices,
+		ReceiverIP:       receiverIP,
+		ReceiverPort:     receiverPort,
+		SenderServices:   senderServices,
+		SenderIP:         senderIP,
+		SenderPort:       senderPort,
+		Nonce:            nonce,
+		UserAgent:        userAgent,
+		LatestBlock:      latestBlock,
+		Relay:            relay,
+	}, nil
 }

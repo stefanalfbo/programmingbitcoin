@@ -14,6 +14,10 @@ func (vam *VerAckMessage) Command() []byte {
 	return vam.command
 }
 
-func (vam *VerAckMessage) Serialize() []byte {
-	return []byte{}
+func (vam *VerAckMessage) Serialize() ([]byte, error) {
+	return []byte{}, nil
+}
+
+func (vam *VerAckMessage) Parse(data []byte) (Message, error) {
+	return NewVerAckMessage(), nil
 }

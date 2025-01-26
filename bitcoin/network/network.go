@@ -15,6 +15,7 @@ var testnetMagic = []byte{0x0b, 0x11, 0x09, 0x07}
 type Message interface {
 	Command() []byte
 	Serialize() ([]byte, error)
+	Parse([]byte) (Message, error)
 }
 
 type NetworkEnvelope struct {
@@ -43,6 +44,14 @@ func (ne *NetworkEnvelope) String() string {
 	payload := hex.EncodeToString(ne.payload)
 
 	return fmt.Sprintf("%s: %s", command, payload)
+}
+
+func (ne *NetworkEnvelope) Command() []byte {
+	return ne.command
+}
+
+func (ne *NetworkEnvelope) Payload() []byte {
+	return ne.payload
 }
 
 func trimCommand(command []byte) []byte {
