@@ -100,3 +100,18 @@ func (n *SimpleNode) WaitFor(messages []Message) (*Message, error) {
 		}
 	}
 }
+
+func (n *SimpleNode) Handshake() error {
+	message := NewVersionMessage()
+	err := n.Send(message)
+	if err != nil {
+		return err
+	}
+
+	_, err = n.WaitFor([]Message{NewVerAckMessage()})
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
