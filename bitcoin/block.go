@@ -1,11 +1,13 @@
 package bitcoin
 
 import (
+	"bytes"
 	"fmt"
 	"math/big"
 	"slices"
 
 	"github.com/stefanalfbo/programmingbitcoin/crypto/hash"
+	"github.com/stefanalfbo/programmingbitcoin/crypto/merkle"
 	"github.com/stefanalfbo/programmingbitcoin/encoding/endian"
 )
 
@@ -16,10 +18,11 @@ type Block struct {
 	Timestamp     uint32
 	Bits          []byte
 	Nonce         uint32
+	txHashes      [][]byte
 }
 
-func NewBlock(version int32, previousBlock []byte, merkleRoot []byte, timestamp uint32, bits []byte, nonce uint32) *Block {
-	return &Block{version, previousBlock, merkleRoot, timestamp, bits, nonce}
+func NewBlock(version int32, previousBlock []byte, merkleRoot []byte, timestamp uint32, bits []byte, nonce uint32, txHashes [][]byte) *Block {
+	return &Block{version, previousBlock, merkleRoot, timestamp, bits, nonce, txHashes}
 }
 
 func ParseBlock(data []byte) (*Block, error) {
@@ -173,4 +176,21 @@ func CalculateNewBits(previousBits []byte, timeDifferential int64) []byte {
 	newTarget = new(big.Int).Div(newTarget, big.NewInt(TWO_WEEKS_IN_SECONDS))
 
 	return TargetToBits(newTarget)
+}
+
+func (block *Block) ValidateMerkleRoot() bool {
+	hashes := make([][]byte, 0)
+
+	for _, txHash := range block.txHashes {
+		hash := make([]byte, 32)
+		copy(hash, txHash)
+		slices.Reverse(hash)
+		hashes = append(hashes, hash)
+	}
+
+	root := merkle.Root(hashes)
+
+	slices.Reverse(root)
+
+	return bytes.Equal(root, block.MerkleRoot)
 }
