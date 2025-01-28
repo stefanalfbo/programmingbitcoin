@@ -68,6 +68,30 @@ func TestRoot(t *testing.T) {
 	}
 }
 
+func TestNewMerkleTree(t *testing.T) {
+	tree := merkle.NewMerkleTree(9)
+
+	if len(tree.Nodes[0]) != 1 {
+		t.Errorf("NewMerkleTree was incorrect, got: %d, want: %d.", len(tree.Nodes[0]), 1)
+	}
+
+	if len(tree.Nodes[1]) != 2 {
+		t.Errorf("NewMerkleTree was incorrect, got: %d, want: %d.", len(tree.Nodes[1]), 2)
+	}
+
+	if len(tree.Nodes[2]) != 3 {
+		t.Errorf("NewMerkleTree was incorrect, got: %d, want: %d.", len(tree.Nodes[2]), 3)
+	}
+
+	if len(tree.Nodes[3]) != 5 {
+		t.Errorf("NewMerkleTree was incorrect, got: %d, want: %d.", len(tree.Nodes[3]), 5)
+	}
+
+	if len(tree.Nodes[4]) != 9 {
+		t.Errorf("NewMerkleTree was incorrect, got: %d, want: %d.", len(tree.Nodes[4]), 9)
+	}
+}
+
 func TestString(t *testing.T) {
 	hashes := make([][]byte, 16)
 	hashes[0], _ = hex.DecodeString("9745f7173ef14ee4155722d1cbf13304339fd00d900b759c6f9d58579b5765fb")
