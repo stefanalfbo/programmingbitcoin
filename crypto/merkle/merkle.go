@@ -92,3 +92,46 @@ func (mt *MerkleTree) String() string {
 	}
 	return strings.Join(result, "\n")
 }
+
+func (mt *MerkleTree) Up() {
+	mt.currentDepth--
+	mt.currentIndex /= 2
+}
+
+func (mt *MerkleTree) Left() {
+	mt.currentDepth++
+	mt.currentIndex *= 2
+}
+
+func (mt *MerkleTree) Right() {
+	mt.currentDepth++
+	mt.currentIndex = mt.currentIndex*2 + 1
+}
+
+func (mt *MerkleTree) Root() []byte {
+	return mt.Nodes[0][0]
+}
+
+func (mt *MerkleTree) SetCurrentNode(value []byte) {
+	mt.Nodes[mt.currentDepth][mt.currentIndex] = value
+}
+
+func (mt *MerkleTree) GetCurrentNode() []byte {
+	return mt.Nodes[mt.currentDepth][mt.currentIndex]
+}
+
+func (mt *MerkleTree) GetLeftNode() []byte {
+	return mt.Nodes[mt.currentDepth+1][mt.currentIndex*2]
+}
+
+func (mt *MerkleTree) GetRightNode() []byte {
+	return mt.Nodes[mt.currentDepth+1][mt.currentIndex*2+1]
+}
+
+func (mt *MerkleTree) IsLeaf() bool {
+	return mt.currentDepth == mt.maxDepth
+}
+
+func (mt *MerkleTree) RightExists() bool {
+	return len(mt.Nodes[mt.currentDepth+1]) > mt.currentIndex*2+1
+}
