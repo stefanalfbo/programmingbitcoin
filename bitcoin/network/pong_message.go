@@ -5,9 +5,12 @@ import (
 	"io"
 )
 
+// The pong message is sent in response to a ping message. In modern protocol
+// versions, a pong response is generated using a nonce included in the ping.
 type PongMessage struct {
 	command []byte
-	Nonce   uint64
+	// Nonce from ping
+	Nonce uint64
 }
 
 func NewPongMessage(nonce uint64) *PongMessage {
