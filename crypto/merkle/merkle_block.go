@@ -1,8 +1,8 @@
 package merkle
 
 import (
-	"bytes"
 	"encoding/binary"
+	"io"
 
 	"github.com/stefanalfbo/programmingbitcoin/encoding/varint"
 )
@@ -19,8 +19,7 @@ type MerkleBlock struct {
 	flags         []byte
 }
 
-func ParseMerkleBlock(buf []byte) (*MerkleBlock, error) {
-	reader := bytes.NewReader(buf)
+func ParseMerkleBlock(reader io.Reader) (*MerkleBlock, error) {
 	mb := MerkleBlock{}
 
 	var version int32
