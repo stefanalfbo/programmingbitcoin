@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/hex"
 	"fmt"
+	"io"
 
 	"github.com/stefanalfbo/programmingbitcoin/crypto/hash"
 	"github.com/stefanalfbo/programmingbitcoin/encoding/endian"
@@ -15,7 +16,7 @@ var testnetMagic = []byte{0x0b, 0x11, 0x09, 0x07}
 type Message interface {
 	Command() []byte
 	Serialize() ([]byte, error)
-	Parse([]byte) (Message, error)
+	Parse(io.Reader) (Message, error)
 }
 
 type NetworkEnvelope struct {

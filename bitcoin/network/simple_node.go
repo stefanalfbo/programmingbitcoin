@@ -80,7 +80,8 @@ func (n *SimpleNode) WaitFor(messages []Message) (*Message, error) {
 		for _, message := range messages {
 
 			if bytes.Equal(envelope.Command(), message.Command()) {
-				msg, err := message.Parse(envelope.Payload())
+				payload := bytes.NewReader(envelope.Payload())
+				msg, err := message.Parse(payload)
 				if err != nil {
 					return nil, err
 				}

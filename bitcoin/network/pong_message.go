@@ -2,7 +2,7 @@ package network
 
 import (
 	"encoding/binary"
-	"fmt"
+	"io"
 )
 
 type PongMessage struct {
@@ -27,11 +27,12 @@ func (pm *PongMessage) Serialize() ([]byte, error) {
 	return buf, nil
 }
 
-func (pm *PongMessage) Parse(data []byte) (Message, error) {
-	if len(data) != 8 {
-		return nil, fmt.Errorf("invalid pong message length")
+func (pm *PongMessage) Parse(reader io.Reader) (Message, error) {
+	var nonce uint64
+	err := binary.Read(reader, binary.LittleEndian, &nonce)
+	if err != nil {
+		return nil, err
 	}
 
-	nonce := binary.LittleEndian.Uint64(data)
 	return NewPongMessage(nonce), nil
 }

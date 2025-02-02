@@ -1,8 +1,6 @@
 package network
 
 import (
-	"bytes"
-	"encoding/binary"
 	"io"
 	"math/big"
 
@@ -48,14 +46,13 @@ func (hm *HeadersMessage) Serialize() ([]byte, error) {
 	return result, nil
 }
 
-func (hm *HeadersMessage) Parse(data []byte) (Message, error) {
-	reader := bytes.NewReader(data)
-	numHashes, err := binary.ReadUvarint(reader)
+func (hm *HeadersMessage) Parse(reader io.Reader) (Message, error) {
+	numHashes, err := varint.Decode(reader)
 	if err != nil {
 		return nil, err
 	}
 	blocks := make([]*bitcoin.Block, 0)
-	for i := uint64(0); i < numHashes; i++ {
+	for i := uint64(0); i < numHashes.Uint64(); i++ {
 		blockData, err := io.ReadAll(reader)
 		if err != nil {
 			return nil, err

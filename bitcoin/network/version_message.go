@@ -1,9 +1,8 @@
 package network
 
 import (
-	"bytes"
 	"encoding/binary"
-	"fmt"
+	"io"
 	"math/big"
 
 	"github.com/stefanalfbo/programmingbitcoin/encoding/endian"
@@ -16,12 +15,12 @@ type VersionMessage struct {
 	Services         uint64
 	Timestamp        int64
 	ReceiverServices uint64
-	ReceiverIP       []byte
+	ReceiverIP       [16]byte
 	ReceiverPort     uint16
 	SenderServices   uint64
-	SenderIP         []byte
+	SenderIP         [16]byte
 	SenderPort       uint16
-	Nonce            [8]byte
+	Nonce            uint64
 	UserAgent        []byte
 	LatestBlock      int32
 	Relay            bool
@@ -34,12 +33,12 @@ func NewVersionMessage() *VersionMessage {
 		Services:         0,
 		Timestamp:        0,
 		ReceiverServices: 0,
-		ReceiverIP:       []byte{0x00, 0x00, 0x00, 0x00},
+		ReceiverIP:       [16]byte{0x00, 0x00, 0x00, 0x00},
 		ReceiverPort:     8333,
 		SenderServices:   0,
-		SenderIP:         []byte{0x00, 0x00, 0x00, 0x00},
+		SenderIP:         [16]byte{0x00, 0x00, 0x00, 0x00},
 		SenderPort:       8333,
-		Nonce:            [8]byte{},
+		Nonce:            0,
 		UserAgent:        []byte("/programmingbitcoin:0.1/"),
 		LatestBlock:      0,
 		Relay:            false,
@@ -59,7 +58,7 @@ func (vm *VersionMessage) Serialize() ([]byte, error) {
 	result = append(result, endian.Int64ToLittleEndian(vm.Timestamp)...)
 	result = append(result, endian.Uint64ToLittleEndian(vm.ReceiverServices)...)
 	result = append(result, ip4Prefix...)
-	result = append(result, vm.ReceiverIP[:]...)
+	result = append(result, vm.ReceiverIP[:4]...)
 
 	h, l := uint(vm.ReceiverPort)>>8, uint(vm.ReceiverPort)&0xff
 	result = append(result, byte(h), byte(l))
@@ -67,12 +66,12 @@ func (vm *VersionMessage) Serialize() ([]byte, error) {
 	result = append(result, endian.Uint64ToLittleEndian(vm.SenderServices)...)
 
 	result = append(result, ip4Prefix...)
-	result = append(result, vm.SenderIP[:]...)
+	result = append(result, vm.SenderIP[:4]...)
 
 	h, l = uint(vm.SenderPort)>>8, uint(vm.SenderPort)&0xff
 	result = append(result, byte(h), byte(l))
 
-	result = append(result, vm.Nonce[:]...)
+	result = append(result, endian.Uint64ToLittleEndian(vm.Nonce)...)
 
 	userAgentLength, err := varint.Encode(big.NewInt(int64(len(vm.UserAgent))))
 	if err != nil {
@@ -93,47 +92,104 @@ func (vm *VersionMessage) Serialize() ([]byte, error) {
 	return result, nil
 }
 
-func (vm *VersionMessage) Parse(data []byte) (Message, error) {
+func (vm *VersionMessage) Parse(reader io.Reader) (Message, error) {
+	message := VersionMessage{}
 
-	if len(data) < 85 {
-		return nil, fmt.Errorf("invalid data length")
-	}
-
-	version := endian.LittleEndianToInt32(data[:4])
-	services := binary.LittleEndian.Uint64(data[4:12])
-	timestamp := int64(binary.LittleEndian.Uint64(data[12:20]))
-	receiverServices := binary.LittleEndian.Uint64(data[20:28])
-	receiverIP := data[28:40]
-	receiverPort := binary.LittleEndian.Uint16(data[40:42])
-	senderServices := binary.LittleEndian.Uint64(data[42:50])
-	senderIP := data[50:62]
-	senderPort := binary.LittleEndian.Uint16(data[62:64])
-	var nonce [8]byte
-	copy(nonce[:], data[64:72])
-
-	_, err := varint.Decode(bytes.NewReader(data[72:]))
+	var version int32
+	err := binary.Read(reader, binary.LittleEndian, &version)
 	if err != nil {
 		return nil, err
 	}
-	userAgent := []byte("todo: parse user agent")
+	message.Version = version
 
-	latestBlock := int32(binary.LittleEndian.Uint32(data[len(data)-5 : len(data)-1]))
+	var services uint64
+	err = binary.Read(reader, binary.LittleEndian, &services)
+	if err != nil {
+		return nil, err
+	}
+	message.Services = services
 
-	relay := data[len(data)-1] == 0x01
+	var timestamp int64
+	err = binary.Read(reader, binary.LittleEndian, &timestamp)
+	if err != nil {
+		return nil, err
+	}
+	message.Timestamp = timestamp
 
-	return &VersionMessage{
-		Version:          version,
-		Services:         services,
-		Timestamp:        timestamp,
-		ReceiverServices: receiverServices,
-		ReceiverIP:       receiverIP,
-		ReceiverPort:     receiverPort,
-		SenderServices:   senderServices,
-		SenderIP:         senderIP,
-		SenderPort:       senderPort,
-		Nonce:            nonce,
-		UserAgent:        userAgent,
-		LatestBlock:      latestBlock,
-		Relay:            relay,
-	}, nil
+	var receiverServices uint64
+	err = binary.Read(reader, binary.LittleEndian, &receiverServices)
+	if err != nil {
+		return nil, err
+	}
+	message.ReceiverServices = receiverServices
+
+	receiverIP := [16]byte{}
+	err = binary.Read(reader, binary.LittleEndian, &receiverIP)
+	if err != nil {
+		return nil, err
+	}
+	message.ReceiverIP = receiverIP
+
+	var receiverPort uint16
+	err = binary.Read(reader, binary.LittleEndian, &receiverPort)
+	if err != nil {
+		return nil, err
+	}
+	message.ReceiverPort = receiverPort
+
+	var senderServices uint64
+	err = binary.Read(reader, binary.LittleEndian, &senderServices)
+	if err != nil {
+		return nil, err
+	}
+	message.SenderServices = senderServices
+
+	senderIP := [16]byte{}
+	err = binary.Read(reader, binary.LittleEndian, &senderIP)
+	if err != nil {
+		return nil, err
+	}
+	message.SenderIP = senderIP
+
+	var senderPort uint16
+	err = binary.Read(reader, binary.LittleEndian, &senderPort)
+	if err != nil {
+		return nil, err
+	}
+	message.SenderPort = senderPort
+
+	var nonce uint64
+	err = binary.Read(reader, binary.LittleEndian, &nonce)
+	if err != nil {
+		return nil, err
+	}
+	message.Nonce = nonce
+
+	userAgentLength, err := varint.Decode(reader)
+	if err != nil {
+		return nil, err
+	}
+
+	userAgent := make([]byte, userAgentLength.Int64())
+	err = binary.Read(reader, binary.LittleEndian, &userAgent)
+	if err != nil {
+		return nil, err
+	}
+	message.UserAgent = userAgent
+
+	var latestBlock int32
+	err = binary.Read(reader, binary.LittleEndian, &latestBlock)
+	if err != nil {
+		return nil, err
+	}
+	message.LatestBlock = latestBlock
+
+	var relay byte
+	err = binary.Read(reader, binary.LittleEndian, &relay)
+	if err != nil {
+		return nil, err
+	}
+	message.Relay = relay == 0x01
+
+	return &message, nil
 }

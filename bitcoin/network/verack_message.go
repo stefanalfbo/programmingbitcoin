@@ -1,5 +1,7 @@
 package network
 
+import "io"
+
 type VerAckMessage struct {
 	command []byte
 }
@@ -18,6 +20,6 @@ func (vam *VerAckMessage) Serialize() ([]byte, error) {
 	return []byte{}, nil
 }
 
-func (vam *VerAckMessage) Parse(data []byte) (Message, error) {
+func (vam *VerAckMessage) Parse(reader io.Reader) (Message, error) {
 	return NewVerAckMessage(), nil
 }
