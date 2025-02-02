@@ -245,7 +245,7 @@ func (script *Script) Evaluate(z []byte) (bool, error) {
 					return false, err
 				}
 
-				stack, err = op.VERIFY(stack)
+				_, err = op.VERIFY(stack)
 				if err != nil {
 					return false, err
 				}

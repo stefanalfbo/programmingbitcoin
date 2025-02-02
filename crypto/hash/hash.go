@@ -4,6 +4,7 @@ import (
 	"crypto/sha1"
 	"crypto/sha256"
 
+	//lint:ignore SA1019 we want to use the ripemd160 package
 	"golang.org/x/crypto/ripemd160"
 )
 

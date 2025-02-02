@@ -13,3 +13,9 @@ test: ## Run the project’s tests.
 
 fmt: ## Format the project’s source code.
 	go fmt ./...
+
+vet: ## Report likely mistakes in source code.
+	go vet ./...
+
+staticcheck: ## Run the staticcheck linter.
+	staticcheck ./...
