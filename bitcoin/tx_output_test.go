@@ -3,7 +3,6 @@ package bitcoin_test
 import (
 	"bytes"
 	"encoding/hex"
-	"math/big"
 	"testing"
 
 	"github.com/stefanalfbo/programmingbitcoin/bitcoin"
@@ -47,7 +46,7 @@ func TestParseOutputs(t *testing.T) {
 
 		txOutput := outputs[0]
 
-		if txOutput.Amount.Cmp(big.NewInt(32_454_049)) != 0 {
+		if txOutput.Amount != 32_454_049 {
 			t.Errorf("unexpected amount: %d", txOutput.Amount)
 		}
 	})

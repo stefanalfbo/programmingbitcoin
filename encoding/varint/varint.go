@@ -1,70 +1,77 @@
 package varint
 
 import (
-	"errors"
+	"encoding/binary"
 	"io"
-	"math/big"
-
-	"github.com/stefanalfbo/programmingbitcoin/encoding/endian"
 )
 
 // Decode reads a variable bigInt from a stream.
-func Decode(stream io.Reader) (*big.Int, error) {
+func Decode(stream io.Reader) (uint64, error) {
 	i := make([]byte, 1)
 
 	_, err := stream.Read(i)
 	if err != nil {
-		return nil, err
+		return 0, err
+	}
+
+	if i[0] < 0xfd {
+		return uint64(i[0]), nil
 	}
 
 	if i[0] == 0xfd {
 		n := make([]byte, 2)
 		_, err := stream.Read(n)
 		if err != nil {
-			return nil, err
+			return 0, err
 		}
-		return endian.LittleEndianToBigInt(n), nil
+		n = append(n, []byte{0, 0, 0, 0, 0, 0}...)
+		return binary.LittleEndian.Uint64(n), nil
 	}
 
 	if i[0] == 0xfe {
 		n := make([]byte, 4)
 		_, err := stream.Read(n)
 		if err != nil {
-			return nil, err
+			return 0, err
 		}
-		return endian.LittleEndianToBigInt(n), nil
+		n = append(n, []byte{0, 0, 0, 0}...)
+		return binary.LittleEndian.Uint64(n), nil
 	}
 
 	if i[0] == 0xff {
 		n := make([]byte, 8)
 		_, err := stream.Read(n)
 		if err != nil {
-			return nil, err
+			return 0, err
 		}
-		return endian.LittleEndianToBigInt(n), nil
+		return binary.LittleEndian.Uint64(n), nil
 	}
 
-	return endian.LittleEndianToBigInt(i), nil
+	return binary.LittleEndian.Uint64(i), nil
 }
 
 // Encodes a big integer to a varint
-func Encode(n *big.Int) ([]byte, error) {
-	if n.Cmp(big.NewInt(0xfd)) < 0 {
-		return n.Bytes(), nil
+func Encode(n uint64) ([]byte, error) {
+	if n < 0xfd {
+		return []byte{byte(n)}, nil
 	}
 
-	if n.Cmp(big.NewInt(0x10000)) < 0 {
-		return append([]byte{0xfd}, endian.BigIntToLittleEndian(n, 2)...), nil
+	if n < 0x10000 {
+		result := make([]byte, 3)
+		result[0] = 0xfd
+		binary.LittleEndian.PutUint16(result[1:], uint16(n))
+		return result, nil
 	}
 
-	if n.Cmp(big.NewInt(0x100000000)) < 0 {
-		return append([]byte{0xfe}, endian.BigIntToLittleEndian(n, 4)...), nil
+	if n < 0x100000000 {
+		result := make([]byte, 5)
+		result[0] = 0xfe
+		binary.LittleEndian.PutUint32(result[1:], uint32(n))
+		return result, nil
 	}
 
-	v, ok := new(big.Int).SetString("0x10000000000000000", 16)
-	if ok && n.Cmp(v) < 0 {
-		return append([]byte{0xff}, endian.BigIntToLittleEndian(n, 8)...), nil
-	}
-
-	return nil, errors.New("value too large")
+	result := make([]byte, 9)
+	result[0] = 0xff
+	binary.LittleEndian.PutUint64(result[1:], n)
+	return result, nil
 }

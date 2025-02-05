@@ -1,16 +1,15 @@
 package bitcoin
 
 import (
+	"encoding/binary"
 	"fmt"
 	"io"
-	"math/big"
 
-	"github.com/stefanalfbo/programmingbitcoin/encoding/endian"
 	"github.com/stefanalfbo/programmingbitcoin/encoding/varint"
 )
 
 type TxOutput struct {
-	Amount       *big.Int
+	Amount       uint64
 	ScriptPubKey Script
 }
 
@@ -24,8 +23,8 @@ func ParseTxOutputs(data io.Reader) ([]*TxOutput, error) {
 		return nil, err
 	}
 
-	outputs := make([]*TxOutput, numberOfOutputs.Int64())
-	for i := 0; i < int(numberOfOutputs.Int64()); i++ {
+	outputs := make([]*TxOutput, numberOfOutputs)
+	for i := 0; i < int(numberOfOutputs); i++ {
 		txOutput, err := parseTxOutput(data)
 		if err != nil {
 			return nil, err
@@ -50,7 +49,7 @@ func parseTxOutput(data io.Reader) (*TxOutput, error) {
 	}
 
 	return &TxOutput{
-		endian.LittleEndianToBigInt(amount),
+		binary.LittleEndian.Uint64(amount),
 		*scriptPubKey,
 	}, nil
 }

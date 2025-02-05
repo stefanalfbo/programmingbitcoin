@@ -44,9 +44,9 @@ func ParseScript(data io.Reader) (*Script, error) {
 	}
 
 	instructions := make([]op.Instruction, 0)
-	scriptLength := int(length.Int64())
+	scriptLength := length
 
-	count := 0
+	var count uint64 = 0
 	for count < scriptLength {
 		current := make([]byte, 1)
 		_, err := data.Read(current)
@@ -68,7 +68,7 @@ func ParseScript(data io.Reader) (*Script, error) {
 				return nil, err
 			}
 			instructions = append(instructions, *instruction)
-			count += int(currentByte)
+			count += uint64(currentByte)
 		} else if currentByte == 76 {
 			lengthContainer := make([]byte, 1)
 			_, err := data.Read(lengthContainer)
@@ -88,7 +88,7 @@ func ParseScript(data io.Reader) (*Script, error) {
 			}
 			instructions = append(instructions, *instruction)
 
-			count += int(dataLength) + 1
+			count += uint64(dataLength) + 1
 		} else if currentByte == 77 {
 			lengthContainer := make([]byte, 2)
 			_, err := data.Read(lengthContainer)
@@ -108,7 +108,7 @@ func ParseScript(data io.Reader) (*Script, error) {
 			}
 			instructions = append(instructions, *instruction)
 
-			count += int(dataLength) + 2
+			count += uint64(dataLength) + 2
 		} else {
 			instruction, err := op.NewInstruction([]byte{currentByte})
 			if err != nil {
@@ -166,8 +166,8 @@ func (script *Script) Serialize() ([]byte, error) {
 		return nil, err
 	}
 
-	scriptLength := len(scriptAsBytes)
-	length, err := varint.Encode(big.NewInt(int64(scriptLength)))
+	scriptLength := uint64(len(scriptAsBytes))
+	length, err := varint.Encode(scriptLength)
 	if err != nil {
 		return nil, err
 	}
@@ -250,7 +250,7 @@ func (script *Script) Evaluate(z []byte) (bool, error) {
 					return false, err
 				}
 
-				length, err := varint.Encode(big.NewInt(int64(instruction.Length())))
+				length, err := varint.Encode(uint64(instruction.Length()))
 				if err != nil {
 					return false, err
 				}

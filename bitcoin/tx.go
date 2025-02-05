@@ -99,7 +99,7 @@ func (tx *Tx) Serialize() []byte {
 
 // Returns the byte serialization of the transaction inputs.
 func (tx *Tx) serializeInputs() []byte {
-	result, err := varint.Encode(big.NewInt(int64(len(tx.Inputs))))
+	result, err := varint.Encode(uint64(len(tx.Inputs)))
 	if err != nil {
 		return nil
 	}
@@ -113,7 +113,7 @@ func (tx *Tx) serializeInputs() []byte {
 
 // Returns the byte serialization of the transaction outputs.
 func (tx *Tx) serializeOutputs() []byte {
-	result, err := varint.Encode(big.NewInt(int64(len(tx.Outputs))))
+	result, err := varint.Encode(uint64(len(tx.Outputs)))
 	if err != nil {
 		return nil
 	}
@@ -126,26 +126,27 @@ func (tx *Tx) serializeOutputs() []byte {
 }
 
 // Returns the fee of the transaction.
-func (tx *Tx) Fee() (*big.Int, error) {
-	inputSum, outputSum := big.NewInt(0), big.NewInt(0)
+func (tx *Tx) Fee() (int64, error) {
+	var inputSum int64 = 0
+	var outputSum int64 = 0
 	for _, txIn := range tx.Inputs {
 		value, err := txIn.Value(tx.isTestnet)
 		if err != nil {
-			return nil, err
+			return 0, err
 		}
-		inputSum = new(big.Int).Add(value, inputSum)
+		inputSum += int64(value)
 	}
 	for _, txOut := range tx.Outputs {
-		outputSum = new(big.Int).Add(txOut.Amount, outputSum)
+		outputSum += int64(txOut.Amount)
 	}
 
-	return new(big.Int).Sub(inputSum, outputSum), nil
+	return inputSum - outputSum, nil
 }
 
 func (tx *Tx) SignatureHash(inputIndex int, redeemScript *Script) ([]byte, error) {
 	signature := endian.BigIntToLittleEndian(big.NewInt(int64(tx.Version)), 4)
 
-	length, err := varint.Encode(big.NewInt(int64(len(tx.Inputs))))
+	length, err := varint.Encode(uint64(len(tx.Inputs)))
 	if err != nil {
 		return nil, err
 	}
@@ -175,7 +176,7 @@ func (tx *Tx) SignatureHash(inputIndex int, redeemScript *Script) ([]byte, error
 		}
 	}
 
-	outputLength, err := varint.Encode(big.NewInt(int64(len(tx.Outputs))))
+	outputLength, err := varint.Encode(uint64(len(tx.Outputs)))
 	if err != nil {
 		return nil, err
 	}
@@ -206,7 +207,7 @@ func (tx *Tx) VerifyInput(inputIndex int) (bool, error) {
 	var redeemScript *Script
 	if scriptPubKey.IsP2SHScriptPubKey() {
 		instruction := scriptPubKey.instructions[len(scriptPubKey.instructions)-1]
-		lenBytes, err := varint.Encode(big.NewInt(int64(instruction.Length())))
+		lenBytes, err := varint.Encode(uint64(instruction.Length()))
 		if err != nil {
 			return false, err
 		}
@@ -237,7 +238,7 @@ func (tx *Tx) Verify() (bool, error) {
 		return false, err
 	}
 
-	if fee.Cmp(big.NewInt(0)) == -1 {
+	if fee < 0 {
 		return false, fmt.Errorf("Fee must be positive")
 	}
 

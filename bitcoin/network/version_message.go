@@ -3,7 +3,6 @@ package network
 import (
 	"encoding/binary"
 	"io"
-	"math/big"
 
 	"github.com/stefanalfbo/programmingbitcoin/encoding/endian"
 	"github.com/stefanalfbo/programmingbitcoin/encoding/varint"
@@ -73,7 +72,7 @@ func (vm *VersionMessage) Serialize() ([]byte, error) {
 
 	result = append(result, endian.Uint64ToLittleEndian(vm.Nonce)...)
 
-	userAgentLength, err := varint.Encode(big.NewInt(int64(len(vm.UserAgent))))
+	userAgentLength, err := varint.Encode(uint64(len(vm.UserAgent)))
 	if err != nil {
 		return nil, err
 	}
@@ -170,7 +169,7 @@ func (vm *VersionMessage) Parse(reader io.Reader) (Message, error) {
 		return nil, err
 	}
 
-	userAgent := make([]byte, userAgentLength.Int64())
+	userAgent := make([]byte, userAgentLength)
 	err = binary.Read(reader, binary.LittleEndian, &userAgent)
 	if err != nil {
 		return nil, err

@@ -71,12 +71,12 @@ func ParseMerkleBlock(reader io.Reader) (*MerkleBlock, error) {
 	}
 	mb.total = int(total)
 
-	numHashes, err := varint.Decode(reader)
+	hashCount, err := varint.Decode(reader)
 	if err != nil {
 		return nil, err
 	}
 
-	for i := int64(0); i < numHashes.Int64(); i++ {
+	for i := uint64(0); i < hashCount; i++ {
 		hash := make([]byte, 32)
 		err = binary.Read(reader, binary.LittleEndian, &hash)
 		if err != nil {
@@ -90,7 +90,7 @@ func ParseMerkleBlock(reader io.Reader) (*MerkleBlock, error) {
 		return nil, err
 	}
 
-	flags := make([]byte, flagsLength.Int64())
+	flags := make([]byte, flagsLength)
 	err = binary.Read(reader, binary.LittleEndian, &flags)
 	if err != nil {
 		return nil, err

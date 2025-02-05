@@ -2,7 +2,6 @@ package network
 
 import (
 	"io"
-	"math/big"
 
 	"github.com/stefanalfbo/programmingbitcoin/bitcoin"
 	"github.com/stefanalfbo/programmingbitcoin/encoding/varint"
@@ -26,7 +25,7 @@ func (hm *HeadersMessage) Command() []byte {
 func (hm *HeadersMessage) Serialize() ([]byte, error) {
 	result := make([]byte, 0)
 
-	numBlocks, err := varint.Encode(big.NewInt(int64(len(hm.blocks))))
+	numBlocks, err := varint.Encode(uint64(len(hm.blocks)))
 	if err != nil {
 		return nil, err
 	}
@@ -47,12 +46,12 @@ func (hm *HeadersMessage) Serialize() ([]byte, error) {
 }
 
 func (hm *HeadersMessage) Parse(reader io.Reader) (Message, error) {
-	numHashes, err := varint.Decode(reader)
+	hashCount, err := varint.Decode(reader)
 	if err != nil {
 		return nil, err
 	}
 	blocks := make([]*bitcoin.Block, 0)
-	for i := uint64(0); i < numHashes.Uint64(); i++ {
+	for i := uint64(0); i < hashCount; i++ {
 		blockData, err := io.ReadAll(reader)
 		if err != nil {
 			return nil, err

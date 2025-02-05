@@ -35,8 +35,8 @@ func ParseTxInputs(data io.Reader) ([]*TxInput, error) {
 		return nil, err
 	}
 
-	inputs := make([]*TxInput, numberOfInputs.Int64())
-	for i := 0; i < int(numberOfInputs.Int64()); i++ {
+	inputs := make([]*TxInput, numberOfInputs)
+	for i := uint64(0); i < numberOfInputs; i++ {
 		txInput, err := parseTxInput(data)
 		if err != nil {
 			return nil, err
@@ -107,10 +107,10 @@ func (txIn *TxInput) fetchTransaction(isTestnet bool) (*Tx, error) {
 }
 
 // Get the output value by looking up tx hash. Returns the amount in satoshi.
-func (txIn *TxInput) Value(isTestnet bool) (*big.Int, error) {
+func (txIn *TxInput) Value(isTestnet bool) (uint64, error) {
 	tx, err := txIn.fetchTransaction(isTestnet)
 	if err != nil {
-		return nil, err
+		return 0, err
 	}
 
 	return tx.Outputs[txIn.PrevIndex.Int64()].Amount, nil

@@ -57,8 +57,8 @@ func TestTx(t *testing.T) {
 			t.Errorf("unexpected error: %v", err)
 		}
 
-		expected := big.NewInt(40_000)
-		if fee.Cmp(expected) != 0 {
+		expected := int64(40_000)
+		if fee != expected {
 			t.Errorf("expected: %d, got: %d", expected, fee)
 		}
 	})

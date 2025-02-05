@@ -3,7 +3,6 @@ package network
 import (
 	"encoding/binary"
 	"fmt"
-	"math/big"
 	"slices"
 
 	"github.com/stefanalfbo/programmingbitcoin/encoding/varint"
@@ -44,7 +43,7 @@ func (ghm *GetHeadersMessage) Serialize() ([]byte, error) {
 	binary.LittleEndian.PutUint32(version, ghm.version)
 	result = append(result, version...)
 
-	hashCount, err := varint.Encode(big.NewInt(int64(ghm.hashCount)))
+	hashCount, err := varint.Encode(uint64(ghm.hashCount))
 	if err != nil {
 		return nil, err
 	}
