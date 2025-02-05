@@ -5,7 +5,7 @@ import (
 	"io"
 )
 
-// Decode reads a variable bigInt from a stream.
+// Decode reads a variable uint64 from a stream.
 func Decode(stream io.Reader) (uint64, error) {
 	i := make([]byte, 1)
 
@@ -50,7 +50,7 @@ func Decode(stream io.Reader) (uint64, error) {
 	return binary.LittleEndian.Uint64(i), nil
 }
 
-// Encodes a big integer to a varint
+// Encodes a uint64 to a varint
 func Encode(n uint64) ([]byte, error) {
 	if n < 0xfd {
 		return []byte{byte(n)}, nil
