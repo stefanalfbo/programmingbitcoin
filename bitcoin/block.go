@@ -2,6 +2,7 @@ package bitcoin
 
 import (
 	"bytes"
+	"encoding/binary"
 	"fmt"
 	"math/big"
 	"slices"
@@ -56,7 +57,9 @@ func (block *Block) Serialize() ([]byte, error) {
 	data := make([]byte, 0)
 
 	// Version
-	data = append(data, endian.Int32ToLittleEndian(block.Version)...)
+	version := make([]byte, 4)
+	binary.LittleEndian.PutUint32(version, uint32(block.Version))
+	data = append(data, version...)
 
 	// PreviousBlock
 	previousBlock := make([]byte, 32)
@@ -71,9 +74,15 @@ func (block *Block) Serialize() ([]byte, error) {
 	data = append(data, merkleRoot...)
 
 	// Timestamp, Bits, Nonce
-	data = append(data, endian.Uint32ToLittleEndian(block.Timestamp)...)
+	timestamp := make([]byte, 4)
+	binary.LittleEndian.PutUint32(timestamp, block.Timestamp)
+	data = append(data, timestamp...)
+
 	data = append(data, block.Bits...)
-	data = append(data, endian.Uint32ToLittleEndian(block.Nonce)...)
+
+	nonce := make([]byte, 4)
+	binary.LittleEndian.PutUint32(nonce, block.Nonce)
+	data = append(data, nonce...)
 
 	return data, nil
 }
