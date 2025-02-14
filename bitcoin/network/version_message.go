@@ -4,7 +4,6 @@ import (
 	"encoding/binary"
 	"io"
 
-	"github.com/stefanalfbo/programmingbitcoin/encoding/endian"
 	"github.com/stefanalfbo/programmingbitcoin/encoding/varint"
 )
 
@@ -52,17 +51,31 @@ func (vm *VersionMessage) Serialize() ([]byte, error) {
 	ip4Prefix := []byte{0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xff, 0xff}
 	result := make([]byte, 0)
 
-	result = append(result, endian.Int32ToLittleEndian(vm.Version)...)
-	result = append(result, endian.Uint64ToLittleEndian(vm.Services)...)
-	result = append(result, endian.Int64ToLittleEndian(vm.Timestamp)...)
-	result = append(result, endian.Uint64ToLittleEndian(vm.ReceiverServices)...)
+	version := make([]byte, 4)
+	binary.LittleEndian.PutUint32(version, uint32(vm.Version))
+	result = append(result, version...)
+
+	services := make([]byte, 8)
+	binary.LittleEndian.PutUint64(services, vm.Services)
+	result = append(result, services...)
+
+	timestamp := make([]byte, 8)
+	binary.LittleEndian.PutUint64(timestamp, uint64(vm.Timestamp))
+	result = append(result, timestamp...)
+
+	receiverServices := make([]byte, 8)
+	binary.LittleEndian.PutUint64(receiverServices, vm.ReceiverServices)
+	result = append(result, receiverServices...)
+
 	result = append(result, ip4Prefix...)
 	result = append(result, vm.ReceiverIP[:4]...)
 
 	h, l := uint(vm.ReceiverPort)>>8, uint(vm.ReceiverPort)&0xff
 	result = append(result, byte(h), byte(l))
 
-	result = append(result, endian.Uint64ToLittleEndian(vm.SenderServices)...)
+	senderServices := make([]byte, 8)
+	binary.LittleEndian.PutUint64(senderServices, vm.SenderServices)
+	result = append(result, senderServices...)
 
 	result = append(result, ip4Prefix...)
 	result = append(result, vm.SenderIP[:4]...)
@@ -70,7 +83,9 @@ func (vm *VersionMessage) Serialize() ([]byte, error) {
 	h, l = uint(vm.SenderPort)>>8, uint(vm.SenderPort)&0xff
 	result = append(result, byte(h), byte(l))
 
-	result = append(result, endian.Uint64ToLittleEndian(vm.Nonce)...)
+	nonce := make([]byte, 8)
+	binary.LittleEndian.PutUint64(nonce, vm.Nonce)
+	result = append(result, nonce...)
 
 	userAgentLength, err := varint.Encode(uint64(len(vm.UserAgent)))
 	if err != nil {
@@ -80,7 +95,9 @@ func (vm *VersionMessage) Serialize() ([]byte, error) {
 	result = append(result, userAgentLength...)
 	result = append(result, vm.UserAgent...)
 
-	result = append(result, endian.Int32ToLittleEndian(vm.LatestBlock)...)
+	latestBlock := make([]byte, 4)
+	binary.LittleEndian.PutUint32(latestBlock, uint32(vm.LatestBlock))
+	result = append(result, latestBlock...)
 
 	if vm.Relay {
 		result = append(result, 0x01)

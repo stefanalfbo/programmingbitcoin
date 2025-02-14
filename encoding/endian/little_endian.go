@@ -43,10 +43,6 @@ func Uint64ToLittleEndian(n uint64) []byte {
 	return BigIntToLittleEndian(big.NewInt(int64(n)), 8)
 }
 
-func Int64ToLittleEndian(n int64) []byte {
-	return BigIntToLittleEndian(big.NewInt(n), 8)
-}
-
 func reverseBytes(bytes []byte) []byte {
 	n := len(bytes)
 	reversed := make([]byte, n)
