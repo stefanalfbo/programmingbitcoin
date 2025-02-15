@@ -2,6 +2,7 @@ package network
 
 import (
 	"bytes"
+	"encoding/binary"
 	"encoding/hex"
 	"fmt"
 	"io"
@@ -101,13 +102,16 @@ func (ne *NetworkEnvelope) Serialize() []byte {
 	command := make([]byte, 12)
 	copy(command, ne.command)
 
-	payloadLength := endian.Int32ToLittleEndian(int32(len(ne.payload)))
+	payloadLength := len(ne.payload)
+	payloadLengthBytes := make([]byte, 4)
+	binary.LittleEndian.PutUint32(payloadLengthBytes, uint32(payloadLength))
+
 	checksum := hash.Hash256(ne.payload)[:4]
 
 	result := make([]byte, 0)
 	result = append(result, ne.magic...)
 	result = append(result, command...)
-	result = append(result, payloadLength...)
+	result = append(result, payloadLengthBytes...)
 	result = append(result, checksum...)
 	result = append(result, ne.payload...)
 
