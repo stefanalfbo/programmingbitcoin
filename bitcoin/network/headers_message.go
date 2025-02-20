@@ -52,11 +52,7 @@ func (hm *HeadersMessage) Parse(reader io.Reader) (Message, error) {
 	}
 	blocks := make([]*bitcoin.Block, 0)
 	for i := uint64(0); i < hashCount; i++ {
-		blockData, err := io.ReadAll(reader)
-		if err != nil {
-			return nil, err
-		}
-		block, err := bitcoin.ParseBlock(blockData)
+		block, err := bitcoin.ParseBlock(reader)
 		if err != nil {
 			return nil, err
 		}

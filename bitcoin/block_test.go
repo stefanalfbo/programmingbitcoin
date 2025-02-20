@@ -1,6 +1,7 @@
 package bitcoin_test
 
 import (
+	"bytes"
 	"encoding/binary"
 	"encoding/hex"
 	"math/big"
@@ -14,8 +15,7 @@ func TestBlock(t *testing.T) {
 	t.Run("ParseBlock return block with correct values", func(t *testing.T) {
 		hexString := "000000201ecd89664fd205a37566e694269ed76e425803003628ab010000000000000000bfcade29d080d9aae8fd461254b041805ae442749f2a40100440fc0e3d5868e55019345954d80118a1721b2e"
 		data, _ := hex.DecodeString(hexString)
-
-		block, err := bitcoin.ParseBlock(data)
+		block, err := bitcoin.ParseBlock(bytes.NewReader(data))
 		if err != nil {
 			t.Errorf("unexpected error: %v", err)
 		}
@@ -50,7 +50,7 @@ func TestBlock(t *testing.T) {
 		hexString := "020000208ec39428b17323fa0ddec8e887b4a7c53b8c0a0a220cfd0000000000000000005b0750fce0a889502d40508d39576821155e9c9e3f5c3157f961db38fd8b25be1e77a759e93c0118a4ffd71d"
 		data, _ := hex.DecodeString(hexString)
 
-		block, err := bitcoin.ParseBlock(data)
+		block, err := bitcoin.ParseBlock(bytes.NewReader(data))
 		if err != nil {
 			t.Errorf("unexpected error: %v", err)
 		}
@@ -69,7 +69,7 @@ func TestBlock(t *testing.T) {
 		hexString := "020000208ec39428b17323fa0ddec8e887b4a7c53b8c0a0a220cfd0000000000000000005b0750fce0a889502d40508d39576821155e9c9e3f5c3157f961db38fd8b25be1e77a759e93c0118a4ffd71d"
 		data, _ := hex.DecodeString(hexString)
 
-		block, err := bitcoin.ParseBlock(data)
+		block, err := bitcoin.ParseBlock(bytes.NewReader(data))
 		if err != nil {
 			t.Errorf("unexpected error: %v", err)
 		}
@@ -89,7 +89,7 @@ func TestBlock(t *testing.T) {
 		hexString := "020000208ec39428b17323fa0ddec8e887b4a7c53b8c0a0a220cfd0000000000000000005b0750fce0a889502d40508d39576821155e9c9e3f5c3157f961db38fd8b25be1e77a759e93c0118a4ffd71d"
 		data, _ := hex.DecodeString(hexString)
 
-		block, err := bitcoin.ParseBlock(data)
+		block, err := bitcoin.ParseBlock(bytes.NewReader(data))
 		if err != nil {
 			t.Errorf("unexpected error: %v", err)
 		}
@@ -103,7 +103,7 @@ func TestBlock(t *testing.T) {
 		hexString := "0400000039fa821848781f027a2e6dfabbf6bda920d9ae61b63400030000000000000000ecae536a304042e3154be0e3e9a8220e5568c3433a9ab49ac4cbb74f8df8e8b0cc2acf569fb9061806652c27"
 		data, _ := hex.DecodeString(hexString)
 
-		block, err := bitcoin.ParseBlock(data)
+		block, err := bitcoin.ParseBlock(bytes.NewReader(data))
 		if err != nil {
 			t.Errorf("unexpected error: %v", err)
 		}
@@ -117,7 +117,7 @@ func TestBlock(t *testing.T) {
 		hexString := "1200002028856ec5bca29cf76980d368b0a163a0bb81fc192951270100000000000000003288f32a2831833c31a25401c52093eb545d28157e200a64b21b3ae8f21c507401877b5935470118144dbfd1"
 		data, _ := hex.DecodeString(hexString)
 
-		block, err := bitcoin.ParseBlock(data)
+		block, err := bitcoin.ParseBlock(bytes.NewReader(data))
 		if err != nil {
 			t.Errorf("unexpected error: %v", err)
 		}
@@ -131,7 +131,7 @@ func TestBlock(t *testing.T) {
 		hexString := "020000208ec39428b17323fa0ddec8e887b4a7c53b8c0a0a220cfd0000000000000000005b0750fce0a889502d40508d39576821155e9c9e3f5c3157f961db38fd8b25be1e77a759e93c0118a4ffd71d"
 		data, _ := hex.DecodeString(hexString)
 
-		block, err := bitcoin.ParseBlock(data)
+		block, err := bitcoin.ParseBlock(bytes.NewReader(data))
 		if err != nil {
 			t.Errorf("unexpected error: %v", err)
 		}
@@ -145,7 +145,7 @@ func TestBlock(t *testing.T) {
 		hexString := "020000208ec39428b17323fa0ddec8e887b4a7c53b8c0a0a220cfd0000000000000000005b0750fce0a889502d40508d39576821155e9c9e3f5c3157f961db38fd8b25be1e77a759e93c0118a4ffd71d"
 		data, _ := hex.DecodeString(hexString)
 
-		block, err := bitcoin.ParseBlock(data)
+		block, err := bitcoin.ParseBlock(bytes.NewReader(data))
 		if err != nil {
 			t.Errorf("unexpected error: %v", err)
 		}
@@ -159,7 +159,7 @@ func TestBlock(t *testing.T) {
 		hexString := "0000002066f09203c1cf5ef1531f24ed21b1915ae9abeb691f0d2e0100000000000000003de0976428ce56125351bae62c5b8b8c79d8297c702ea05d60feabb4ed188b59c36fa759e93c0118b74b2618"
 		data, _ := hex.DecodeString(hexString)
 
-		block, err := bitcoin.ParseBlock(data)
+		block, err := bitcoin.ParseBlock(bytes.NewReader(data))
 		if err != nil {
 			t.Errorf("unexpected error: %v", err)
 		}
@@ -173,7 +173,7 @@ func TestBlock(t *testing.T) {
 		hexString := "020000208ec39428b17323fa0ddec8e887b4a7c53b8c0a0a220cfd0000000000000000005b0750fce0a889502d40508d39576821155e9c9e3f5c3157f961db38fd8b25be1e77a759e93c0118a4ffd71d"
 		data, _ := hex.DecodeString(hexString)
 
-		block, err := bitcoin.ParseBlock(data)
+		block, err := bitcoin.ParseBlock(bytes.NewReader(data))
 		if err != nil {
 			t.Errorf("unexpected error: %v", err)
 		}
@@ -190,7 +190,7 @@ func TestBlock(t *testing.T) {
 		hexString := "020000208ec39428b17323fa0ddec8e887b4a7c53b8c0a0a220cfd0000000000000000005b0750fce0a889502d40508d39576821155e9c9e3f5c3157f961db38fd8b25be1e77a759e93c0118a4ffd71d"
 		data, _ := hex.DecodeString(hexString)
 
-		block, err := bitcoin.ParseBlock(data)
+		block, err := bitcoin.ParseBlock(bytes.NewReader(data))
 		if err != nil {
 			t.Errorf("unexpected error: %v", err)
 		}
@@ -205,9 +205,9 @@ func TestBlock(t *testing.T) {
 
 	t.Run("Check that proof of work is valid", func(t *testing.T) {
 		blockDataAsHexString := "04000000fbedbbf0cfdaf278c094f187f2eb987c86a199da22bbb20400000000000000007b7697b29129648fa08b4bcd13c9d5e60abb973a1efac9c8d573c71c807c56c3d6213557faa80518c3737ec1"
-		blockData, _ := hex.DecodeString(blockDataAsHexString)
+		data, _ := hex.DecodeString(blockDataAsHexString)
 
-		block, err := bitcoin.ParseBlock(blockData)
+		block, err := bitcoin.ParseBlock(bytes.NewReader(data))
 		if err != nil {
 			t.Errorf("unexpected error: %v", err)
 		}
@@ -219,9 +219,9 @@ func TestBlock(t *testing.T) {
 
 	t.Run("Check that proof of work is invalid", func(t *testing.T) {
 		blockDataAsHexString := "04000000fbedbbf0cfdaf278c094f187f2eb987c86a199da22bbb20400000000000000007b7697b29129648fa08b4bcd13c9d5e60abb973a1efac9c8d573c71c807c56c3d6213557faa80518c3737ec0"
-		blockData, _ := hex.DecodeString(blockDataAsHexString)
+		data, _ := hex.DecodeString(blockDataAsHexString)
 
-		block, err := bitcoin.ParseBlock(blockData)
+		block, err := bitcoin.ParseBlock(bytes.NewReader(data))
 		if err != nil {
 			t.Errorf("unexpected error: %v", err)
 		}
@@ -254,7 +254,7 @@ func TestCalculateNewBits(t *testing.T) {
 	lastBlockHexData := "00000020fdf740b0e49cf75bb3d5168fb3586f7613dcc5cd89675b0100000000000000002e37b144c0baced07eb7e7b64da916cd3121f2427005551aeb0ec6a6402ac7d7f0e4235954d801187f5da9f5"
 	lastBlockData, _ := hex.DecodeString(lastBlockHexData)
 
-	lastBlock, err := bitcoin.ParseBlock(lastBlockData)
+	lastBlock, err := bitcoin.ParseBlock(bytes.NewReader(lastBlockData))
 	if err != nil {
 		t.Errorf("unexpected error: %v", err)
 	}
@@ -262,7 +262,7 @@ func TestCalculateNewBits(t *testing.T) {
 	firstBlockHexData := "000000201ecd89664fd205a37566e694269ed76e425803003628ab010000000000000000bfcade29d080d9aae8fd461254b041805ae442749f2a40100440fc0e3d5868e55019345954d80118a1721b2e"
 	firstBlockData, _ := hex.DecodeString(firstBlockHexData)
 
-	firstBlock, err := bitcoin.ParseBlock(firstBlockData)
+	firstBlock, err := bitcoin.ParseBlock(bytes.NewReader(firstBlockData))
 	if err != nil {
 		t.Errorf("unexpected error: %v", err)
 	}

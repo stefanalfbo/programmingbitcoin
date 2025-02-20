@@ -3,7 +3,7 @@ package bitcoin
 import (
 	"bytes"
 	"encoding/binary"
-	"fmt"
+	"io"
 	"math/big"
 	"slices"
 
@@ -26,22 +26,47 @@ func NewBlock(version int32, previousBlock []byte, merkleRoot []byte, timestamp 
 	return &Block{version, previousBlock, merkleRoot, timestamp, bits, nonce, txHashes}
 }
 
-func ParseBlock(data []byte) (*Block, error) {
-	if len(data) < 80 {
-		return nil, fmt.Errorf("data is too short")
+func ParseBlock(data io.Reader) (*Block, error) {
+	versionBytes := make([]byte, 4)
+	_, err := data.Read(versionBytes)
+	if err != nil {
+		return nil, err
 	}
+	version := int32(binary.LittleEndian.Uint32(versionBytes))
 
-	version := endian.LittleEndianToInt32(data[:4])
-
-	previousBlock := data[4:36]
+	previousBlock := make([]byte, 32)
+	_, err = data.Read(previousBlock)
+	if err != nil {
+		return nil, err
+	}
 	slices.Reverse(previousBlock)
 
-	merkleRoot := data[36:68]
+	merkleRoot := make([]byte, 32)
+	_, err = data.Read(merkleRoot)
+	if err != nil {
+		return nil, err
+	}
 	slices.Reverse(merkleRoot)
 
-	timestamp := endian.LittleEndianToUint32(data[68:72])
-	bits := data[72:76] //endian.LittleEndianToUint32(data[72:76])
-	nonce := endian.LittleEndianToUint32(data[76:80])
+	timeBytes := make([]byte, 4)
+	_, err = data.Read(timeBytes)
+	if err != nil {
+		return nil, err
+	}
+	timestamp := binary.LittleEndian.Uint32(timeBytes)
+
+	bits := make([]byte, 4)
+	_, err = data.Read(bits)
+	if err != nil {
+		return nil, err
+	}
+
+	nonceBytes := make([]byte, 4)
+	_, err = data.Read(nonceBytes)
+	if err != nil {
+		return nil, err
+	}
+	nonce := binary.LittleEndian.Uint32(nonceBytes)
 
 	return &Block{
 		Version:       version,
