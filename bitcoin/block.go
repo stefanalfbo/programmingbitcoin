@@ -14,7 +14,7 @@ import (
 
 type Block struct {
 	Version       int32
-	PreviousBlock []byte
+	PreviousBlock [32]byte
 	MerkleRoot    []byte
 	Timestamp     uint32
 	Bits          []byte
@@ -22,7 +22,7 @@ type Block struct {
 	txHashes      [][]byte
 }
 
-func NewBlock(version int32, previousBlock []byte, merkleRoot []byte, timestamp uint32, bits []byte, nonce uint32, txHashes [][]byte) *Block {
+func NewBlock(version int32, previousBlock [32]byte, merkleRoot []byte, timestamp uint32, bits []byte, nonce uint32, txHashes [][]byte) *Block {
 	return &Block{version, previousBlock, merkleRoot, timestamp, bits, nonce, txHashes}
 }
 
@@ -34,12 +34,14 @@ func ParseBlock(data io.Reader) (*Block, error) {
 	}
 	version := int32(binary.LittleEndian.Uint32(versionBytes))
 
-	previousBlock := make([]byte, 32)
-	_, err = data.Read(previousBlock)
+	previousBlockSlice := make([]byte, 32)
+	_, err = data.Read(previousBlockSlice)
 	if err != nil {
 		return nil, err
 	}
-	slices.Reverse(previousBlock)
+	slices.Reverse(previousBlockSlice)
+	var previousBlock [32]byte
+	copy(previousBlock[:], previousBlockSlice)
 
 	merkleRoot := make([]byte, 32)
 	_, err = data.Read(merkleRoot)
@@ -88,7 +90,7 @@ func (block *Block) Serialize() ([]byte, error) {
 
 	// PreviousBlock
 	previousBlock := make([]byte, 32)
-	copy(previousBlock, block.PreviousBlock)
+	copy(previousBlock, block.PreviousBlock[:])
 	slices.Reverse(previousBlock)
 	data = append(data, previousBlock...)
 
