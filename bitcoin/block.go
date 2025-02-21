@@ -13,16 +13,22 @@ import (
 )
 
 type Block struct {
-	Version       int32
+	// Block version information (note, this is signed)
+	Version int32
+	// The hash value of the previous block this particular block references
 	PreviousBlock [32]byte
-	MerkleRoot    []byte
-	Timestamp     uint32
-	Bits          []byte
-	Nonce         uint32
-	txHashes      [][]byte
+	// The reference to a Merkle tree collection which is a hash of all transactions related to this block
+	MerkleRoot [32]byte
+	// A timestamp recording when this block was created (Will overflow in 2106)
+	Timestamp uint32
+	// The calculated difficulty target being used for this block
+	Bits uint32
+	// The nonce used to generate this block… to allow variations of the header and compute different hashes
+	Nonce    uint32
+	txHashes [][]byte
 }
 
-func NewBlock(version int32, previousBlock [32]byte, merkleRoot []byte, timestamp uint32, bits []byte, nonce uint32, txHashes [][]byte) *Block {
+func NewBlock(version int32, previousBlock [32]byte, merkleRoot [32]byte, timestamp uint32, bits uint32, nonce uint32, txHashes [][]byte) *Block {
 	return &Block{version, previousBlock, merkleRoot, timestamp, bits, nonce, txHashes}
 }
 
@@ -43,12 +49,14 @@ func ParseBlock(data io.Reader) (*Block, error) {
 	var previousBlock [32]byte
 	copy(previousBlock[:], previousBlockSlice)
 
-	merkleRoot := make([]byte, 32)
-	_, err = data.Read(merkleRoot)
+	merkleRootSlice := make([]byte, 32)
+	_, err = data.Read(merkleRootSlice)
 	if err != nil {
 		return nil, err
 	}
-	slices.Reverse(merkleRoot)
+	slices.Reverse(merkleRootSlice)
+	var merkleRoot [32]byte
+	copy(merkleRoot[:], merkleRootSlice)
 
 	timeBytes := make([]byte, 4)
 	_, err = data.Read(timeBytes)
@@ -57,11 +65,12 @@ func ParseBlock(data io.Reader) (*Block, error) {
 	}
 	timestamp := binary.LittleEndian.Uint32(timeBytes)
 
-	bits := make([]byte, 4)
-	_, err = data.Read(bits)
+	bitsBytes := make([]byte, 4)
+	_, err = data.Read(bitsBytes)
 	if err != nil {
 		return nil, err
 	}
+	bits := binary.LittleEndian.Uint32(bitsBytes)
 
 	nonceBytes := make([]byte, 4)
 	_, err = data.Read(nonceBytes)
@@ -96,17 +105,21 @@ func (block *Block) Serialize() ([]byte, error) {
 
 	// MerkleRoot
 	merkleRoot := make([]byte, 32)
-	copy(merkleRoot, block.MerkleRoot)
+	copy(merkleRoot, block.MerkleRoot[:])
 	slices.Reverse(merkleRoot)
 	data = append(data, merkleRoot...)
 
-	// Timestamp, Bits, Nonce
+	// Timestamp
 	timestamp := make([]byte, 4)
 	binary.LittleEndian.PutUint32(timestamp, block.Timestamp)
 	data = append(data, timestamp...)
 
-	data = append(data, block.Bits...)
+	// Bits
+	bits := make([]byte, 4)
+	binary.LittleEndian.PutUint32(bits, block.Bits)
+	data = append(data, bits...)
 
+	// Nonce
 	nonce := make([]byte, 4)
 	binary.LittleEndian.PutUint32(nonce, block.Nonce)
 	data = append(data, nonce...)
@@ -144,10 +157,13 @@ func (block *Block) Target() *big.Int {
 	return bitsToTarget(block.Bits)
 }
 
-func bitsToTarget(bits []byte) *big.Int {
+func bitsToTarget(bits uint32) *big.Int {
+	bitsBytes := make([]byte, 4)
+	binary.LittleEndian.PutUint32(bitsBytes, bits)
+
 	// target = coefficient * 256^(exponent-3)
-	exponent := int64(bits[3])
-	coefficient := big.NewInt(int64(endian.LittleEndianToUint32(bits[:3])))
+	exponent := int64(bitsBytes[3])
+	coefficient := big.NewInt(int64(endian.LittleEndianToUint32(bitsBytes[:3])))
 
 	exponentPart := big.NewInt(0).Exp(big.NewInt(256), big.NewInt(exponent-3), nil)
 	return big.NewInt(0).Mul(coefficient, exponentPart)
@@ -194,7 +210,7 @@ func TargetToBits(target *big.Int) []byte {
 	return bits
 }
 
-func CalculateNewBits(previousBits []byte, timeDifferential int64) []byte {
+func CalculateNewBits(previousBits uint32, timeDifferential int64) []byte {
 	TWO_WEEKS_IN_SECONDS := int64(60 * 60 * 24 * 14)
 
 	// if the differential > 8 weeks, set to 8 weeks
@@ -228,5 +244,5 @@ func (block *Block) ValidateMerkleRoot() bool {
 
 	slices.Reverse(root)
 
-	return bytes.Equal(root, block.MerkleRoot)
+	return bytes.Equal(root, block.MerkleRoot[:])
 }
