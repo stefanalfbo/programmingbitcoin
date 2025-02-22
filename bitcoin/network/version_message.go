@@ -13,7 +13,6 @@ import (
 // have exchanged their version. See:
 // https://en.bitcoin.it/wiki/Protocol_documentation#version
 type VersionMessage struct {
-	command []byte
 	// Identifies protocol version being used by the node
 	Version int32
 	// Bit field of features to be enabled for this connection
@@ -48,7 +47,6 @@ type VersionMessage struct {
 // NewVersionMessage returns a new VersionMessage
 func NewVersionMessage() *VersionMessage {
 	return &VersionMessage{
-		command:          []byte("version"),
 		Version:          70015,
 		Services:         0,
 		Timestamp:        0,
@@ -65,9 +63,10 @@ func NewVersionMessage() *VersionMessage {
 	}
 }
 
-// Command returns the command of a VersionMessage
+// Command returns the command string which is used to determine which
+// message is being sent.
 func (vm *VersionMessage) Command() []byte {
-	return vm.command
+	return []byte("version")
 }
 
 // Serialize serializes a VersionMessage
