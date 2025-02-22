@@ -7,23 +7,45 @@ import (
 	"github.com/stefanalfbo/programmingbitcoin/encoding/varint"
 )
 
+// When a node creates an outgoing connection, it will immediately
+// advertise its version. The remote node will respond with its
+// version. No further communication is possible until both peers
+// have exchanged their version. See:
+// https://en.bitcoin.it/wiki/Protocol_documentation#version
 type VersionMessage struct {
-	command          []byte
-	Version          int32
-	Services         uint64
-	Timestamp        int64
+	command []byte
+	// Identifies protocol version being used by the node
+	Version int32
+	// Bit field of features to be enabled for this connection
+	Services uint64
+	// Standard UNIX timestamp in seconds
+	Timestamp int64
+	// The network address of the node receiving this message
 	ReceiverServices uint64
 	ReceiverIP       [16]byte
 	ReceiverPort     uint16
-	SenderServices   uint64
-	SenderIP         [16]byte
-	SenderPort       uint16
-	Nonce            uint64
-	UserAgent        []byte
-	LatestBlock      int32
-	Relay            bool
+	// Fields below require version ≥ 106
+	// Field can be ignored. This used to be the network address of
+	// the node emitting this message, but most P2P implementations
+	// send 26 dummy bytes. The "services" field of the address would
+	// also be redundant with the second field of the version message.
+	SenderServices uint64
+	SenderIP       [16]byte
+	SenderPort     uint16
+	// Node random nonce, randomly generated every time a version packet
+	// is sent. This nonce is used to detect connections to self.
+	Nonce uint64
+	// User Agent (0x00 if string is 0 bytes long)
+	UserAgent []byte
+	// The last block received by the emitting node
+	LatestBlock int32
+	// Fields below require version ≥ 70001
+	// Whether the remote peer should announce relayed transactions or not, see:
+	// BIP 0037 - https://github.com/bitcoin/bips/blob/master/bip-0037.mediawiki
+	Relay bool
 }
 
+// NewVersionMessage returns a new VersionMessage
 func NewVersionMessage() *VersionMessage {
 	return &VersionMessage{
 		command:          []byte("version"),
@@ -43,10 +65,12 @@ func NewVersionMessage() *VersionMessage {
 	}
 }
 
+// Command returns the command of a VersionMessage
 func (vm *VersionMessage) Command() []byte {
 	return vm.command
 }
 
+// Serialize serializes a VersionMessage
 func (vm *VersionMessage) Serialize() ([]byte, error) {
 	ip4Prefix := []byte{0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xff, 0xff}
 	result := make([]byte, 0)
@@ -108,6 +132,7 @@ func (vm *VersionMessage) Serialize() ([]byte, error) {
 	return result, nil
 }
 
+// Parse parses a VersionMessage
 func (vm *VersionMessage) Parse(reader io.Reader) (Message, error) {
 	message := VersionMessage{}
 
