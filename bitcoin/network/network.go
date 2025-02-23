@@ -8,11 +8,18 @@ import (
 	"io"
 
 	"github.com/stefanalfbo/programmingbitcoin/crypto/hash"
-	"github.com/stefanalfbo/programmingbitcoin/encoding/endian"
 )
 
-var mainnetMagic = []byte{0xf9, 0xbe, 0xb4, 0xd9}
-var testnetMagic = []byte{0x0b, 0x11, 0x09, 0x07}
+type NetworkMagic [4]byte
+
+// Known network magic values
+var (
+	Mainnet  NetworkMagic = [4]byte{0xf9, 0xbe, 0xb4, 0xd9}
+	Testnet3 NetworkMagic = [4]byte{0x0b, 0x11, 0x09, 0x07}
+	Regtest  NetworkMagic = [4]byte{0xfa, 0xbf, 0xb5, 0xda}
+	Signet   NetworkMagic = [4]byte{0x0a, 0x03, 0xcf, 0x40}
+	Namecoin NetworkMagic = [4]byte{0xf9, 0xbe, 0xb4, 0xfe}
+)
 
 type Message interface {
 	Command() []byte
@@ -21,28 +28,38 @@ type Message interface {
 }
 
 type NetworkEnvelope struct {
-	magic   []byte
+	// Magic value indicating message origin network, and used to seek to next
+	// message when stream state is unknown
+	magic []byte
+	// ASCII string identifying the packet content, NULL padded (non-NULL padding
+	// results in packet rejected)
 	command []byte
+	// The actual data
 	payload []byte
 }
 
 func NewNetworkEnvelope(command []byte, payload []byte, isTestnet bool) *NetworkEnvelope {
 	var magic []byte
 	if isTestnet {
-		magic = testnetMagic
+		magic = Testnet3[:]
 	} else {
-		magic = mainnetMagic
+		magic = Mainnet[:]
+	}
+
+	trimmedCommand, err := trimCommand(bytes.NewReader(command))
+	if err != nil {
+		return nil
 	}
 
 	return &NetworkEnvelope{
 		magic:   magic,
-		command: command,
+		command: trimmedCommand,
 		payload: payload,
 	}
 }
 
 func (ne *NetworkEnvelope) String() string {
-	command := string(trimCommand(ne.command))
+	command := string(ne.command)
 	payload := hex.EncodeToString(ne.payload)
 
 	return fmt.Sprintf("%s: %s", command, payload)
@@ -56,10 +73,16 @@ func (ne *NetworkEnvelope) Payload() []byte {
 	return ne.payload
 }
 
-func trimCommand(command []byte) []byte {
+func trimCommand(data io.Reader) ([]byte, error) {
+	rawCommand := make([]byte, 12)
+	_, err := data.Read(rawCommand)
+	if err != nil {
+		return nil, err
+	}
+
 	trimmed := make([]byte, 0)
 
-	for _, b := range command {
+	for _, b := range rawCommand {
 		if b == 0x00 {
 			break
 		}
@@ -67,20 +90,49 @@ func trimCommand(command []byte) []byte {
 		trimmed = append(trimmed, b)
 	}
 
-	return trimmed
+	return trimmed, nil
 }
 
-func ParseNetworkEnvelope(data []byte) (*NetworkEnvelope, error) {
-	magic := data[:4]
+func ParseNetworkEnvelope(data io.Reader) (*NetworkEnvelope, error) {
+	magic := make([]byte, 4)
+	_, err := data.Read(magic)
+	if err != nil {
+		return nil, err
+	}
 
-	if !bytes.Equal(magic, mainnetMagic) && !bytes.Equal(magic, testnetMagic) {
+	if !isMainnet(magic) && !isTestnet(magic) {
 		return nil, fmt.Errorf("invalid magic: %x", magic)
 	}
 
-	command := trimCommand(data[4:16])
-	payloadLength := endian.LittleEndianToInt32(data[16:20])
-	checksum := data[20:24]
-	payload := data[24:]
+	command, err := trimCommand(data)
+	if err != nil {
+		return nil, err
+	}
+
+	payloadLengthBytes := make([]byte, 4)
+	_, err = data.Read(payloadLengthBytes)
+	if err != nil {
+		return nil, err
+	}
+	payloadLength := binary.LittleEndian.Uint32(payloadLengthBytes)
+
+	checksum := make([]byte, 4)
+	_, err = data.Read(checksum)
+	if err != nil {
+		return nil, err
+	}
+
+	var payload []byte
+	if int(payloadLength) == 0 {
+		payload = make([]byte, 0)
+	} else {
+
+		payload = make([]byte, payloadLength)
+		_, err = data.Read(payload)
+		if err != nil {
+			return nil, err
+		}
+	}
 
 	if len(payload) != int(payloadLength) {
 		return nil, fmt.Errorf("invalid payload length: %d", len(payload))
@@ -116,4 +168,12 @@ func (ne *NetworkEnvelope) Serialize() []byte {
 	result = append(result, ne.payload...)
 
 	return result
+}
+
+func isMainnet(magic []byte) bool {
+	return bytes.Equal(magic, Mainnet[:])
+}
+
+func isTestnet(magic []byte) bool {
+	return bytes.Equal(magic, Testnet3[:])
 }

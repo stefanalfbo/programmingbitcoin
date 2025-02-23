@@ -22,11 +22,11 @@ func TestString(t *testing.T) {
 	})
 
 	t.Run("to string, non-empty payload", func(t *testing.T) {
-		command := []byte("hello, world!")
+		command := []byte("hello, world")
 		payload := []byte{0xDE, 0xAD, 0xBE, 0xEF}
 
 		ne := network.NewNetworkEnvelope(command, payload, false)
-		expected := "hello, world!: deadbeef"
+		expected := "hello, world: deadbeef"
 		actual := ne.String()
 
 		if expected != actual {
@@ -37,9 +37,9 @@ func TestString(t *testing.T) {
 
 func TestParseNetworkEnvelope(t *testing.T) {
 	t.Run("invalid network magic", func(t *testing.T) {
-		message := []byte{
+		message := bytes.NewReader([]byte{
 			0xDE, 0xAD, 0xBE, 0xEF, // invalid magic
-		}
+		})
 
 		_, err := network.ParseNetworkEnvelope(message)
 		if err == nil || err.Error() != "invalid magic: deadbeef" {
@@ -48,12 +48,12 @@ func TestParseNetworkEnvelope(t *testing.T) {
 	})
 
 	t.Run("invalid checksum", func(t *testing.T) {
-		message := []byte{
+		message := bytes.NewReader([]byte{
 			0xf9, 0xbe, 0xb4, 0xd9, // mainnet magic
 			0x76, 0x65, 0x72, 0x61, 0x63, 0x6b, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, // command
 			0x00, 0x00, 0x00, 0x00, // payload length
 			0xDE, 0xAD, 0xBE, 0xEF, // invalid checksum
-		}
+		})
 
 		_, err := network.ParseNetworkEnvelope(message)
 		if err == nil || err.Error() != "invalid checksum: deadbeef" {
@@ -62,12 +62,12 @@ func TestParseNetworkEnvelope(t *testing.T) {
 	})
 
 	t.Run("empty payload", func(t *testing.T) {
-		message := []byte{
+		message := bytes.NewReader([]byte{
 			0xf9, 0xbe, 0xb4, 0xd9, // mainnet magic
 			0x76, 0x65, 0x72, 0x61, 0x63, 0x6b, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, // command
 			0x00, 0x00, 0x00, 0x00, // payload length
 			0x5d, 0xf6, 0xe0, 0xe2, // checksum
-		}
+		})
 
 		ne, err := network.ParseNetworkEnvelope(message)
 		if err != nil {
@@ -81,7 +81,7 @@ func TestParseNetworkEnvelope(t *testing.T) {
 	})
 
 	t.Run("non-empty payload", func(t *testing.T) {
-		message := []byte{
+		message := bytes.NewReader([]byte{
 			0xf9, 0xbe, 0xb4, 0xd9, // mainnet magic
 			0x76, 0x65, 0x72, 0x73, 0x69, 0x6f, 0x6e, 0x00, 0x00, 0x00, 0x00, 0x00, // command
 			0x65, 0x00, 0x00, 0x00, // payload length
@@ -99,7 +99,7 @@ func TestParseNetworkEnvelope(t *testing.T) {
 			0x0f, 0x2f, 0x53, 0x61, 0x74, 0x6f, 0x73, 0x68,
 			0x69, 0x3a, 0x30, 0x2e, 0x39, 0x2e, 0x33, 0x2f,
 			0xcf, 0x05, 0x05, 0x00, 0x01, // payload
-		}
+		})
 
 		ne, err := network.ParseNetworkEnvelope(message)
 		if err != nil {
@@ -122,7 +122,7 @@ func TestSerializeNetworkEnvelope(t *testing.T) {
 			0x5d, 0xf6, 0xe0, 0xe2, // checksum
 		}
 
-		ne, err := network.ParseNetworkEnvelope(message)
+		ne, err := network.ParseNetworkEnvelope(bytes.NewReader(message))
 		if err != nil {
 			t.Errorf("unexpected error: %v", err)
 		}
@@ -154,7 +154,7 @@ func TestSerializeNetworkEnvelope(t *testing.T) {
 			0xcf, 0x05, 0x05, 0x00, 0x01, // payload
 		}
 
-		ne, err := network.ParseNetworkEnvelope(message)
+		ne, err := network.ParseNetworkEnvelope(bytes.NewReader(message))
 		if err != nil {
 			t.Errorf("unexpected error: %v", err)
 		}

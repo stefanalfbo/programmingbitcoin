@@ -58,7 +58,7 @@ func (n *SimpleNode) Read() (*NetworkEnvelope, error) {
 		return nil, err
 	}
 
-	envelope, err := ParseNetworkEnvelope(data)
+	envelope, err := ParseNetworkEnvelope(bytes.NewReader(data))
 	if err != nil {
 		return nil, err
 	}
@@ -90,7 +90,7 @@ func (n *SimpleNode) WaitFor(messages []Message) (*Message, error) {
 			}
 		}
 
-		switch command := string(trimCommand(envelope.Command())); command {
+		switch command := string(envelope.Command()); command {
 		case "version":
 			message := NewVerAckMessage()
 			n.Send(message)
