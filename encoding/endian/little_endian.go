@@ -11,10 +11,6 @@ func LittleEndianToInt32(bytes []byte) int32 {
 	return int32(LittleEndianToBigInt(bytes).Int64())
 }
 
-func LittleEndianToUint32(bytes []byte) uint32 {
-	return uint32(LittleEndianToBigInt(bytes).Int64())
-}
-
 // BigIntToLittleEndian converts a big integer to a little-endian byte slice.
 func BigIntToLittleEndian(n *big.Int, length int) []byte {
 	bytes := n.Bytes()

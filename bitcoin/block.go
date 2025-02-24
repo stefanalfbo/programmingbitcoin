@@ -163,9 +163,13 @@ func bitsToTarget(bits uint32) *big.Int {
 
 	// target = coefficient * 256^(exponent-3)
 	exponent := int64(bitsBytes[3])
-	coefficient := big.NewInt(int64(endian.LittleEndianToUint32(bitsBytes[:3])))
 
+	c := make([]byte, 4)
+	copy(c, bitsBytes[:3])
+
+	coefficient := big.NewInt(int64(binary.LittleEndian.Uint32(c)))
 	exponentPart := big.NewInt(0).Exp(big.NewInt(256), big.NewInt(exponent-3), nil)
+
 	return big.NewInt(0).Mul(coefficient, exponentPart)
 }
 
