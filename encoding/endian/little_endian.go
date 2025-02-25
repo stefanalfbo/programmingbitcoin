@@ -1,14 +1,12 @@
 package endian
 
-import "math/big"
+import (
+	"math/big"
+)
 
 // LittleEndianToBigInt converts a little-endian byte slice to a big integer.
 func LittleEndianToBigInt(bytes []byte) *big.Int {
 	return new(big.Int).SetBytes(reverseBytes(bytes))
-}
-
-func LittleEndianToInt32(bytes []byte) int32 {
-	return int32(LittleEndianToBigInt(bytes).Int64())
 }
 
 // BigIntToLittleEndian converts a big integer to a little-endian byte slice.

@@ -2,12 +2,11 @@ package bitcoin
 
 import (
 	"bytes"
+	"encoding/binary"
 	"encoding/hex"
 	"fmt"
 	"io"
 	"net/http"
-
-	"github.com/stefanalfbo/programmingbitcoin/encoding/endian"
 )
 
 type Fetcher func(txId string, isTestnet bool) ([]byte, error)
@@ -69,7 +68,8 @@ func (txf *TxFetcher) Fetch(txId string, isFresh bool) (*Tx, error) {
 		if raw[4] == 0 {
 			raw = append(raw[:4], raw[6:]...)
 			tx, err = Parse(bytes.NewReader(raw), txf.isTestnet)
-			tx.LockTime = endian.LittleEndianToInt32(raw[len(raw)-4:])
+			tx.LockTime = int32(binary.LittleEndian.Uint32(raw[len(raw)-4:]))
+			// tx.LockTime = endian.LittleEndianToInt32(raw[len(raw)-4:])
 			if err != nil {
 				return nil, err
 			}

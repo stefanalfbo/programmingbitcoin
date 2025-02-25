@@ -312,7 +312,8 @@ func (tx *Tx) CoinbaseHeight() (int32, error) {
 		return 0, fmt.Errorf("tx is not a coinbase transaction")
 	}
 
-	data := tx.Inputs[0].ScriptSig.instructions[0].Bytes()
+	data := make([]byte, 4)
+	copy(data, tx.Inputs[0].ScriptSig.instructions[0].Bytes())
 
 	return int32(binary.LittleEndian.Uint32(data)), nil
 }
