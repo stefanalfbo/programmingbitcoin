@@ -2,6 +2,7 @@ package bitcoin
 
 import (
 	"bytes"
+	"encoding/binary"
 	"fmt"
 	"io"
 	"math/big"
@@ -75,7 +76,7 @@ func ParseScript(data io.Reader) (*Script, error) {
 			if err != nil {
 				return nil, err
 			}
-			dataLength := endian.LittleEndianToInt32(lengthContainer)
+			dataLength := int32(binary.LittleEndian.Uint32(lengthContainer))
 
 			tmpData := make([]byte, dataLength)
 			_, err = data.Read(tmpData)
@@ -95,7 +96,7 @@ func ParseScript(data io.Reader) (*Script, error) {
 			if err != nil {
 				return nil, err
 			}
-			dataLength := endian.LittleEndianToInt32(lengthContainer)
+			dataLength := int32(binary.LittleEndian.Uint32(lengthContainer))
 
 			tmpData := make([]byte, dataLength)
 			_, err = data.Read(tmpData)
