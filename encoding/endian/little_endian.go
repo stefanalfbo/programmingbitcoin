@@ -2,11 +2,13 @@ package endian
 
 import (
 	"math/big"
+	"slices"
 )
 
 // LittleEndianToBigInt converts a little-endian byte slice to a big integer.
 func LittleEndianToBigInt(bytes []byte) *big.Int {
-	return new(big.Int).SetBytes(reverseBytes(bytes))
+	slices.Reverse(bytes)
+	return new(big.Int).SetBytes(bytes)
 }
 
 // BigIntToLittleEndian converts a big integer to a little-endian byte slice.
@@ -23,15 +25,4 @@ func BigIntToLittleEndian(n *big.Int, length int) []byte {
 	}
 
 	return bytes
-}
-
-func reverseBytes(bytes []byte) []byte {
-	n := len(bytes)
-	reversed := make([]byte, n)
-
-	for i := 0; i < n; i++ {
-		reversed[i] = bytes[n-1-i]
-	}
-
-	return reversed
 }
