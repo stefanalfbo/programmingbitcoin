@@ -2,6 +2,7 @@ package bitcoin
 
 import (
 	"bytes"
+	"encoding/binary"
 	"fmt"
 	"io"
 	"math/big"
@@ -73,7 +74,7 @@ func parseVersion(data io.Reader) (int32, error) {
 		return 0, err
 	}
 
-	return endian.LittleEndianToInt32(version), nil
+	return int32(binary.LittleEndian.Uint32(version)), nil
 }
 
 func parseLockTime(data io.Reader) (int32, error) {
@@ -84,7 +85,7 @@ func parseLockTime(data io.Reader) (int32, error) {
 		return 0, err
 	}
 
-	return endian.LittleEndianToInt32(lockTime), nil
+	return int32(binary.LittleEndian.Uint32(lockTime)), nil
 }
 
 // Returns the byte serialization of the transaction.
@@ -306,14 +307,12 @@ func (tx *Tx) IsCoinbase() bool {
 	return true
 }
 
-func (tx *Tx) CoinbaseHeight() (int, error) {
+func (tx *Tx) CoinbaseHeight() (int32, error) {
 	if !tx.IsCoinbase() {
 		return 0, fmt.Errorf("tx is not a coinbase transaction")
 	}
 
 	data := tx.Inputs[0].ScriptSig.instructions[0].Bytes()
 
-	height := endian.LittleEndianToInt32(data)
-
-	return int(height), nil
+	return int32(binary.LittleEndian.Uint32(data)), nil
 }
