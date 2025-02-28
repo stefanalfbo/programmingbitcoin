@@ -21,12 +21,6 @@ var (
 	Namecoin NetworkMagic = [4]byte{0xf9, 0xbe, 0xb4, 0xfe}
 )
 
-type Message interface {
-	Command() []byte
-	Serialize() ([]byte, error)
-	Parse(io.Reader) (Message, error)
-}
-
 type NetworkEnvelope struct {
 	// Magic value indicating message origin network, and used to seek to next
 	// message when stream state is unknown

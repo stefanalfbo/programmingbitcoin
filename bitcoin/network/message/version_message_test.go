@@ -1,18 +1,18 @@
-package network_test
+package message_test
 
 import (
 	"bytes"
 	"encoding/hex"
 	"testing"
 
-	"github.com/stefanalfbo/programmingbitcoin/bitcoin/network"
+	"github.com/stefanalfbo/programmingbitcoin/bitcoin/network/message"
 )
 
 func TestSerialize(t *testing.T) {
 	t.Run("serialize version message", func(t *testing.T) {
 		expectedAsHexString := "7f11010000000000000000000000000000000000000000000000000000000000000000000000ffff00000000208d000000000000000000000000000000000000ffff00000000208d0000000000000000182f70726f6772616d6d696e67626974636f696e3a302e312f0000000000"
 
-		vm := network.NewVersionMessage()
+		vm := message.NewVersionMessage()
 		vm.Nonce = 0
 
 		actual, err := vm.Serialize()
@@ -27,10 +27,10 @@ func TestSerialize(t *testing.T) {
 	})
 
 	t.Run("parse version message", func(t *testing.T) {
-		message, _ := hex.DecodeString("7f11010000000000000000000000000000000000000000000000000000000000000000000000ffff00000000208d000000000000000000000000000000000000ffff00000000208d0000000000000000182f70726f6772616d6d696e67626974636f696e3a302e312f0000000000")
+		msg, _ := hex.DecodeString("7f11010000000000000000000000000000000000000000000000000000000000000000000000ffff00000000208d000000000000000000000000000000000000ffff00000000208d0000000000000000182f70726f6772616d6d696e67626974636f696e3a302e312f0000000000")
 
-		vm := network.NewVersionMessage()
-		vm.Parse(bytes.NewReader(message))
+		vm := message.NewVersionMessage()
+		vm.Parse(bytes.NewReader(msg))
 
 		if vm.Version != 70015 {
 			t.Errorf("expected version 70015, got %d", vm.Version)
@@ -49,8 +49,8 @@ func TestSerialize(t *testing.T) {
 			t.Errorf("unexpected error: %v", err)
 		}
 
-		if !bytes.Equal(actual, message) {
-			t.Errorf("expected '%x' but got '%x'", message, actual)
+		if !bytes.Equal(actual, msg) {
+			t.Errorf("expected '%x' but got '%x'", msg, actual)
 		}
 	})
 }

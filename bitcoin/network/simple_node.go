@@ -5,6 +5,8 @@ import (
 	"encoding/binary"
 	"fmt"
 	"net"
+
+	"github.com/stefanalfbo/programmingbitcoin/bitcoin/network/message"
 )
 
 type SimpleNode struct {
@@ -18,13 +20,13 @@ func NewSimpleNode(address net.Addr, isTestnet bool, isLogging bool) *SimpleNode
 }
 
 // Send a message to the connected node
-func (n *SimpleNode) Send(message Message) error {
-	serializedMessage, err := message.Serialize()
+func (n *SimpleNode) Send(msg message.Message) error {
+	serializedMessage, err := msg.Serialize()
 	if err != nil {
 		return err
 	}
 
-	envelope := NewNetworkEnvelope(message.Command(), serializedMessage, n.isTestnet)
+	envelope := NewNetworkEnvelope(msg.Command(), serializedMessage, n.isTestnet)
 
 	if n.isLogging {
 		fmt.Println("Sending:", envelope)
@@ -70,18 +72,18 @@ func (n *SimpleNode) Read() (*NetworkEnvelope, error) {
 	return envelope, nil
 }
 
-func (n *SimpleNode) WaitFor(messages []Message) (*Message, error) {
+func (n *SimpleNode) WaitFor(messages []message.Message) (*message.Message, error) {
 	for {
 		envelope, err := n.Read()
 		if err != nil {
 			return nil, err
 		}
 
-		for _, message := range messages {
+		for _, msg := range messages {
 
-			if bytes.Equal(envelope.Command(), message.Command()) {
+			if bytes.Equal(envelope.Command(), msg.Command()) {
 				payload := bytes.NewReader(envelope.Payload())
-				msg, err := message.Parse(payload)
+				msg, err := msg.Parse(payload)
 				if err != nil {
 					return nil, err
 				}
@@ -92,24 +94,25 @@ func (n *SimpleNode) WaitFor(messages []Message) (*Message, error) {
 
 		switch command := string(envelope.Command()); command {
 		case "version":
-			message := NewVerAckMessage()
-			n.Send(message)
+			msg := message.NewVerAckMessage()
+			n.Send(msg)
 		case "ping":
 			nonce := binary.LittleEndian.Uint64(envelope.Payload())
-			message := NewPongMessage(nonce)
+			message := message.NewPongMessage(nonce)
 			n.Send(message)
 		}
 	}
 }
 
 func (n *SimpleNode) Handshake() error {
-	message := NewVersionMessage()
-	err := n.Send(message)
+	msg := message.NewVersionMessage()
+	err := n.Send(msg)
 	if err != nil {
 		return err
 	}
 
-	_, err = n.WaitFor([]Message{NewVerAckMessage()})
+	verAckMessage := message.NewVerAckMessage()
+	_, err = n.WaitFor([]message.Message{verAckMessage})
 	if err != nil {
 		return err
 	}

@@ -1,6 +1,8 @@
-package network
+package message
 
-import "io"
+import (
+	"io"
+)
 
 // The verack message is sent in reply to version. This message consists of
 // only a message header with the command string "verack". See:

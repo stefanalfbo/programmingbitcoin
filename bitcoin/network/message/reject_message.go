@@ -1,6 +1,8 @@
-package network
+package message
 
-import "io"
+import (
+	"io"
+)
 
 type CCode byte
 

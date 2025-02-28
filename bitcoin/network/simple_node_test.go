@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	"github.com/stefanalfbo/programmingbitcoin/bitcoin/network"
+	"github.com/stefanalfbo/programmingbitcoin/bitcoin/network/message"
 )
 
 func TestSimpleNode(t *testing.T) {
@@ -38,7 +39,7 @@ func TestSimpleNode(t *testing.T) {
 
 	t.Run("Send", func(t *testing.T) {
 		simpleNode := network.NewSimpleNode(nodeAddress, false, false)
-		versionMessage := network.NewVersionMessage()
+		versionMessage := message.NewVersionMessage()
 
 		err := simpleNode.Send(versionMessage)
 		if err != nil {
