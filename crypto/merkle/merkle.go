@@ -135,3 +135,54 @@ func (mt *MerkleTree) IsLeaf() bool {
 func (mt *MerkleTree) RightExists() bool {
 	return len(mt.Nodes[mt.currentDepth+1]) > mt.currentIndex*2+1
 }
+
+func (mt *MerkleTree) Populate(flagBits []bool, hashes [][]byte) {
+	for {
+		if mt.Root() != nil {
+			break
+		}
+
+		if mt.IsLeaf() {
+			flagBits = flagBits[:1]
+			h := hashes[0]
+			hashes = hashes[1:]
+			mt.SetCurrentNode(h)
+			mt.Up()
+		} else {
+			leftHash := mt.GetLeftNode()
+			if leftHash == nil {
+				flag := flagBits[0]
+				flagBits = flagBits[1:]
+				if flag {
+					mt.Left()
+				} else {
+					h := hashes[0]
+					hashes = hashes[1:]
+					mt.SetCurrentNode(h)
+					mt.Up()
+				}
+			} else if mt.RightExists() {
+				rightHash := mt.GetRightNode()
+				if rightHash == nil {
+					mt.Right()
+				} else {
+					mt.SetCurrentNode(Parent(leftHash, rightHash))
+					mt.Up()
+				}
+			} else {
+				mt.SetCurrentNode(Parent(leftHash, leftHash))
+				mt.Up()
+			}
+		}
+	}
+
+	if len(hashes) > 0 {
+		panic("Not all hashes consumed")
+	}
+
+	for _, flag := range flagBits {
+		if flag {
+			panic("Not all flag bits are consumed")
+		}
+	}
+}
