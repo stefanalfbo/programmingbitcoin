@@ -620,6 +620,38 @@ func TestMUL(t *testing.T) {
 	})
 }
 
+func TestMIN(t *testing.T) {
+	t.Run("Empty stack", func(t *testing.T) {
+		stack := op.NewStack()
+		_, err := op.MIN(stack)
+		if err == nil || err.Error() != "stack too small" {
+			t.Errorf("expected error, got nil")
+		}
+	})
+
+	t.Run("Min elements", func(t *testing.T) {
+		element1, _ := op.NewInstruction([]byte{0x02})
+		element2, _ := op.NewInstruction([]byte{0x03})
+		stack := op.NewStack()
+		stack.Push(element1)
+		stack.Push(element2)
+
+		stack, err := op.MIN(stack)
+		if err != nil {
+			t.Errorf("expected nil, got %v", err)
+		}
+
+		if stack.Size() != 1 {
+			t.Errorf("expected: %v, got: %v", 1, stack.Size())
+		}
+
+		instruction, _ := stack.Pop()
+		if instruction.Hex() != "02" {
+			t.Errorf("expected: %v, got: %v", "02", instruction.Hex())
+		}
+	})
+}
+
 func TestSHA1(t *testing.T) {
 	t.Run("Empty stack", func(t *testing.T) {
 		stack := op.NewStack()
