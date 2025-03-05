@@ -612,6 +612,30 @@ func MIN(stack *Stack) (*Stack, error) {
 	return stack, nil
 }
 
+// Returns the larger of a and b.
+func MAX(stack *Stack) (*Stack, error) {
+	if stack.Size() < 2 {
+		return nil, fmt.Errorf("stack too small")
+	}
+
+	element1, err := stack.Pop()
+	if err != nil {
+		return nil, err
+	}
+
+	element2, err := stack.Pop()
+	if err != nil {
+		return nil, err
+	}
+	if element1.Int64() > element2.Int64() {
+		stack.Push(element1)
+	} else {
+		stack.Push(element2)
+	}
+
+	return stack, nil
+}
+
 // The input is hashed using SHA-1.
 func SHA1(stack *Stack) (*Stack, error) {
 	instruction, err := stack.Pop()
@@ -859,6 +883,7 @@ var OP_CODE_FUNCTIONS = map[int]func(*Stack) (*Stack, error){
 	147: ADD,
 	149: MUL,
 	163: MIN,
+	164: MAX,
 	167: SHA1,
 	169: HASH160,
 	170: HASH256,
