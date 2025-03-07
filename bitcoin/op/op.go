@@ -636,6 +636,44 @@ func MAX(stack *Stack) (*Stack, error) {
 	return stack, nil
 }
 
+// Returns 1 if x is within the specified range (left-inclusive), 0 otherwise.
+func WITHIN(stack *Stack) (*Stack, error) {
+	if stack.Size() < 3 {
+		return nil, fmt.Errorf("stack too small")
+	}
+
+	max, err := stack.Pop()
+	if err != nil {
+		return nil, err
+	}
+
+	min, err := stack.Pop()
+	if err != nil {
+		return nil, err
+	}
+
+	x, err := stack.Pop()
+	if err != nil {
+		return nil, err
+	}
+
+	if x.Int64() >= min.Int64() && x.Int64() < max.Int64() {
+		one, err := NewInstruction([]byte{0x01})
+		if err != nil {
+			return nil, err
+		}
+		stack.Push(one)
+	} else {
+		zero, err := NewInstruction([]byte{0x00})
+		if err != nil {
+			return nil, err
+		}
+		stack.Push(zero)
+	}
+
+	return stack, nil
+}
+
 // The input is hashed using SHA-1.
 func SHA1(stack *Stack) (*Stack, error) {
 	instruction, err := stack.Pop()
@@ -884,6 +922,7 @@ var OP_CODE_FUNCTIONS = map[int]func(*Stack) (*Stack, error){
 	149: MUL,
 	163: MIN,
 	164: MAX,
+	165: WITHIN,
 	167: SHA1,
 	169: HASH160,
 	170: HASH256,
