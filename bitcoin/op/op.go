@@ -588,6 +588,38 @@ func MUL(stack *Stack) (*Stack, error) {
 	return stack, nil
 }
 
+// Returns 1 if a is greater than or equal to b, 0 otherwise.
+func GREATERTHANOREQUAL(stack *Stack) (*Stack, error) {
+	if stack.Size() < 2 {
+		return nil, fmt.Errorf("stack too small")
+	}
+
+	element1, err := stack.Pop()
+	if err != nil {
+		return nil, err
+	}
+	element2, err := stack.Pop()
+	if err != nil {
+		return nil, err
+	}
+
+	if element2.Int64() >= element1.Int64() {
+		one, err := NewInstruction([]byte{0x01})
+		if err != nil {
+			return nil, err
+		}
+		stack.Push(one)
+	} else {
+		zero, err := NewInstruction([]byte{0x00})
+		if err != nil {
+			return nil, err
+		}
+		stack.Push(zero)
+	}
+
+	return stack, nil
+}
+
 // Returns the smaller of a and b.
 func MIN(stack *Stack) (*Stack, error) {
 	if stack.Size() < 2 {
